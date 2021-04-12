@@ -8,16 +8,20 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using ServerSideData.Models;
+using ServerSideData;
 
 namespace RegnskabsSystem.Controllers
 {
     public class ApiController : Controller
     {
         private readonly ILogger<ApiController> _logger;
+        private readonly IServerSideData serverSideData;
 
-        public ApiController(ILogger<ApiController> logger)
+        public ApiController(IServerSideData serverSideData, ILogger<ApiController> logger)
         {
             _logger = logger;
+            this.serverSideData = serverSideData;
         }
 
         public IActionResult Index()

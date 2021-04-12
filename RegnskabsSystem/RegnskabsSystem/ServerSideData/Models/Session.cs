@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ServerSideData.Models
 {
-    class Session
+    public class Session
     {
     }
 }
