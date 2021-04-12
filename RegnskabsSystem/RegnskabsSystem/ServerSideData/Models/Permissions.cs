@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ServerSideData.Models
 {
-    class Permissions
+    public class Permissions
     {
     }
 }

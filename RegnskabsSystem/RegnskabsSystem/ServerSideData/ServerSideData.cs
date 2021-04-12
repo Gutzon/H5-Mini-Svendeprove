@@ -6,6 +6,11 @@ namespace ServerSideData
 {
     public class ServerSideData : IServerSideData
     {
+        public int Commit()
+        {
+            throw new NotImplementedException();
+        }
+
         public bool CreateMember(string tokken, Member member)
         {
             throw new NotImplementedException();
@@ -36,7 +41,7 @@ namespace ServerSideData
             throw new NotImplementedException();
         }
 
-        public List<FinansEntry> GetFinans(string tokken, string konti, string searchvalue = "", string searchtype = "")
+        public List<FinanceEntry> GetFinans(string tokken, string konti, string searchvalue = "", string searchtype = "")
         {
             throw new NotImplementedException();
         }
@@ -60,6 +65,11 @@ namespace ServerSideData
         }
 
         public bool Logout(string tokken)
+        {
+            throw new NotImplementedException();
+        }
+
+        List<FinanceEntry> IServerSideData.GetFinans(string tokken, string konti, string searchvalue, string searchtype)
         {
             throw new NotImplementedException();
         }

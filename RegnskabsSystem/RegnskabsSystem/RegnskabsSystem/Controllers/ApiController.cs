@@ -5,9 +5,6 @@ using RegnskabsSystem.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using ServerSideData.Models;
 using ServerSideData;
@@ -42,17 +39,16 @@ namespace RegnskabsSystem.Controllers
         }
 
         [HttpPost("user/login")]
-        public ActionResult<TokenModel> Login([FromBody] LoginModel loginData)
+        public ActionResult<string> Login([FromBody] LoginModel loginData)
         {
             var hashedPassword = SecurityHelper.GetHashCode(loginData.user + loginData.password);
+            var tokenString = serverSideData.Login(loginData.user, loginData.password);
+            if (!string.IsNullOrEmpty(tokenString) && !tokenString.Equals("null", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return Ok(tokenString);
+            }
 
-            // Use DLL from Kennie later by sending user and password in
-            var token = new TokenModel();
-            token.User = loginData.user;
-            token.Token = hashedPassword;
-            // End todo note
-
-            return Ok(token);
+            return BadRequest("Access to system was not granted");
         }
     }
 }
