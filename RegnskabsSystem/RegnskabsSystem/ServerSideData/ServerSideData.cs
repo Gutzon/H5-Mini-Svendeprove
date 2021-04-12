@@ -48,7 +48,15 @@ namespace ServerSideData
 
         public string Login(string username, string password)
         {
-            throw new NotImplementedException();
+            if (username == "foo" && password == "foo")
+            {
+                Guid g = Guid.NewGuid();
+                return g.ToString();
+            }
+            else
+            {
+                return "NULL";
+            }
         }
 
         public bool Logout(string tokken)
