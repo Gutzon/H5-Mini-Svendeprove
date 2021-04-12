@@ -11,7 +11,7 @@ namespace ServerSideData
         {
             this.db = db;
         }
-        public int Commit()
+        private int Commit()
         {
             return db.SaveChanges();
         }
