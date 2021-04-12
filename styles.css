@@ -1,0 +1,45 @@
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+#headerArea {
+    background-color: #0DAAD2;
+    height: 10vh;
+    border-bottom-left-radius: 50px;
+    border-bottom-right-radius: 50px;
+    box-shadow: 0px 10px 10px grey;
+}
+
+.modularLogin {
+    border: solid;
+    border-radius: 50px;
+    border-color: #0DAAD2;
+    border-width: 3px;
+    box-shadow: 10px 10px 10px grey;
+    width: 40vw;
+    height: 50vh; 
+    position: relative;
+    margin-top: 10vh;    
+    z-index: 1;   
+}
+
+.LoginFormBox {
+    display: inline-block;
+    height: 10%;
+    width: 50%;
+    text-align: center;
+    vertical-align: center;
+    font-size: 26px;
+    
+}
+
+.FormSubmit {
+    display: inline-block;
+    height: 10%;
+    width: 50%;
+}
+
+::placeholder {
+    opacity: 0.3;
+}
