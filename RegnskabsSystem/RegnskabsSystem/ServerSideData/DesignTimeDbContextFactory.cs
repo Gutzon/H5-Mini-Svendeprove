@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServerSideData.Models
+namespace ServerSideData
 {
-    class FinansEntry
+    class DesignTimeDbContextFactory
     {
     }
 }

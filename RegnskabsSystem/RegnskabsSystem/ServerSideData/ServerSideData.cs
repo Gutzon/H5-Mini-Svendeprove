@@ -6,9 +6,14 @@ namespace ServerSideData
 {
     public class ServerSideData : IServerSideData
     {
+        private readonly FinanceDbContext db;
+        public ServerSideData(FinanceDbContext db)
+        {
+            this.db = db;
+        }
         public int Commit()
         {
-            throw new NotImplementedException();
+            return db.SaveChanges();
         }
 
         public bool CreateMember(string tokken, Member member)
