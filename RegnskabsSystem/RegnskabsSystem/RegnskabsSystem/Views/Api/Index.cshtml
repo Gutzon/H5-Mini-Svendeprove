@@ -2,14 +2,18 @@
     ViewData["Title"] = "Home Page";
 }
 
+<div id="loggedOut">
+    <form id="loginForm">
+        User: <input type="text" name="user"><br>
+        Password: <input type="text" name="password"><br>
+        <input type="button" onclick="login()" value="Login"><br>
+    </form>
+</div>
 
-<form id="loginForm">
-    User: <input type="text" name="user"><br>
-    Password: <input type="text" name="password"><br>
-    <input type="button" onclick="login()" value="Login"><br>
-</form>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div id="loggedIn" class="hideElm b">
+    Logged in
+    Show dashboard here...
+
+    <input type="button" onclick="logOut()" value="Log out">
 </div>
