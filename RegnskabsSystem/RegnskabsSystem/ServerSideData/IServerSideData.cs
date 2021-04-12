@@ -20,6 +20,5 @@ namespace ServerSideData
         public bool EditMember(string tokken, Member member);
         public bool DeleteMember(string tokken, Member member);
         public List<FinanceEntry> GetFinans(string tokken, string konti, string searchvalue = "", string searchtype = "");
-        public int Commit();
     }
 }
