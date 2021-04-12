@@ -15,7 +15,10 @@ function login() {
 
     xhr.onreadystatechange = function () { // Call a function when the state changes.
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            alert(xhr.responseText);
+            alert("The login token is: " + xhr.responseText);
+        }
+        else if (this.readyState === XMLHttpRequest.DONE && this.status === 400) {
+            alert("The username and or password did not match");
         }
     }
     //xhr.send(new FormData(document.getElementsByTagName("form")[0]));
