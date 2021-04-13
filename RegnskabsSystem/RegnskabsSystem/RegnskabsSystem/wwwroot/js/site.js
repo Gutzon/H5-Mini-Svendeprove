@@ -154,10 +154,47 @@ function logOut() {
     dashboardToggle();
 }
 
-
+function GetFormJsonData(formId) {
+    var formDataObject = {};
+    for (let elm of document.forms[formId]) {
+        if (elm.getAttribute("type") !== "button") {
+            let elmName = elm.getAttribute("name");
+            if (elmName !== undefined) {
+                formDataObject[elmName] = elm.value;
+            }
+        }
+    }
+    console.log(formDataObject);    
+    return formDataObject
+}
 
 
 // User handling
+function UserCreate() {
+    let userCreateForm = document.forms["userCreateForm"];
+    if (userCreateForm == undefined) return;
+    
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", '/user', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            var userCreated = (xhr.responseText.toLowerCase() === "true");
+            var userCreationMessage = userCreated ? "Brugeren blev oprettet" : "Brugeren kunne ikke oprettes";
+            alert(userCreationMessage);
+        }
+    }
+
+    let formData = GetFormJsonData("userCreateForm");
+    xhr.send(JSON.stringify(formData));
+}
+
+
+
+
+/*
+
 function UserEdit() {
     let userEditForm = document.forms["userEditForm"];
     if (userEditForm == undefined) return;
@@ -176,4 +213,4 @@ function UserEdit() {
         }
     }
     xhr.send(new FormData(userEditForm));
-}
+}*/

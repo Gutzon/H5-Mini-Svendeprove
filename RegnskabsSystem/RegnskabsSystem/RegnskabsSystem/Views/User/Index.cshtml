@@ -2,8 +2,32 @@
     ViewData["Title"] = "Bruger oversigt";
 }
 
+
+
 <div>
+    Opret bruger
+    <form id="userCreateForm">
+        Bruger navn: <input type="text" name="userName"><br>
+        Fornavn: <input type="text" name="firstName"><br>
+        Efternavn: <input type="text" name="lastName"><br>
+        - Bemærk kodeord oprettes automatisk og sendes til brugeren.
+        <input type="button" onclick="UserCreate()" value="Tilføj bruger"><br>
+    </form>
+</div>
+
+
+<div>
+    Rediger bruger
     <form id="userEditForm">
+        Bruger der skal redigeres: <input type="text" name="userId"><br>
+        Nyt password til bruger: <input type="text" name="password"><br>
+        <input type="button" onclick="UserEdit()" value="Login"><br>
+    </form>
+</div>
+
+<div>
+    Slet bruger
+    <form id="userDeleteForm">
         Bruger der skal redigeres: <input type="text" name="userId"><br>
         Nyt password til bruger: <input type="text" name="password"><br>
         <input type="button" onclick="UserEdit()" value="Login"><br>

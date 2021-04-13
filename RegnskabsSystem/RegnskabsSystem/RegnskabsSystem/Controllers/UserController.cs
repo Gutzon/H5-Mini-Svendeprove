@@ -47,23 +47,29 @@ namespace RegnskabsSystem.Controllers
             }
         }
 
-        [HttpPost("logout")]
-        public ActionResult<bool> LogOut()
+        private Validation GetValidation()
         {
             // Cases where request for logout should not occur as it already is logged out.
             if (!Request.Cookies.TryGetValue("accessToken", out var accessTokenValue)
                 || string.IsNullOrEmpty(accessTokenValue))
             {
-                return true;
+                return null;
             }
 
             if (!Request.Cookies.TryGetValue("userName", out var userName)
                 || string.IsNullOrEmpty(userName))
             {
-                return true;
+                return null;
             }
 
-            var validation = new Validation(userName, accessTokenValue);
+            return new Validation(userName, accessTokenValue);
+        }
+
+        [HttpPost("logout")]
+        public ActionResult<bool> LogOut()
+        {
+            var validation = GetValidation();
+            if (validation == null) return true;
             return serverSideData.Logout(validation);
         }
 
@@ -78,15 +84,27 @@ namespace RegnskabsSystem.Controllers
             serverSideData.GetUsers();
             return null;
         }
+        */
 
         // POST: user (creates a new user)
         [HttpPost()]
-        public ActionResult<bool> Post([FromBody] IFormCollection collection)
+        public ActionResult<bool> Post([FromBody] User user)
         {
-            serverSideData.CreateUser("searchId/userName?");
-            return null;
+            var validation = GetValidation();
+            if (validation == null) return false;
+
+            var tempPassword = "SoNotSecret"; // Fix to be random password on user creation
+            user.hashPassword = SecurityHelper.GetHashCode(user.username + tempPassword);
+
+            var userCreated = serverSideData.CreateUser(validation, user);
+            if (userCreated)
+            {
+                // Send e-mail til bruger med adgangskoden...
+            }
+            return Ok(userCreated);
         }
 
+        /* TODO
         // GET: user/2 (gets specific user)
         [HttpGet("{userId}")]
         public ActionResult<bool> Get(int userId)
