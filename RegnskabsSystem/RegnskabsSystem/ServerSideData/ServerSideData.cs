@@ -31,9 +31,13 @@ namespace ServerSideData
                 Commit();
             }
         }
-        public int Commit()
+        private int Commit()
         {
             return db.SaveChanges();
+        }
+        private bool CheckPermission(string tokken, string permission)
+        {
+            return true;
         }
 
         public bool CreateMember(string tokken, Member member)
@@ -102,13 +106,20 @@ namespace ServerSideData
 
         public bool Logout(string tokken)
         {
-            sessions.Remove(sessions.Find(o => o.tokken.Equals(tokken)));
-            return !ValidateTokken(tokken);
+            if (ValidateTokken(tokken))
+            {
+                sessions.Remove(sessions.Find(o => o.tokken.Equals(tokken)));
+                return !ValidateTokken(tokken);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public bool ValidateTokken(string tokken)
         {
-            if (sessions.Find(o => o.tokken.Equals(tokken)).tokken == tokken){
+            if (sessions.Exists(o => o.tokken.Equals(tokken))){
                 return true;
             }
             else
