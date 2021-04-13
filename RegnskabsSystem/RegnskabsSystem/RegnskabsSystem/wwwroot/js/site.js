@@ -163,8 +163,7 @@ function GetFormJsonData(formId) {
                 formDataObject[elmName] = elm.value;
             }
         }
-    }
-    console.log(formDataObject);    
+    }    
     return formDataObject
 }
 

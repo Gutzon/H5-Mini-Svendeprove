@@ -2,19 +2,30 @@
     ViewData["Title"] = "Regnskabs System";
 }
 
-Bemærk Janniks design er ikke kopieret ind endnu...
+<div id="bodyContainer">
+    <center>
+        <div id="loggedOut">
+            <div class="modularLogin" id="LoginBox">
 
-<div id="loggedOut">
-    <form id="loginForm">
-        Bruger: <input type="text" name="user"><br>
-        Kodeord: <input type="text" name="password"><br>
-        <input type="button" onclick="login()" value="Log ind"><br>
-    </form>
-</div>
+                <img src="Media\LoginIcon.png">
 
+                <form id="loginForm" action="javascript:login();">
 
-<div id="loggedIn" class="hideElm b">
-    Logget ind
-    Vis dashboard her...
-    <input type="button" onclick="logOut()" value="Log ud">
+                    <input class="LoginFormBox" name="user" placeholder="Brugernavn"> </input>
+
+                    <input class="LoginFormBox" name="password" placeholder="Kodeord">  </input>
+
+                    <button class="FormSubmit" type="submit"> Log Ind </button>
+
+                </form>
+            </div>
+        </div>
+        <div id="loggedIn" class="hideElm">
+            Logget ind
+            Vis dashboard her...
+
+            <a href="/user">User overview</a>
+            <button class="FormSubmit" type="submit" onclick="logOut()"> Log Ud </button>
+        </div>
+    </center>
 </div>
