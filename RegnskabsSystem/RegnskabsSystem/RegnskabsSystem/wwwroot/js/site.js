@@ -123,7 +123,8 @@ function login() {
             dashboardToggle();
         }
         else if (this.readyState === XMLHttpRequest.DONE && this.status === 400) {
-            alert("The username and or password did not match");
+            if (xhr.responseText === "AccessDenied") alert("Brugernavn/kodeord matchede ikke.");
+            else if (xhr.responseText === "AccountFail") alert("Der er fejl på brugerkonti, kontakt administrator.");
             logOut();
         }
     }

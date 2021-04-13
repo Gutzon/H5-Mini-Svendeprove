@@ -68,12 +68,16 @@ namespace RegnskabsSystem.Controllers
         {
             var hashedPassword = SecurityHelper.GetHashCode(loginData.user + loginData.password);
             var tokenString = serverSideData.Login(loginData.user, hashedPassword);
-            if (!string.IsNullOrEmpty(tokenString) && !tokenString.Equals("null", StringComparison.InvariantCultureIgnoreCase))
+            var tokenLower = tokenString.ToLower();
+            switch (tokenLower)
             {
-                return Ok(tokenString);
+                case "null":
+                    return BadRequest("AccessDenied");
+                case "error":
+                    return BadRequest("AccountFail");
+                default:
+                    return Ok(tokenString);
             }
-
-            return BadRequest("Access to system was not granted");
         }
 
 
