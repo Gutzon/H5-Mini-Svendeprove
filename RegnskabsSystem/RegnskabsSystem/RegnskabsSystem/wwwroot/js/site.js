@@ -9,6 +9,7 @@
 // communication with the API directly in JS instead of using the backend C# to fetch data.
 // If we later move to Blazor or ASP pages or decide to facilitate the API which the pages are
 // served using directly, we can avoid some of the JS files.
+// This is a team decision to learn more about datahandling in frontend.
 
 
 
@@ -120,6 +121,7 @@ function login() {
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             setCookieParam("accessToken", xhr.responseText);
+            setCookieParam("userName", loginForm.user.value);
             dashboardToggle();
         }
         else if (this.readyState === XMLHttpRequest.DONE && this.status === 400) {
@@ -134,9 +136,25 @@ function login() {
 function logOut() {
     let tokenSet = getCookieParam("accessToken");
     if (tokenSet !== "") {
-        removeCookieParam("accessToken");
-        dashboardToggle();
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", '/user/logout', true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = function () {
+            if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+
+                let resultLogout = (xhr.responseText.toLowerCase() === "false")
+                    ? "Log ud kunne ikke gennemføres" : "Log ud er gennemført";
+                alert(resultLogout);
+                removeCookieParam("accessToken");
+                removeCookieParam("userName");
+                document.location.href = "/";
+            }
+        }
+        xhr.send();
     }
+    // Toggle view if for it allowed logout button, though logout had occured (cache/timeout)
+    dashboardToggle();
 }
 
 

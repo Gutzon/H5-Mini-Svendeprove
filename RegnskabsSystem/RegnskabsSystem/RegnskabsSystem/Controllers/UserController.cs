@@ -80,9 +80,30 @@ namespace RegnskabsSystem.Controllers
             }
         }
 
+        [HttpPost("logout")]
+        public ActionResult<bool> LogOut()
+        {
+            // Cases where request for logout should not occur as it already is logged out.
+            if (!Request.Cookies.TryGetValue("accessToken", out var accessTokenValue)
+                || string.IsNullOrEmpty(accessTokenValue))
+            {
+                return true;
+            }
 
-        // POST: UserController/Edit/5
-        [HttpPost("Edit/{userId}")]
+            if (!Request.Cookies.TryGetValue("userName", out var userName)
+                || string.IsNullOrEmpty(userName))
+            {
+                return true;
+            }
+
+            return serverSideData.Logout(accessTokenValue, userName);
+        }
+
+
+        
+
+        // POST: user/5 (edits user)
+        [HttpPost("{userId}")]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int userId, [FromBody]IFormCollection collection)
         {
