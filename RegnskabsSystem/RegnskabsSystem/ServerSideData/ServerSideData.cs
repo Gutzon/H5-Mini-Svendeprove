@@ -6,12 +6,13 @@ namespace ServerSideData
 {
     public class ServerSideData : IServerSideData
     {
+        private static List<Session> sessions = new List<Session>();
         private readonly FinanceDbContext db;
         public ServerSideData(FinanceDbContext db)
         {
             this.db = db;
         }
-        private int Commit()
+        public int Commit()
         {
             return db.SaveChanges();
         }
@@ -23,7 +24,10 @@ namespace ServerSideData
 
         public bool CreateUser(string tokken, User user)
         {
-            throw new NotImplementedException();
+            db.Users.Add(user);
+            Commit();
+            return true;
+            //throw new NotImplementedException();
         }
 
         public bool DeleteMember(string tokken, Member member)
@@ -61,6 +65,12 @@ namespace ServerSideData
             if (username == "foo" && password == "foo")
             {
                 Guid g = Guid.NewGuid();
+                User user = new User();
+                user.username = username;
+                user.hashPassword = password;
+                user.lastname = "Lastname";
+                user.firstname = "Firstname";
+                CreateUser(g.ToString(), user);
                 return g.ToString();
             }
             else
