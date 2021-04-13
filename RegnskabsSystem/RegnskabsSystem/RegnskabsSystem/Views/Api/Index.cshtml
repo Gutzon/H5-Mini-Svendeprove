@@ -1,19 +1,21 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Regnskabs System";
 }
+
+Bemærk Janniks design er ikke kopieret ind endnu...
 
 <div id="loggedOut">
     <form id="loginForm">
-        User: <input type="text" name="user"><br>
-        Password: <input type="text" name="password"><br>
-        <input type="button" onclick="login()" value="Login"><br>
+        Bruger: <input type="text" name="user"><br>
+        Kodeord: <input type="text" name="password"><br>
+        <input type="button" onclick="login()" value="Log ind"><br>
     </form>
 </div>
 
 
 <div id="loggedIn" class="hideElm b">
-    Logged in
-    Show dashboard here...
+    Logget ind
+    Vis dashboard her...
 
-    <input type="button" onclick="logOut()" value="Log out">
+    <input type="button" onclick="logOut()" value="Log ud">
 </div>

@@ -3,6 +3,15 @@
 
 // Write your JavaScript code.
 
+// Rephrase below for report
+// Note: Individual functions should later be moved to files indicating usage.
+// - As we try to use HTML as frontend, we are putting most of the
+// communication with the API directly in JS instead of using the backend C# to fetch data.
+// If we later move to Blazor or ASP pages or decide to facilitate the API which the pages are
+// served using directly, we can avoid some of the JS files.
+
+
+
 
 // Access restrictions
 document.documentElement.onload += validateLogin();
@@ -101,10 +110,10 @@ function dashboardToggle() {
 }
 
 function login() {
-    var loginForm = document.forms["loginForm"];
+    let loginForm = document.forms["loginForm"];
     if (loginForm == undefined) return;
 
-    var xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.open("POST", '/user/login', true);
     xhr.setRequestHeader("Content-Type", "application/json");
 
@@ -127,4 +136,28 @@ function logOut() {
         removeCookieParam("accessToken");
         dashboardToggle();
     }
+}
+
+
+
+
+// User handling
+function UserEdit() {
+    let userEditForm = document.forms["userEditForm"];
+    if (userEditForm == undefined) return;
+    let userId = userEditForm.userId.value;
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", '/user/edit/' + userId, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            alert(xhr.responseText);
+        }
+        else if (this.readyState === XMLHttpRequest.DONE && this.status === 400) {
+            alert(xhr.responseText);
+        }
+    }
+    xhr.send(new FormData(userEditForm));
 }
