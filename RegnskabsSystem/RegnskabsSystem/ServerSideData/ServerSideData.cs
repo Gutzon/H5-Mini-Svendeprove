@@ -102,12 +102,19 @@ namespace ServerSideData
 
         public bool Logout(string tokken)
         {
-            throw new NotImplementedException();
+            sessions.Remove(sessions.Find(o => o.tokken.Equals(tokken)));
+            return !ValidateTokken(tokken);
         }
 
         public bool ValidateTokken(string tokken)
         {
-            throw new NotImplementedException();
+            if (sessions.Find(o => o.tokken.Equals(tokken)).tokken == tokken){
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         List<FinanceEntry> IServerSideData.GetFinans(string tokken, string konti, string searchvalue, string searchtype)
