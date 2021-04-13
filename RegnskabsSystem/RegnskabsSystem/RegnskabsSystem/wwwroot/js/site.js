@@ -142,10 +142,7 @@ function logOut() {
 
         xhr.onreadystatechange = function () {
             if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-
-                let resultLogout = (xhr.responseText.toLowerCase() === "false")
-                    ? "Log ud kunne ikke gennemføres" : "Log ud er gennemført";
-                alert(resultLogout);
+                alert("Log ud er gennemført");
                 removeCookieParam("accessToken");
                 removeCookieParam("userName");
                 document.location.href = "/";
