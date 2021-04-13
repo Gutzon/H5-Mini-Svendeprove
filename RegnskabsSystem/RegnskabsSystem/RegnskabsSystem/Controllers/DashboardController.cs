@@ -11,12 +11,12 @@ using ServerSideData;
 
 namespace RegnskabsSystem.Controllers
 {
-    public class ApiController : Controller
+    public class DashboardController : Controller
     {
-        private readonly ILogger<ApiController> _logger;
+        private readonly ILogger<DashboardController> _logger;
         private readonly IServerSideData serverSideData;
 
-        public ApiController(IServerSideData serverSideData, ILogger<ApiController> logger)
+        public DashboardController(IServerSideData serverSideData, ILogger<DashboardController> logger)
         {
             _logger = logger;
             this.serverSideData = serverSideData;
@@ -41,19 +41,6 @@ namespace RegnskabsSystem.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        [HttpPost("user/login")]
-        public ActionResult<string> Login([FromBody] LoginModel loginData)
-        {
-            var hashedPassword = SecurityHelper.GetHashCode(loginData.user + loginData.password);
-            var tokenString = serverSideData.Login(loginData.user, hashedPassword);
-            if (!string.IsNullOrEmpty(tokenString) && !tokenString.Equals("null", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return Ok(tokenString);
-            }
-
-            return BadRequest("Access to system was not granted");
         }
     }
 }

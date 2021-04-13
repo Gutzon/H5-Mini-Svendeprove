@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using RegnskabsSystem.Helpers;
+using RegnskabsSystem.Models;
+using ServerSideData;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +14,15 @@ namespace RegnskabsSystem.Controllers
     [Route("[controller]")]
     public class UserController : Controller
     {
+        private readonly ILogger<UserController> _logger;
+        private readonly IServerSideData serverSideData;
+
+        public UserController(IServerSideData serverSideData, ILogger<UserController> logger)
+        {
+            _logger = logger;
+            this.serverSideData = serverSideData;
+        }
+
         // GET: UserController
         public ActionResult Index()
         {
@@ -49,6 +62,20 @@ namespace RegnskabsSystem.Controllers
             return View();
         }
         */
+
+        [HttpPost("login")]
+        public ActionResult<string> Login([FromBody] LoginModel loginData)
+        {
+            var hashedPassword = SecurityHelper.GetHashCode(loginData.user + loginData.password);
+            var tokenString = serverSideData.Login(loginData.user, hashedPassword);
+            if (!string.IsNullOrEmpty(tokenString) && !tokenString.Equals("null", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return Ok(tokenString);
+            }
+
+            return BadRequest("Access to system was not granted");
+        }
+
 
         // POST: UserController/Edit/5
         [HttpPost("Edit/{userId}")]
