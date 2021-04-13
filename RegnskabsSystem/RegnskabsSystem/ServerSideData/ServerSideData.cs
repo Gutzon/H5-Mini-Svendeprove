@@ -104,9 +104,9 @@ namespace ServerSideData
             }
         }
 
-        public bool Logout(string tokken)
+        public bool Logout(string tokken, string username)
         {
-            if (ValidateTokken(tokken))
+            if (sessions.Exists(o => o.username.Equals(username) && o.tokken.Equals(tokken)))
             {
                 sessions.Remove(sessions.Find(o => o.tokken.Equals(tokken)));
                 return !ValidateTokken(tokken);
