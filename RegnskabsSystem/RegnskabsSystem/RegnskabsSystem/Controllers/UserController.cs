@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using RegnskabsSystem.Helpers;
 using RegnskabsSystem.Models;
 using ServerSideData;
+using ServerSideData.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,45 +24,11 @@ namespace RegnskabsSystem.Controllers
             this.serverSideData = serverSideData;
         }
 
-        // GET: UserController
+        // User view
         public ActionResult Index()
         {
             return View();
         }
-        /*
-        // GET: UserController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: UserController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: UserController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: UserController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-        */
 
         [HttpPost("login")]
         public ActionResult<string> Login([FromBody] LoginModel loginData)
@@ -96,47 +63,52 @@ namespace RegnskabsSystem.Controllers
                 return true;
             }
 
-            return serverSideData.Logout(accessTokenValue, userName);
+            var validation = new Validation(userName, accessTokenValue);
+            return serverSideData.Logout(validation);
         }
 
 
-        
 
-        // POST: user/5 (edits user)
-        [HttpPost("{userId}")]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int userId, [FromBody]IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
+        // TODO:
         /*
-        // GET: UserController/Delete/5
-        public ActionResult Delete(int id)
+        // GET: overview (gets user list)
+        [HttpGet("overview")]
+        public ActionResult<bool> Overview()
         {
-            return View();
+            serverSideData.GetUsers();
+            return null;
         }
 
-        // POST: UserController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        // POST: user (creates a new user)
+        [HttpPost()]
+        public ActionResult<bool> Post([FromBody] IFormCollection collection)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            serverSideData.CreateUser("searchId/userName?");
+            return null;
+        }
+
+        // GET: user/2 (gets specific user)
+        [HttpGet("{userId}")]
+        public ActionResult<bool> Get(int userId)
+        {
+            serverSideData.GetUsers("searchId/userName?");
+            return null;
+        }
+
+        // POST: user/2 (edits user)
+        [HttpPost("{userId}")]
+        public ActionResult<bool> Post(int userId, [FromBody] IFormCollection collection)
+        {
+            serverSideData.EditUser();
+            return null;
+        }
+
+        // POST: user/2/delete (edits user)
+        [HttpPost("{userId}/delete")]
+        public ActionResult<bool> Delete(int userId, [FromBody]IFormCollection collection)
+        {
+            serverSideData.DeleteUser();
+            return null;
         }*/
     }
 }
