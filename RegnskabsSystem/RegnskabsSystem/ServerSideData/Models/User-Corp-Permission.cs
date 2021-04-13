@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace ServerSideData.Models
 {
-    public class Member
+    public class User_Corp_Permission
     {
         public int ID { get; set; }
+        public int UserID { get; set; }
+        public int PermissionID { get; set; }
         public int CorporationID { get; set; }
-        public string firstname { get; set; }
-        public string lastname { get; set; }
-        public string mail { get; set; }
-        public string phoneNumber { get; set; }
-
     }
 }

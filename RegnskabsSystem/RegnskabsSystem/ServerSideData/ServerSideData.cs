@@ -40,13 +40,27 @@ namespace ServerSideData
             return true;
         }
 
- 
+
 
         public bool CreateUser(Validation validate, User user)
         {
-            db.Users.Add(user);
-            Commit();
-            return true;
+            if (ValidateTokken(validate))
+            {
+                if (CheckPermission(validate, "AddUser"))
+                {
+                    db.Users.Add(user);
+                    Commit();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
 
 
@@ -74,7 +88,7 @@ namespace ServerSideData
 
         public bool Logout(Validation validate)
         {
-            if (sessions.Exists(o => o.username.Equals(validate.username) && o.tokken.Equals(validate.tokken)))
+            if (ValidateTokken(validate))
             {
                 sessions.Remove(sessions.Find(o => o.tokken.Equals(validate.tokken)));
                 return !ValidateTokken(validate);
@@ -87,7 +101,8 @@ namespace ServerSideData
 
         public bool ValidateTokken(Validation validate)
         {
-            if (sessions.Exists(o => o.tokken.Equals(validate.tokken))){
+            if (sessions.Exists(o => o.tokken.Equals(validate.tokken) && o.username.Equals(validate.username)))
+            {
                 return true;
             }
             else
