@@ -35,53 +35,21 @@ namespace ServerSideData
         {
             return db.SaveChanges();
         }
-        private bool CheckPermission(string tokken, string permission)
+        private bool CheckPermission(Validation validate, string permission)
         {
             return true;
         }
 
-        public bool CreateMember(string tokken, Member member)
-        {
-            throw new NotImplementedException();
-        }
+ 
 
-        public bool CreateUser(string tokken, User user)
+        public bool CreateUser(Validation validate, User user)
         {
             db.Users.Add(user);
             Commit();
             return true;
-            //throw new NotImplementedException();
         }
 
-        public bool DeleteMember(string tokken, Member member)
-        {
-            throw new NotImplementedException();
-        }
 
-        public bool DeleteUser(string tokken, User user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool EditMember(string tokken, Member member)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool EditUser(string tokken, User user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<FinanceEntry> GetFinans(string tokken, string konti, string searchvalue = "", string searchtype = "")
-        {
-            throw new NotImplementedException();
-        }
-
-        public Permissions GetPermissions(string tokken)
-        {
-            throw new NotImplementedException();
-        }
 
         public string Login(string username, string password)
         {
@@ -104,12 +72,12 @@ namespace ServerSideData
             }
         }
 
-        public bool Logout(string tokken, string username)
+        public bool Logout(Validation validate)
         {
-            if (sessions.Exists(o => o.username.Equals(username) && o.tokken.Equals(tokken)))
+            if (sessions.Exists(o => o.username.Equals(validate.username) && o.tokken.Equals(validate.tokken)))
             {
-                sessions.Remove(sessions.Find(o => o.tokken.Equals(tokken)));
-                return !ValidateTokken(tokken);
+                sessions.Remove(sessions.Find(o => o.tokken.Equals(validate.tokken)));
+                return !ValidateTokken(validate);
             }
             else
             {
@@ -117,9 +85,9 @@ namespace ServerSideData
             }
         }
 
-        public bool ValidateTokken(string tokken)
+        public bool ValidateTokken(Validation validate)
         {
-            if (sessions.Exists(o => o.tokken.Equals(tokken))){
+            if (sessions.Exists(o => o.tokken.Equals(validate.tokken))){
                 return true;
             }
             else
@@ -128,17 +96,47 @@ namespace ServerSideData
             }
         }
 
-        List<FinanceEntry> IServerSideData.GetFinans(string tokken, string konti, string searchvalue, string searchtype)
+        public Permissions GetPermissions(Validation validate)
         {
             throw new NotImplementedException();
         }
 
-        public List<User> GetUsers(string tokken, string searchvalue = "", string searchtype = "")
+        public bool EditUser(Validation validate, User user, User newuser)
         {
             throw new NotImplementedException();
         }
 
-        public List<Member> GetMembers(string tokken, string searchvalue = "", string searchtype = "")
+        public bool DeleteUser(Validation validate, User user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool CreateMember(Validation validate, Member member)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool EditMember(Validation validate, Member member, Member newmember)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool DeleteMember(Validation validate, Member member)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<User> GetUsers(Validation validate, string searchvalue = "", string searchtype = "")
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<Member> GetMembers(Validation validate, string searchvalue = "", string searchtype = "")
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<FinanceEntry> GetFinances(Validation validate, string konti, string searchvalue = "", string searchtype = "")
         {
             throw new NotImplementedException();
         }
