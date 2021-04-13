@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ServerSideData.Models;
+using System.Linq;
 
 namespace ServerSideData
 {
@@ -11,6 +12,24 @@ namespace ServerSideData
         public ServerSideData(FinanceDbContext db)
         {
             this.db = db;
+            GenerateTestData();
+        }
+        private void GenerateTestData()
+        {
+            var query = from d in db.Users
+                        where d.username.Equals("admin")
+                        orderby d.firstname
+                        select d;
+            if (query.Count() < 1)
+            {
+                User user = new User();
+                user.username = "admin";
+                user.hashPassword = "e6b9e1f2f305a014b507954a8549bbbcf9f782c625b9f2d4fb7884e598189d87";
+                user.lastname = "Adminson";
+                user.firstname = "Admin";
+                db.Users.Add(user);
+                Commit();
+            }
         }
         public int Commit()
         {
@@ -62,16 +81,18 @@ namespace ServerSideData
 
         public string Login(string username, string password)
         {
-            if (username == "foo" && password == "foo")
+            var query = from d in db.Users
+                        where d.username.Equals(username) && d.hashPassword.Equals(password)
+                        select d;
+            if (query.Count() == 1)
             {
                 Guid g = Guid.NewGuid();
-                User user = new User();
-                user.username = username;
-                user.hashPassword = password;
-                user.lastname = "Lastname";
-                user.firstname = "Firstname";
-                CreateUser(g.ToString(), user);
+                sessions.Add(new Session(query.First().username, query.First().Id, g.ToString(), new DateTime(), new Permissions()));
                 return g.ToString();
+            }
+            else if (query.Count() > 1)
+            {
+                return "Error";
             }
             else
             {
@@ -84,7 +105,22 @@ namespace ServerSideData
             throw new NotImplementedException();
         }
 
+        public bool ValidateTokken(string tokken)
+        {
+            throw new NotImplementedException();
+        }
+
         List<FinanceEntry> IServerSideData.GetFinans(string tokken, string konti, string searchvalue, string searchtype)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<User> GetUsers(string tokken, string searchvalue = "", string searchtype = "")
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<Member> GetMembers(string tokken, string searchvalue = "", string searchtype = "")
         {
             throw new NotImplementedException();
         }
