@@ -11,11 +11,22 @@
 // served using directly, we can avoid some of the JS files.
 // This is a team decision to learn more about datahandling in frontend.
 
+// Run start functions
+document.documentElement.onload += startFunctions();
+function startFunctions() {
+    validateLogin();
+}
+
+
+
+
+
+
+
 
 
 
 // Access restrictions
-document.documentElement.onload += validateLogin();
 function validateLogin() {
     let currentPage = document.location.pathname;
     if (currentPage === "/") {
