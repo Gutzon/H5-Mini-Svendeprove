@@ -52,6 +52,12 @@ namespace RegnskabsSystem.Controllers
         }
 
 
+        // Temp to not interfere with Jannik's design work
+        [HttpGet("creation-dev")]
+        public ActionResult CreationDev()
+        {
+            return View();
+        }
 
         [HttpPost("login")]
         public ActionResult<UserLogin> Login([FromBody] LoginModel loginData)
@@ -89,33 +95,35 @@ namespace RegnskabsSystem.Controllers
         */
 
 
+
+
+        #region UserCreation
         private string GetRandomPassword(int length = 11)
         {
             var passBuilder = new StringBuilder();
-            for(var i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 passBuilder.Append((char)_random.Next(33, 126));
             }
             return passBuilder.ToString();
         }
 
-        // POST: user (creates a new user)
         [HttpPost()]
-        public ActionResult<bool> Post([FromBody] User user)
+        public ActionResult<UserCreatedModel> CreateUser([FromBody] User user)
         {
             var validation = CookieHelper.GetValidation(Request);
-            if (validation == null) return false;
+            if (validation == null) return new UserCreatedModel();
 
             var newPassword = GetRandomPassword();
             user.hashPassword = SecurityHelper.GetHashCode(user.username + newPassword);
 
             var userCreated = serverSideData.CreateUser(validation, user);
-            if (userCreated)
-            {
-                // Send e-mail til bruger med adgangskoden...
-            }
-            return Ok(userCreated);
+
+            // This is needed as we do not have a hotel for the application
+            var userCreatedModel = new UserCreatedModel(userCreated, newPassword);
+            return Ok(userCreatedModel);
         }
+        #endregion
 
         /* TODO
         // GET: user/2 (gets specific user)

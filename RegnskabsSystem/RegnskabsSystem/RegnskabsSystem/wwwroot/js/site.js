@@ -255,9 +255,18 @@ function UserCreate() {
 
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            var userCreated = (xhr.responseText.toLowerCase() === "true");
-            var userCreationMessage = userCreated ? "Brugeren blev oprettet" : "Brugeren kunne ikke oprettes";
-            alert(userCreationMessage);
+            try {
+                jsonObject = JSON.parse(xhr.responseText);
+                var userCreationMessage = jsonObject.userCreated ? "Brugeren blev oprettet" : "Brugeren kunne ikke oprettes";
+                alert(userCreationMessage);
+                if (jsonObject.userCreated) {
+                    console.log("Midlertidig levering af kodeord, da vi ikke har webhotel på app'en:");
+                    console.log(jsonObject.userPassword);
+                }
+            }
+            catch {
+                alert("En fejl opstod under bruger oprettelsen");
+            }
         }
     }
 
