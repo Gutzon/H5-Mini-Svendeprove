@@ -1,0 +1,50 @@
+﻿@{
+    ViewData["Title"] = "Opret bruger";
+}
+
+<div id="bodyContainer">
+    <center>
+        Bruger overblik <a href="/user">Link</a><br>
+        Opret bruger <a href="/user/creation">Link</a><br>
+        Rediger bruger <a href="/user/edit">Link</a><br>
+        Slet bruger <a href="/user/deletion">Link</a><br>
+
+        <br>
+        Opret bruger<br>
+        <form id="userCreateForm">
+            Bruger navn: <input type="text" name="userName"><br>
+            Fornavn: <input type="text" name="firstName"><br>
+            Efternavn: <input type="text" name="lastName"><br>
+            - Bemærk kodeord oprettes automatisk og sendes til brugeren.<br>
+            <br>
+            <input type="button" onclick="UserCreate()" value="Tilføj bruger"><br>
+        </form>
+
+
+        <br>
+        Permission checkbokse?<br><br>
+        Tekst ? | Egen rettighed ? | Ny bruger rettighed ?<br>
+
+        public bool AddCorporation { get; set; }<br>
+        public bool Admin { get; set; }<br>
+        public bool AddUser { get; set; }<br>
+        public bool EditUser { get; set; }<br>
+        public bool DeleteUser { get; set; }<br>
+        public bool AddMember { get; set; }<br>
+        public bool EditMember { get; set; }<br>
+        public bool DeleteMember { get; set; }<br>
+        public bool AddFinance { get; set; }<br>
+        public bool ViewFinance { get; set; }<br>
+        public bool LimitedViewFinance { get; set; }<br>
+        public bool AddInventory { get; set; }<br>
+        public bool EditInventory { get; set; }<br>
+        public bool DeleteInventory { get; set; }<br>
+
+
+
+    </center>
+</div>
+<!-- Design to be fixed -->
+            Opret bruger
+<br>
+<br>

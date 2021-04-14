@@ -33,6 +33,26 @@ namespace RegnskabsSystem.Controllers
             return View();
         }
 
+        [HttpGet("creation")]
+        public ActionResult Creation()
+        {
+            return View();
+        }
+
+        [HttpGet("edit")]
+        public ActionResult Edit()
+        {
+            return View();
+        }
+
+        [HttpGet("deletion")]
+        public ActionResult Deletion()
+        {
+            return View();
+        }
+
+
+
         [HttpPost("login")]
         public ActionResult<UserLogin> Login([FromBody] LoginModel loginData)
         {
