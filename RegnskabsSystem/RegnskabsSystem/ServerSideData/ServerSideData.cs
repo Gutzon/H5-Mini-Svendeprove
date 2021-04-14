@@ -40,12 +40,37 @@ namespace ServerSideData
                     mail = "admin@adminson.local"
                 };
                 db.Users.Add(user);
-                Corporation corporation = new()
+                Corporation corporation1 = new()
                 {
                     name = "Lillefnug",
                     cvrNummer = "11 11 11 11"
                 };
-                db.Corporations.Add(corporation);
+                db.Corporations.Add(corporation1);
+                Corporation corporation2 = new()
+                {
+                    name = "FDF",
+                    cvrNummer = "22 22 22 22"
+                };
+                db.Corporations.Add(corporation2);
+                Permissions perm1 = new(true, true, true, true, true, true, true, true, true, true, true, true, true, true);
+                db.Permissions.Add(perm1);
+                Permissions perm2 = new(true, true, true, true, true, true, true, true, true, true, true, true, true, true);
+                db.Permissions.Add(perm2);
+                Commit();
+                User_Corp_Permission ucp = new()
+                {
+                    UserID = user.Id,
+                    CorporationID = corporation1.ID,
+                    PermissionID = perm1.ID
+                };
+                db.UCP.Add(ucp);
+                ucp = new()
+                {
+                    UserID = user.Id,
+                    CorporationID = corporation2.ID,
+                    PermissionID = perm2.ID
+                };
+                db.UCP.Add(ucp);
                 Commit();
             }
         }
@@ -75,7 +100,7 @@ namespace ServerSideData
         {
             if (ValidateTokken(validate))
             {
-                if (CheckPermission(validate, "lillfnug", "AddUser"))
+                if (CheckPermission(validate, "lillefnug", "AddUser"))
                 {
                     db.Users.Add(user);
                     Commit();
@@ -114,7 +139,7 @@ namespace ServerSideData
                     tokken = Guid.NewGuid().ToString(),
                     Corporations = corpQuery.ToList<Corporation>()
                 };
-                sessions.Add(new Session(query.First().username, query.First().Id, userLogin.tokken, DateTime.Now, new Permissions()));
+                sessions.Add(new Session(query.First().username, query.First().Id, userLogin.tokken, DateTime.Now));
                 if (corpQuery.Count() == 1)
                 {
                     if (SelectCorporation(new Validation(username, userLogin.tokken), corpQuery.First().ID))
@@ -127,7 +152,7 @@ namespace ServerSideData
                         userLogin.status = "Fail";
                     }
                 }
-                else
+                else if (SelectCorporation(new Validation(username, userLogin.tokken), corpQuery.First().ID))
                 {
                     userLogin.status = "Select";
                 }
@@ -149,6 +174,12 @@ namespace ServerSideData
                                 select ucp;
                 if (corpQuery.Count() == 1)
                 {
+                    var Query = from perm in db.Permissions
+                                join ucp in db.UCP on perm.ID equals ucp.PermissionID
+                                join user in db.Users on ucp.UserID equals user.Id
+                                where user.username.Equals(validate.username) && ucp.CorporationID.Equals(ID)
+                                select perm;
+                    sessions.Find(o => o.tokken.Equals(validate.tokken) && o.username.Equals(validate.username)).permissions = Query.First();
                     sessions.Find(o => o.tokken.Equals(validate.tokken) && o.username.Equals(validate.username)).corporationId = ID;
                     return true;
                 }
@@ -173,6 +204,7 @@ namespace ServerSideData
         {
             if (sessions.Exists(o => o.tokken.Equals(validate.tokken) && o.username.Equals(validate.username)))
             {
+                sessions.Find(o => o.tokken.Equals(validate.tokken) && o.username.Equals(validate.username)).lastUsed = DateTime.Now;
                 return true;
             }
             else

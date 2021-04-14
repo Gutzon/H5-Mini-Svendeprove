@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ServerSideData;
 
 namespace ServerSideData.Migrations
 {
     [DbContext(typeof(FinanceDbContext))]
-    partial class FinanceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210414073936_Chage Permsions in db")]
+    partial class ChagePermsionsindb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -139,48 +141,6 @@ namespace ServerSideData.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<bool>("AddCorporation")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("AddFinance")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("AddInventory")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("AddMember")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("AddUser")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Admin")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("DeleteInventory")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("DeleteMember")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("DeleteUser")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("EditInventory")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("EditMember")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("EditUser")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LimitedViewFinance")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("ViewFinance")
-                        .HasColumnType("bit");
 
                     b.HasKey("ID");
 
