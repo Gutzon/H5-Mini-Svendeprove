@@ -10,7 +10,7 @@ namespace ServerSideData
 {
     public interface IServerSideData
     {
-        public string Login(string username, string password);
+        public string Login(string username, string password, int corporationID);
         public bool Logout(Validation validate);
         public Permissions GetPermissions(Validation validate);
         public bool CreateUser(Validation validate, User user);
@@ -20,8 +20,9 @@ namespace ServerSideData
         public bool EditMember(Validation validate, Member member, Member newmember);
         public bool DeleteMember(Validation validate, Member member);
         public bool ValidateTokken(Validation validate);
-        public List<User> GetUsers(Validation validate, string searchvalue = "", string searchtype = "");
-        public List<Member> GetMembers(Validation validate, string searchvalue = "", string searchtype = "");
-        public List<FinanceEntry> GetFinances(Validation validate, string konti, string searchvalue = "", string searchtype = "");
+        public IEnumerable<User> GetUsers(Validation validate, string corporation = "", string searchvalue = "", string searchtype = "");
+        public IEnumerable<Member> GetMembers(Validation validate, string corporation = "", string searchvalue = "", string searchtype = "");
+        public IEnumerable<FinanceEntry> GetFinances(Validation validate, string konti = "", string corporation = "", string searchvalue = "", string searchtype = "");
+        public IEnumerable<Corporation> GetCorporations();
     }
 }

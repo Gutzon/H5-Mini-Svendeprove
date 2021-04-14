@@ -34,7 +34,7 @@ namespace RegnskabsSystem.Controllers
         public ActionResult<string> Login([FromBody] LoginModel loginData)
         {
             var hashedPassword = SecurityHelper.GetHashCode(loginData.user + loginData.password);
-            var tokenString = serverSideData.Login(loginData.user, hashedPassword);
+            var tokenString = serverSideData.Login(loginData.user, hashedPassword, 1);
             var tokenLower = tokenString.ToLower();
             switch (tokenLower)
             {
