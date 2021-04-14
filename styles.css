@@ -31,13 +31,28 @@ body {
     text-align: center;
     vertical-align: center;
     font-size: 26px;
-    
+    border-radius: 25px;
+    margin-bottom:  5%;
+    box-shadow: 5px 5px 10px grey;    
 }
 
 .FormSubmit {
     display: inline-block;
     height: 10%;
     width: 50%;
+    border-radius: 25px;
+    background-color: 0DAAD2;
+    border: none;
+    color: white;
+    font-size: 26px;
+    box-shadow: 5px 5px 10px grey;
+}
+
+.loginImage{
+    margin-top: 5%;
+    margin-bottom: 10%;
+    height: 20%;
+    width: 20%;
 }
 
 ::placeholder {
