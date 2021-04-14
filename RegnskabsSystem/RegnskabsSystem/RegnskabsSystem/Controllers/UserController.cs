@@ -120,7 +120,7 @@ namespace RegnskabsSystem.Controllers
             var userCreated = serverSideData.CreateUser(validation, user);
             var tokenExpired = userCreated? false : !serverSideData.ValidateTokken(validation);
 
-            // This is needed as we do not have a hotel for the application
+            // The password transferral to frontend is needed as we do not have a hotel for the application (no mail to user)
             var userCreatedModel = new UserCreatedModel(userCreated, newPassword, tokenExpired);
 
             return Ok(userCreatedModel);
