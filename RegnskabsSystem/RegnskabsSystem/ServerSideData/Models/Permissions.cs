@@ -8,25 +8,8 @@ namespace ServerSideData.Models
 {
     public class Permissions
     {
-        /*public Permissions(Permissions perm)
-        {
-            AddCorporation = perm.AddCorporation;
-            Admin = perm.Admin;
-            AddUser = perm.AddUser;
-            EditUser = perm.EditUser;
-            DeleteUser = perm.DeleteUser;
-            AddMember = perm.AddMember;
-            EditMember = perm.EditMember;
-            DeleteMember = perm.DeleteMember;
-            AddFinance = perm.AddFinance;
-            ViewFinance = perm.ViewFinance;
-            LimitedViewFinance = perm.LimitedViewFinance;
-            AddInventory = perm.AddInventory;
-            EditInventory = perm.EditInventory;
-            DeleteInventory = perm.DeleteInventory;
-        } */
-
-        public Permissions(bool addCorporation, bool admin, bool addUser, bool editUser, bool deleteUser, bool addMember, bool editMember, bool deleteMember, bool addFinance, bool viewFinance, bool limitedViewFinance, bool addInventory, bool editInventory, bool deleteInventory)
+        
+        public Permissions(bool addCorporation = false, bool admin = false, bool addUser = false, bool editUser = false, bool deleteUser = false, bool addMember = false, bool editMember = false, bool deleteMember = false, bool addFinance = false, bool viewFinance = false, bool limitedViewFinance = false, bool addInventory = false, bool editInventory = false, bool deleteInventory = false)
         {
             AddCorporation = addCorporation;
             Admin = admin;
