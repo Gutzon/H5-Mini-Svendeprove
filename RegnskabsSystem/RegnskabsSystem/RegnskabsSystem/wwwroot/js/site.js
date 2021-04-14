@@ -154,16 +154,16 @@ function login() {
 function handleLogin(responseText) {
     let jsonObject;
     try {
-        jsonObject = JSON.parse(xhr.responseText);
+        jsonObject = JSON.parse(responseText);
         if (jsonObject.status === "Select") {
             alert("Select");
             // TEMP
-            setCookieParam("accessToken", xhr.responseText);
+            setCookieParam("accessToken", jsonObject.tokken);
             setCookieParam("userName", loginForm.user.value);
             dashboardToggle();
         }
         else {
-            setCookieParam("accessToken", xhr.responseText);
+            setCookieParam("accessToken", jsonObject.tokken);
             setCookieParam("userName", loginForm.user.value);
             dashboardToggle();
         }
