@@ -5,9 +5,11 @@ using RegnskabsSystem.Helpers;
 using RegnskabsSystem.Models;
 using ServerSideData;
 using ServerSideData.Models;
+using ServerSideData.TransferModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace RegnskabsSystem.Controllers
@@ -17,6 +19,7 @@ namespace RegnskabsSystem.Controllers
     {
         private readonly ILogger<UserController> _logger;
         private readonly IServerSideData serverSideData;
+        private Random _random = new Random();
 
         public UserController(IServerSideData serverSideData, ILogger<UserController> logger)
         {
@@ -31,20 +34,16 @@ namespace RegnskabsSystem.Controllers
         }
 
         [HttpPost("login")]
-        public ActionResult<string> Login([FromBody] LoginModel loginData)
+        public ActionResult<UserLogin> Login([FromBody] LoginModel loginData)
         {
-            var hashedPassword = SecurityHelper.GetHashCode(loginData.user + loginData.password);
-            var tokenString = serverSideData.Login(loginData.user, hashedPassword, 1);
-            var tokenLower = tokenString.ToLower();
-            switch (tokenLower)
+            var hashedPassword = SecurityHelper.GetHashCode(loginData.user + loginData.GetUnEscapedPassword);
+            var userLogin = serverSideData.Login(loginData.user, hashedPassword);
+            return userLogin.status switch
             {
-                case "null":
-                    return BadRequest("AccessDenied");
-                case "error":
-                    return BadRequest("AccountFail");
-                default:
-                    return Ok(tokenString);
-            }
+                "Error" => BadRequest("AccessDenied"),
+                "Fail" => BadRequest("AccountFail"),
+                _ => Ok(userLogin),
+            };
         }
 
         private Validation GetValidation()
@@ -86,6 +85,17 @@ namespace RegnskabsSystem.Controllers
         }
         */
 
+
+        private string GetRandomPassword(int length = 11)
+        {
+            var passBuilder = new StringBuilder();
+            for(var i = 0; i < length; i++)
+            {
+                passBuilder.Append((char)_random.Next(33, 126));
+            }
+            return passBuilder.ToString();
+        }
+
         // POST: user (creates a new user)
         [HttpPost()]
         public ActionResult<bool> Post([FromBody] User user)
@@ -93,8 +103,8 @@ namespace RegnskabsSystem.Controllers
             var validation = GetValidation();
             if (validation == null) return false;
 
-            var tempPassword = "SoNotSecret"; // Fix to be random password on user creation
-            user.hashPassword = SecurityHelper.GetHashCode(user.username + tempPassword);
+            var newPassword = GetRandomPassword();
+            user.hashPassword = SecurityHelper.GetHashCode(user.username + newPassword);
 
             var userCreated = serverSideData.CreateUser(validation, user);
             if (userCreated)

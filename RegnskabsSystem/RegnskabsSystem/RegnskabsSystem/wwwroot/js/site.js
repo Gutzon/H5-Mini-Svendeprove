@@ -19,10 +19,19 @@ function startFunctions() {
 
 
 
-
-
-
-
+// General functionality
+function GetFormJsonData(formId) {
+    var formDataObject = {};
+    for (let elm of document.forms[formId]) {
+        if (elm.getAttribute("type") !== "button") {
+            let elmName = elm.getAttribute("name");
+            if (elmName !== undefined) {
+                formDataObject[elmName] = elm.value;
+            }
+        }
+    }
+    return formDataObject
+}
 
 
 
@@ -131,9 +140,7 @@ function login() {
 
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            setCookieParam("accessToken", xhr.responseText);
-            setCookieParam("userName", loginForm.user.value);
-            dashboardToggle();
+            handleLogin(xhr.responseText);
         }
         else if (this.readyState === XMLHttpRequest.DONE && this.status === 400) {
             if (xhr.responseText === "AccessDenied") alert("Brugernavn/kodeord matchede ikke.");
@@ -141,7 +148,29 @@ function login() {
             logOut();
         }
     }
-    xhr.send('{"user": "' + loginForm.user.value + '", "password": "' + loginForm.password.value + '"}');
+    xhr.send('{"user": "' + loginForm.user.value + '", "password": "' + escape(loginForm.password.value) + '"}');
+}
+
+function handleLogin(responseText) {
+    let jsonObject;
+    try {
+        jsonObject = JSON.parse(xhr.responseText);
+        if (jsonObject.status === "Select") {
+            alert("Select");
+            // TEMP
+            setCookieParam("accessToken", xhr.responseText);
+            setCookieParam("userName", loginForm.user.value);
+            dashboardToggle();
+        }
+        else {
+            setCookieParam("accessToken", xhr.responseText);
+            setCookieParam("userName", loginForm.user.value);
+            dashboardToggle();
+        }
+    }
+    catch {
+        alert("En fejl skete under login, kontakt venligst en administrator.");
+    }
 }
 
 function logOut() {
@@ -165,18 +194,6 @@ function logOut() {
     dashboardToggle();
 }
 
-function GetFormJsonData(formId) {
-    var formDataObject = {};
-    for (let elm of document.forms[formId]) {
-        if (elm.getAttribute("type") !== "button") {
-            let elmName = elm.getAttribute("name");
-            if (elmName !== undefined) {
-                formDataObject[elmName] = elm.value;
-            }
-        }
-    }    
-    return formDataObject
-}
 
 
 // User handling
@@ -199,28 +216,3 @@ function UserCreate() {
     let formData = GetFormJsonData("userCreateForm");
     xhr.send(JSON.stringify(formData));
 }
-
-
-
-
-/*
-
-function UserEdit() {
-    let userEditForm = document.forms["userEditForm"];
-    if (userEditForm == undefined) return;
-    let userId = userEditForm.userId.value;
-
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", '/user/edit/' + userId, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-
-    xhr.onreadystatechange = function () {
-        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            alert(xhr.responseText);
-        }
-        else if (this.readyState === XMLHttpRequest.DONE && this.status === 400) {
-            alert(xhr.responseText);
-        }
-    }
-    xhr.send(new FormData(userEditForm));
-}*/
