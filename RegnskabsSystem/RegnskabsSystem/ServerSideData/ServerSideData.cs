@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ServerSideData.Models;
 using System.Linq;
+using ServerSideData.TransferModel;
 
 namespace ServerSideData
 {
@@ -93,25 +94,55 @@ namespace ServerSideData
 
 
 
-        public string Login(string username, string password, int corporation)
+        public UserLogin Login(string username, string password)
         {
             var query = from d in db.Users
                         where d.username.Equals(username) && d.hashPassword.Equals(password)
                         select d;
+            UserLogin userLogin = new();
             if (query.Count() == 1)
             {
-                Guid g = Guid.NewGuid();
-                sessions.Add(new Session(query.First().username, query.First().Id, g.ToString(), DateTime.Now, new Permissions(), corporation));
-                return g.ToString();
-            }
-            else if (query.Count() > 1)
-            {
-                return "Error";
+                var corpQuery = from user in db.Users
+                                join ucp in db.UCP on user.Id equals ucp.UserID
+                                join corp in db.Corporations on ucp.CorporationID equals corp.ID
+                                where user.username.Equals(query.First().username)
+                                orderby corp.name
+                                select corp;
+
+                userLogin = new()
+                {
+                    tokken = Guid.NewGuid().ToString(),
+                    Corporations = corpQuery.ToList<Corporation>()
+                };
+                sessions.Add(new Session(query.First().username, query.First().Id, userLogin.tokken, DateTime.Now, new Permissions()));
+                if (corpQuery.Count() == 1)
+                {
+                    if (SelectCorporation(new Validation(username, userLogin.tokken), corpQuery.First().ID))
+                    {
+                        userLogin.status = "OK";
+                        
+                    }
+                    else
+                    {
+                        userLogin.status = "Fail";
+                    }
+                }
+                else
+                {
+                    userLogin.status = "Select";
+                }
+                return userLogin;
             }
             else
             {
-                return "NULL";
+                userLogin.status = "Error";
+                return userLogin;
             }
+        }
+        public bool SelectCorporation(Validation validate, int ID)
+        {
+
+            return true;
         }
 
         public bool Logout(Validation validate)
@@ -169,17 +200,17 @@ namespace ServerSideData
             throw new NotImplementedException();
         }
 
-        public IEnumerable<User> GetUsers(Validation validate, string corporation = "", string searchvalue = "", string searchtype = "")
+        public IEnumerable<User> GetUsers(Validation validate, string searchvalue = "", string searchtype = "")
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Member> GetMembers(Validation validate, string corporation = "", string searchvalue = "", string searchtype = "")
+        public IEnumerable<Member> GetMembers(Validation validate, string searchvalue = "", string searchtype = "")
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<FinanceEntry> GetFinances(Validation validate, string konti = "", string corporation = "", string searchvalue = "", string searchtype = "")
+        public IEnumerable<FinanceEntry> GetFinances(Validation validate, string konti = "", string searchvalue = "", string searchtype = "")
         {
             throw new NotImplementedException();
         }
