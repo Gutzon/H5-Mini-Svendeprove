@@ -31,7 +31,7 @@ namespace ServerSideData
                 db.Members.RemoveRange(db.Members.Where(o => o.ID >= 0));
                 db.Permissions.RemoveRange(db.Permissions.Where(o => o.ID >= 0));
                 db.UCP.RemoveRange(db.UCP.Where(o => o.ID >= 0));
-                User user = new()
+                User user1 = new()
                 {
                     username = "admin",
                     hashPassword = "e6b9e1f2f305a014b507954a8549bbbcf9f782c625b9f2d4fb7884e598189d87",
@@ -39,7 +39,25 @@ namespace ServerSideData
                     firstname = "Admin",
                     mail = "admin@adminson.local"
                 };
-                db.Users.Add(user);
+                db.Users.Add(user1);
+                User user2 = new()
+                {
+                    username = "Lillefnug",
+                    hashPassword = "ca5cebd439d176c601d6b53183f715022211ce33b2cb9267635129b6f2736882",
+                    lastname = "Lille",
+                    firstname = "Fnug",
+                    mail = "admin@lillefnug.local"
+                };
+                db.Users.Add(user2);
+                User user3 = new()
+                {
+                    username = "FDF",
+                    hashPassword = "cf71e45b83a043690594715cdba1ee7cbc291f825ad09aa5456b686d0a969bc7",
+                    lastname = "FDF",
+                    firstname = "FDF",
+                    mail = "admin@FDF.local"
+                };
+                db.Users.Add(user3);
                 Corporation corporation1 = new()
                 {
                     name = "Lillefnug",
@@ -56,19 +74,37 @@ namespace ServerSideData
                 db.Permissions.Add(perm1);
                 Permissions perm2 = new(true, true, true, true, true, true, true, true, true, true, true, true, true, true);
                 db.Permissions.Add(perm2);
+                Permissions perm3 = new(false, true, true, true, true, true, true, true, true, true, true, true, true, true);
+                db.Permissions.Add(perm3);
+                Permissions perm4 = new(false, true, true, true, true, true, true, true, true, true, true, true, true, true);
+                db.Permissions.Add(perm4);
                 Commit();
                 User_Corp_Permission ucp = new()
                 {
-                    UserID = user.Id,
+                    UserID = user1.Id,
                     CorporationID = corporation1.ID,
                     PermissionID = perm1.ID
                 };
                 db.UCP.Add(ucp);
                 ucp = new()
                 {
-                    UserID = user.Id,
+                    UserID = user1.Id,
                     CorporationID = corporation2.ID,
                     PermissionID = perm2.ID
+                };
+                db.UCP.Add(ucp);
+                ucp = new()
+                {
+                    UserID = user2.Id,
+                    CorporationID = corporation1.ID,
+                    PermissionID = perm3.ID
+                };
+                db.UCP.Add(ucp);
+                ucp = new()
+                {
+                    UserID = user3.Id,
+                    CorporationID = corporation2.ID,
+                    PermissionID = perm4.ID
                 };
                 db.UCP.Add(ucp);
                 Commit();
@@ -174,9 +210,9 @@ namespace ServerSideData
                                 select ucp;
                 if (corpQuery.Count() == 1)
                 {
-                    var Query = from perm in db.Permissions
-                                join ucp in db.UCP on perm.ID equals ucp.PermissionID
-                                join user in db.Users on ucp.UserID equals user.Id
+                    var Query = from user in db.Users
+                                join ucp in db.UCP on user.Id equals ucp.UserID
+                                join perm in db.Permissions on ucp.PermissionID equals perm.ID
                                 where user.username.Equals(validate.username) && ucp.CorporationID.Equals(ID)
                                 select perm;
                     sessions.Find(o => o.tokken.Equals(validate.tokken) && o.username.Equals(validate.username)).permissions = Query.First();
