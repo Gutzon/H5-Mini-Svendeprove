@@ -114,18 +114,23 @@ namespace ServerSideData
         {
             return db.SaveChanges();
         }
-        private bool CheckPermission(Validation validate, string corporation , string permission)
+        private bool CheckPermission(Validation validate, string permission)
         {
             if (ValidateTokken(validate))
             {
+                Session ses = sessions.Find(o => o.username.Equals(validate.username));
+                var query = from perm in db.Permissions
+                                join ucp in db.UCP on perm.ID equals ucp.PermissionID
+                                join users in db.Users on ucp.UserID equals users.Id
+                                where users.username.Equals(ses.username) && ucp.CorporationID.Equals(ses.corporationId)
+                                select perm;
+                    Permissions permmis = query.First();
+                if ((bool)typeof(Permissions).GetProperty(permission).GetValue(permmis, null))
+                {
+                    return true;
+                }
 
-            var query = from user in db.Users
-                        join link in db.UCP on user.Id equals link.UserID
-                        join perm in db.Permissions on link.PermissionID equals perm.ID
-                        where user.username.Equals(validate.username) 
-                        orderby user.firstname
-                        select perm;
-            return true;
+
             }
             return false;
         }
@@ -136,11 +141,18 @@ namespace ServerSideData
         {
             if (ValidateTokken(validate))
             {
-                if (CheckPermission(validate, "lillefnug", "AddUser"))
+                if (CheckPermission(validate, "AddUser"))
                 {
+                    if(db.Users.Where(o => o.username.Equals(user.username)).Count() == 0 && user.username != "" && user.hashPassword != "" )
+                    {
                     db.Users.Add(user);
                     Commit();
                     return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
