@@ -46,28 +46,11 @@ namespace RegnskabsSystem.Controllers
             };
         }
 
-        private Validation GetValidation()
-        {
-            // Cases where request for logout should not occur as it already is logged out.
-            if (!Request.Cookies.TryGetValue("accessToken", out var accessTokenValue)
-                || string.IsNullOrEmpty(accessTokenValue))
-            {
-                return null;
-            }
-
-            if (!Request.Cookies.TryGetValue("userName", out var userName)
-                || string.IsNullOrEmpty(userName))
-            {
-                return null;
-            }
-
-            return new Validation(userName, accessTokenValue);
-        }
 
         [HttpPost("logout")]
         public ActionResult<bool> LogOut()
         {
-            var validation = GetValidation();
+            var validation = CookieHelper.GetValidation(Request);
             if (validation == null) return true;
             return serverSideData.Logout(validation);
         }
@@ -100,7 +83,7 @@ namespace RegnskabsSystem.Controllers
         [HttpPost()]
         public ActionResult<bool> Post([FromBody] User user)
         {
-            var validation = GetValidation();
+            var validation = CookieHelper.GetValidation(Request);
             if (validation == null) return false;
 
             var newPassword = GetRandomPassword();

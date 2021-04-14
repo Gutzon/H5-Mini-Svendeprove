@@ -22,6 +22,8 @@ function startFunctions() {
 // General functionality
 function GetFormJsonData(formId) {
     var formDataObject = {};
+    let form = document.forms[formId];
+    if (form == null) return formDataObject;
     for (let elm of document.forms[formId]) {
         if (elm.getAttribute("type") !== "button") {
             let elmName = elm.getAttribute("name");
@@ -128,6 +130,7 @@ function dashboardToggle() {
     removeClass(activeView, "hideElm");
     let inActiveView = document.getElementById(loggedIn ? "loggedOut" : "loggedIn");
     addClass(inActiveView, "hideElm");
+    if (loggedIn) populateCorporationSelector();
 }
 
 function login() {
@@ -155,18 +158,11 @@ function handleLogin(responseText) {
     let jsonObject;
     try {
         jsonObject = JSON.parse(responseText);
-        if (jsonObject.status === "Select") {
-            alert("Select");
-            // TEMP
-            setCookieParam("accessToken", jsonObject.tokken);
-            setCookieParam("userName", loginForm.user.value);
-            dashboardToggle();
-        }
-        else {
-            setCookieParam("accessToken", jsonObject.tokken);
-            setCookieParam("userName", loginForm.user.value);
-            dashboardToggle();
-        }
+        setCookieParam("selectedCorp", jsonObject.corporations[0].id);
+        setCookieParam("corporations", escape(JSON.stringify(jsonObject.corporations)));
+        setCookieParam("accessToken", jsonObject.tokken);
+        setCookieParam("userName", loginForm.user.value);
+        dashboardToggle();
     }
     catch {
         alert("En fejl skete under login, kontakt venligst en administrator.");
@@ -183,6 +179,8 @@ function logOut() {
         xhr.onreadystatechange = function () {
             if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
                 alert("Log ud er gennemført");
+                removeCookieParam("corporations");
+                removeCookieParam("selectedCorp");
                 removeCookieParam("accessToken");
                 removeCookieParam("userName");
                 document.location.href = "/";
@@ -192,6 +190,56 @@ function logOut() {
     }
     // Toggle view if for it allowed logout button, though logout had occured (cache/timeout)
     dashboardToggle();
+}
+
+
+
+// Corporation handling
+function populateCorporationSelector() {
+    let corporationSelector = document.getElementById("corporationInjection");
+    while (corporationSelector.childNodes.length > 0) {
+        corporationSelector.removeChild(corporationSelector.childNodes[0]);
+    }
+    let corporations = JSON.parse(getCookieParam("corporations"));
+    let selectedCorp = getCookieParam("selectedCorp");
+    if (corporations.length == 1) {
+        corporationSelector.appendChild(document.createTextNode(corporations[0].name));
+    }
+    else {
+        let select = document.createElement("select");
+        select.setAttribute("id", "corporationSelector");
+        select.setAttribute("class", "selectors");
+        select.addEventListener("change", () => changeCorporation());
+
+        for (let corp of corporations) {
+            let option = document.createElement("option")
+            option.appendChild(document.createTextNode(corp.name));
+            option.setAttribute("value", corp.id);
+            if (selectedCorp == corp.id) option.setAttribute("Selected", "Selected");
+            select.appendChild(option);
+        }
+        corporationSelector.appendChild(select);
+    }
+}
+
+function changeCorporation() {
+    let corporationSelector = document.getElementById("corporationSelector");
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", '/corporation/change', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            let corporationChanged = (xhr.responseText.toLowerCase() === "true");
+            alert("Organisationen blev " + (!corporationChanged ? "ikke " : "") + "skiftet");
+            if (corporationChanged) {
+                setCookieParam("selectedCorp", corporationSelector.value);
+            }
+        }
+    }
+
+    xhr.send('{"corporationSelection": ' + corporationSelector.value + '}');
 }
 
 
