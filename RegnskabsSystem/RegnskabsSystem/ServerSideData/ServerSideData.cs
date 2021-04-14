@@ -141,8 +141,19 @@ namespace ServerSideData
         }
         public bool SelectCorporation(Validation validate, int ID)
         {
-
-            return true;
+            if (ValidateTokken(validate))
+            {
+                var corpQuery = from user in db.Users
+                                join ucp in db.UCP on user.Id equals ucp.UserID
+                                where user.username.Equals(validate.username) && ucp.CorporationID.Equals(ID)
+                                select ucp;
+                if (corpQuery.Count() == 1)
+                {
+                    sessions.Find(o => o.tokken.Equals(validate.tokken) && o.username.Equals(validate.username)).corporationId = ID;
+                    return true;
+                }
+            }
+            return false;
         }
 
         public bool Logout(Validation validate)
