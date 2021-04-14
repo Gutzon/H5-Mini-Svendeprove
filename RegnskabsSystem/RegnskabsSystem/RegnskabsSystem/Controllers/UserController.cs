@@ -118,9 +118,11 @@ namespace RegnskabsSystem.Controllers
             user.hashPassword = SecurityHelper.GetHashCode(user.username + newPassword);
 
             var userCreated = serverSideData.CreateUser(validation, user);
+            var tokenExpired = userCreated? false : !serverSideData.ValidateTokken(validation);
 
             // This is needed as we do not have a hotel for the application
-            var userCreatedModel = new UserCreatedModel(userCreated, newPassword);
+            var userCreatedModel = new UserCreatedModel(userCreated, newPassword, tokenExpired);
+
             return Ok(userCreatedModel);
         }
         #endregion

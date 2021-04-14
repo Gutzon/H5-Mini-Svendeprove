@@ -7,10 +7,11 @@ namespace RegnskabsSystem.Models
 {
     public class UserCreatedModel
     {
-        public UserCreatedModel(bool userCreated = false, string userPassword = "")
+        public UserCreatedModel(bool userCreated = false, string userPassword = "", bool tokenExpired = true)
         {
             this.UserCreated = userCreated;
             this.UserPassword = userPassword;
+            this.TokenExpired = tokenExpired;
         }
 
         public bool UserCreated { get; set; }
@@ -20,5 +21,7 @@ namespace RegnskabsSystem.Models
         // the e-mail generated to the user directly instead.
         // -- Likely with a confirmation link in the e-mail for added security.
         public string UserPassword { get; set; }
+
+        public bool TokenExpired { get; set; }
     }
 }

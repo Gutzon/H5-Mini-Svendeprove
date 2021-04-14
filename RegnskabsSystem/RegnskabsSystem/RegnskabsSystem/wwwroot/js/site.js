@@ -263,6 +263,10 @@ function UserCreate() {
                     console.log("Midlertidig levering af kodeord, da vi ikke har webhotel på app'en:");
                     console.log(jsonObject.userPassword);
                 }
+                else if (jsonObject.TokenExpired) {
+                    alert("Dit login er udløbet, log på igen.");
+                    logOut();
+                }
             }
             catch {
                 alert("En fejl opstod under bruger oprettelsen");
