@@ -274,10 +274,10 @@ function changeCorporation() {
 
 
 // User handling
-
 function populateUsers() {
-    let userTableList = document.getElementById("userTableList");
-    
+    let userTableList = document.getElementById("userTable");
+    if (userTableList == null) return;
+
     let xhr = new XMLHttpRequest();
     xhr.open("GET", '/user/overview', true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -289,6 +289,11 @@ function populateUsers() {
         }
     }
     xhr.send();
+}
+
+
+function addUser(userList) {
+
 }
 
 
@@ -305,15 +310,29 @@ function userCreate() {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             try {
                 jsonObject = JSON.parse(xhr.responseText);
-                var userCreationMessage = jsonObject.userCreated ? "Brugeren blev oprettet" : "Brugeren kunne ikke oprettes";
-                alert(userCreationMessage);
+
                 if (jsonObject.userCreated) {
+                    alert("Brugeren blev oprettet");
                     console.log("Midlertidig levering af kodeord, da vi ikke har webhotel på app'en:");
                     console.log(jsonObject.userPassword);
                 }
-                else if (jsonObject.TokenExpired) {
-                    alert("Dit login er udløbet, log på igen.");
-                    logOut();
+                else if (jsonObject.error !== "") {
+                    switch (jsonObject.error) {
+                        case "FailSession":
+                            alert("Dit login er udløbet, du logges ud. Log venligst på igen.");
+                            logOut();
+                            break;
+                        case "FailPermission":
+                            alert("Du kan ikke tildele de valgte rettigheder.");
+                            break;
+                        case "FailUserAddRights":
+                            alert("Din konto har ikke tilladelse til at tilføje brugere.");
+                            break;
+                        case "FailUserExists":
+                            alert("Brugernavnet er allerede reserveret til en bruger");
+                            break;
+                        default:
+                    }
                 }
             }
             catch {

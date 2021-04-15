@@ -107,18 +107,41 @@ namespace RegnskabsSystem.Controllers
         public ActionResult<UserCreatedModel> CreateUser([FromBody] TransferUser user)
         {
             var validation = CookieHelper.GetValidation(Request);
-            if (validation == null) return new UserCreatedModel();
+            if (validation == null) return new UserCreatedModel(false, "FailSession");
 
             var newPassword = GetRandomPassword();
             user.hashPassword = SecurityHelper.GetHashCode(user.username + newPassword);
 
-            var userCreated = serverSideData.CreateUser(validation, user);
-            var tokenExpired = userCreated? false : !serverSideData.ValidateTokken(validation);
+            var creationMsg = serverSideData.CreateUser(validation, user);
+            var userCreated = IsUserCreated(creationMsg, out var errorType);
 
             // The password transferral to frontend is needed as we do not have a hotel for the application (no mail to user)
-            var userCreatedModel = new UserCreatedModel(userCreated, newPassword, tokenExpired);
+            var userCreatedModel = new UserCreatedModel(userCreated, errorType, newPassword);
 
             return Ok(userCreatedModel);
+        }
+
+        private bool IsUserCreated(string creationMsg, out string errorType)
+        {
+            errorType = "";
+            switch (creationMsg)
+            {
+                case "No session":
+                    errorType = "FailSession";
+                    break;
+                case "Failed setting permission check":
+                    errorType = "FailPermission";
+                    break;
+                case "Not permited":
+                    errorType = "FailUserAddRights";
+                    break;
+                case "Username already in use":
+                    errorType = "FailUserExists";
+                    break;
+                default:
+                    return true;
+            }
+            return false;
         }
         #endregion
 
