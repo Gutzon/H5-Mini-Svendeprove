@@ -18,9 +18,4 @@
     <ProjectReference Include="..\ServerSideData\ServerSideData.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Views\Account\" />
-    <Folder Include="Views\FinanceEntry\" />
-  </ItemGroup>
-
 </Project>
