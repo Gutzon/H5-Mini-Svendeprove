@@ -114,18 +114,18 @@ namespace ServerSideData
         {
             return db.SaveChanges();
         }
-        private bool CheckPermission(Validation validate, string permission)
+        private bool CheckPermission(Validation validate, Session ses, string permission)
         {
             if (ValidateTokken(validate))
             {
-                Session ses = sessions.Find(o => o.username.Equals(validate.username));
+               /* Session ses = sessions.Find(o => o.username.Equals(validate.username));
                 var query = from perm in db.Permissions
                                 join ucp in db.UCP on perm.ID equals ucp.PermissionID
                                 join users in db.Users on ucp.UserID equals users.Id
                                 where users.username.Equals(ses.username) && ucp.CorporationID.Equals(ses.corporationId)
                                 select perm;
-                    Permissions permmis = query.First();
-                if ((bool)typeof(Permissions).GetProperty(permission).GetValue(permmis, null))
+                    Permissions permmis = query.First();*/
+                if ((bool)typeof(Permissions).GetProperty(permission).GetValue(ses.permissions, null))
                 {
                     return true;
                 }
@@ -141,7 +141,8 @@ namespace ServerSideData
         {
             if (ValidateTokken(validate))
             {
-                if (CheckPermission(validate, "AddUser"))
+                Session ses = sessions.Find(o => o.username.Equals(validate.username));
+                if (CheckPermission(validate, ses, "AddUser"))
                 {
                     if(db.Users.Where(o => o.username.Equals(user.username)).Count() == 0 && user.username != "" && user.hashPassword != "" )
                     {
@@ -163,6 +164,10 @@ namespace ServerSideData
             {
                 return false;
             }
+        }
+        private bool checkuser()
+        {
+            return true;
         }
 
 
