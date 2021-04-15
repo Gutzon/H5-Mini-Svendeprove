@@ -82,18 +82,13 @@ namespace RegnskabsSystem.Controllers
         }
 
 
-
-        // TODO:
-        /*
         // GET: overview (gets user list)
         [HttpGet("overview")]
-        public ActionResult<bool> Overview()
+        public ActionResult<IEnumerable<TransferUser>> Overview()
         {
-            serverSideData.GetUsers();
-            return null;
+            var validation = CookieHelper.GetValidation(Request);
+            return Ok(serverSideData.GetUsers(validation));
         }
-        */
-
 
 
 

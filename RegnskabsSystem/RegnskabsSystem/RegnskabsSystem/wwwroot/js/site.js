@@ -274,6 +274,25 @@ function changeCorporation() {
 
 
 // User handling
+
+function populateUsers() {
+    let userTableList = document.getElementById("userTableList");
+    
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", '/user/overview', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            jsonObject = JSON.parse(xhr.responseText);
+            console.log(jsonObject);
+        }
+    }
+    xhr.send();
+}
+
+
+
 function userCreate() {
     let userCreateForm = document.forms["userCreateForm"];
     if (userCreateForm == undefined) return;
