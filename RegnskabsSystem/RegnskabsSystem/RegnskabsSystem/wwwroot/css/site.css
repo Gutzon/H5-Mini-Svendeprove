@@ -109,6 +109,8 @@ body {
 }
 #headerArea navbar div select {
     border-radius: 0 0 10px 10px;
+    height: 90%;
+    width: 90%;
 }
 
 #headerArea navbar a:hover
