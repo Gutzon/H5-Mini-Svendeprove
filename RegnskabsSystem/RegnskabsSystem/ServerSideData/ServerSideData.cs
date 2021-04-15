@@ -108,8 +108,62 @@ namespace ServerSideData
                 };
                 db.UCP.Add(ucp);
                 Commit();
+                AddMembers();
             }
         }
+
+        private void AddMembers()
+        {
+            var lilleFnugId = GetCorporations().FirstOrDefault(c => c.name == "Lillefnug").ID;
+            Member member1 = new Member()
+            {
+                CorporationID = lilleFnugId,
+                firstname = "Trine",
+                lastname = "Jensen",
+                mail = "Trine.Jensen@some-place-beyond.com",
+                phoneNumber = "66221133"
+            };
+            db.Members.Add(member1);
+            Member member2 = new Member()
+            {
+                CorporationID = lilleFnugId,
+                firstname = "Peter",
+                lastname = "Lease",
+                mail = "Peter.Leasy@i-drive-a-yellow-truck.com",
+                phoneNumber = "88888888"
+            };
+            db.Members.Add(member2);
+            Member member3 = new Member()
+            {
+                CorporationID = lilleFnugId,
+                firstname = "Lars",
+                lastname = "Larsen",
+                mail = "Lars.Larsen@sssh-jeg-sover.dk",
+                phoneNumber = "87123456"
+            };
+            db.Members.Add(member3);
+            var fdfId = GetCorporations().FirstOrDefault(c => c.name == "FDF").ID;
+            Member member4 = new Member()
+            {
+                CorporationID = fdfId,
+                firstname = "Hans",
+                lastname = "Poulsen",
+                mail = "superspejderen@jeg-er-leet.dk",
+                phoneNumber = "85012654"
+            };
+            db.Members.Add(member4);
+            Member member5 = new Member()
+            {
+                CorporationID = fdfId,
+                firstname = "Josefine-Petronella",
+                lastname = "Birgensen-Birkefryd",
+                mail = "Josefine.Petronella.Birgensen.Birkefryd@os-med-de-lange-navne.dk",
+                phoneNumber = "80012654"
+            };
+            db.Members.Add(member5);
+            Commit();
+        }
+
         private int Commit()
         {
             return db.SaveChanges();

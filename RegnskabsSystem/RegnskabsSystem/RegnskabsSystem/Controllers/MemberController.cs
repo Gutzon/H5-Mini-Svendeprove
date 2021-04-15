@@ -44,8 +44,19 @@ namespace RegnskabsSystem.Controllers
             return View();
         }
 
+
+        // GET: overview (gets member list)
+        [HttpGet("overview")]
+        public ActionResult<IEnumerable<Member>> Overview()
+        {
+            var validation = CookieHelper.GetValidation(Request);
+            return Ok(serverSideData.GetMembers(validation));
+        }
+
+
+
         // TODO:
-        /* Get member list
+        /* 
          * Edit member
          * Delete member
          * Create member

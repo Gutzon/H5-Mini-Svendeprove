@@ -1,18 +1,27 @@
 ﻿@{
     ViewData["Title"] = "Medlems oversigt";
 }
-<div id="bodyContainer">
-    <center>
-        <a href="/member/creation">Opret medlem</a><br>
-        <a href="/member/edit">Rediger medlem</a><br>
+<div class="gridContainer">
 
-        <br>
-        List med medlemmer<br>
-        public string firstname { get; set; }<br>
-        public string lastname { get; set; }<br>
-        public string mail { get; set; }<br>
-        public string phoneNumber { get; set; }<br>
-        ...<br>
-        ...<br>
-    </center>
+    <br><br>Temp design of members based on copy of Jannik's user design...<br><br><br>
+
+    <a href="/member/creation">Opret medlem</a><br>
+    <a href="/member/edit">Rediger medlem</a><br>
+
+    <table id="memberTable" class="mainTable" CELLSPACING="0">
+        <tr>
+            <th class="tableHeaders">Navn</th>
+            <th class="tableHeaders">E-Mail</th>
+            <th class="tableHeaders">Telefon nummer</th>
+            <th class="tableHeaders thImg" id="editMemberHeader">Ret medlem</th>
+            <th class="tableHeaders thImg tableHeaderEnd" id="deleteMemberHeader">Slet medlem</th>
+        </tr>
+        <tr id="memberSchema" class="hideElm">
+            <td class="tableData"></td>
+            <td class="tableData"></td>
+            <td class="tableData"></td>
+            <td class="tableData tdImg"><img src="Media\EditIcon.png" class="tableImgEdit"></td>
+            <td class="tableData tdImg tableDataEnd"><img src="Media\DeleteIcon.png" class="tableImgDelete"></td>
+        </tr>
+    </table>
 </div>

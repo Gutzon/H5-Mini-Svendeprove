@@ -17,6 +17,7 @@ function startFunctions() {
     let loggedIn = validateLogin();
     if (loggedIn) {
         populateUsers();
+        populateMembers();
         showNavbar(true);
         populateCorporationSelector();
     }
@@ -198,8 +199,10 @@ function handleLogin(responseText) {
         setCookieParam("corporations", escape(JSON.stringify(jsonObject.corporations)));
         setCookieParam("accessToken", jsonObject.tokken);
         setCookieParam("userName", loginForm.user.value);
-        if (jsonObject.editRights) setCookieParam("editRights", jsonObject.editRights);
-        if (jsonObject.deleteRights) setCookieParam("deleteRights", jsonObject.deleteRights);
+        if (jsonObject.editUser) setCookieParam("editUserRights", jsonObject.editUser);
+        if (jsonObject.deleteUser) setCookieParam("deleteUserRights", jsonObject.deleteUser);
+        if (jsonObject.editMember) setCookieParam("editMemberRights", jsonObject.editMember);
+        if (jsonObject.deleteMember) setCookieParam("deleteMemberRights", jsonObject.deleteMember);
         dashboardToggle();
         showNavbar(true);
     }
@@ -221,8 +224,10 @@ function logOut() {
                 removeCookieParam("selectedCorp");
                 removeCookieParam("accessToken");
                 removeCookieParam("userName");
-                removeCookieParam("editRights");
-                removeCookieParam("deleteRights");
+                removeCookieParam("editUserRights");
+                removeCookieParam("deleteUserRights");
+                removeCookieParam("editMemberRights");
+                removeCookieParam("deleteMemberRights");
                 document.location.href = "/";
             }
         }
@@ -276,6 +281,7 @@ function changeCorporation() {
             if (corporationChanged) {
                 setCookieParam("selectedCorp", corporationSelector.value);
                 populateUsers();
+                populateMembers();
             }
         }
     }
@@ -314,10 +320,10 @@ function CreateUserColumnElm(user, columnNumber) {
         case 3:
             return document.createTextNode(user["lastseen"]);
         case 4:
-            let hasEditRights = getCookieParam("editRights") !== "";
+            let hasEditRights = getCookieParam("editUserRights") !== "";
             return !hasEditRights ? null : document.createTextNode("");
         case 5:
-            let hasDeleteRights = getCookieParam("deleteRights") !== "";
+            let hasDeleteRights = getCookieParam("deleteUserRights") !== "";
             return !hasDeleteRights ? null : document.createTextNode("");
         default:
             return document.createTextNode("Undefined case");
@@ -354,13 +360,13 @@ function addUsersToOverview(userTableList, userList) {
 
 function cleanUserOverviewElements(userCloneRow) {
     let editHeader = document.getElementById("editUserHeader");
-    if (getCookieParam("editRights") === "") {
+    if (getCookieParam("editUserRights") === "") {
         editHeader.parentNode.removeChild(editHeader);
     }
     else editHeader.style.display = "table-cell";
 
     let deleteHeader = document.getElementById("deleteUserHeader");
-    if (getCookieParam("deleteRights") === "") {
+    if (getCookieParam("deleteUserRights") === "") {
         deleteHeader.parentNode.removeChild(deleteHeader);
     }
     else deleteHeader.style.display = "table-cell";
@@ -428,6 +434,91 @@ function userEdit() {
 
 
 // Member handling
+
+function populateMembers() {
+    let memberTableList = document.getElementById("memberTable");
+    if (memberTableList == null) return;
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", '/member/overview', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            jsonObject = JSON.parse(xhr.responseText);
+            addMembersToOverview(memberTableList, jsonObject);
+        }
+    }
+    xhr.send();
+}
+
+function CreateMemberColumnElm(user, columnNumber) {
+    switch (columnNumber) {
+        case 0:
+            return document.createTextNode(user["firstname"] + " " + user["lastname"]);
+        case 1:
+            return document.createTextNode(user["mail"]);
+        case 2:
+            return document.createTextNode(user["phoneNumber"]);
+        case 3:
+            let hasEditRights = getCookieParam("editMemberRights") !== "";
+            return !hasEditRights ? null : document.createTextNode("");
+        case 4:
+            let hasDeleteRights = getCookieParam("deleteMemberRights") !== "";
+            return !hasDeleteRights ? null : document.createTextNode("");
+        default:
+            return document.createTextNode("Undefined case");
+    }
+}
+
+function addMembersToOverview(memberTableList, memberList) {
+    let trMembers = memberTableList.getElementsByTagName("tr");
+    while (trMembers.length > 2) trMembers[2].parentNode.removeChild(trMembers[2]);
+
+    let memberCloneRow = memberTableList.getElementsByTagName("tr")[1].cloneNode(true);
+    cleanMemberOverviewElements(memberCloneRow);
+    removeClass(memberCloneRow, "hideElm");
+
+    for (var user of memberList) {
+        let rowCloned = memberCloneRow.cloneNode(true);
+        let rowTds = rowCloned.getElementsByTagName("td");
+
+        let removeTds = [];
+        for (var i = 0; i < rowTds.length; i++) {
+            let objectToAppend = CreateMemberColumnElm(user, i);
+            if (objectToAppend != null) rowTds[i].appendChild(objectToAppend);
+            else removeTds.push(rowTds[i]);
+        }
+
+        while (removeTds.length > 0) {
+            let td = removeTds.pop();
+            td.parentNode.removeChild(td);
+        }
+        memberTableList.appendChild(rowCloned);
+    }
+}
+
+
+function cleanMemberOverviewElements(userCloneRow) {
+    let editHeader = document.getElementById("editMemberHeader");
+    if (getCookieParam("editMemberRights") === "") {
+        editHeader.parentNode.removeChild(editHeader);
+    }
+    else editHeader.style.display = "table-cell";
+
+    let deleteHeader = document.getElementById("deleteMemberHeader");
+    if (getCookieParam("deleteMemberRights") === "") {
+        deleteHeader.parentNode.removeChild(deleteHeader);
+    }
+    else deleteHeader.style.display = "table-cell";
+}
+
+
+
+
+
+
+
 function memberCreate() {
     console.log(getFormJsonData(memberCreateForm));
     alert("Not ready");

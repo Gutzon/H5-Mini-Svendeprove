@@ -70,8 +70,10 @@ namespace RegnskabsSystem.Controllers
                     var adminLogin = serverSideData.Login("admin", SecurityHelper.GetHashCode("admin"+"admin"));
                     var users = serverSideData.GetUsers(new Validation("admin", adminLogin.tokken));
                     var currentUserRights = users.FirstOrDefault(u => u.username == loginData.user).permissions;
-                    userLogin.editRights = currentUserRights.EditUser;
-                    userLogin.deleteRights = currentUserRights.DeleteUser;
+                    userLogin.editUser = currentUserRights.EditUser;
+                    userLogin.deleteUser = currentUserRights.DeleteUser;
+                    userLogin.editMember = currentUserRights.EditMember;
+                    userLogin.deleteMember = currentUserRights.DeleteMember;
                     return Ok(userLogin);
             };
         }
