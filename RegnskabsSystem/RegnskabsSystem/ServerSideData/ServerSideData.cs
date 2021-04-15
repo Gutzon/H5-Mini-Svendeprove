@@ -297,7 +297,16 @@ namespace ServerSideData
 
         public bool EditUser(Validation validate, TransferUser user, TransferUser newuser)
         {
-            throw new NotImplementedException();
+            if (ValidateTokken(validate))
+            {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "EditUser"))
+                {
+
+
+                }
+            }
+            return false;
         }
 
         public bool DeleteUser(Validation validate, TransferUser user)
@@ -328,10 +337,10 @@ namespace ServerSideData
             {
                 var query = from users in db.Users
                             join ucp in db.UCP on users.Id equals ucp.UserID
-                            where ucp.CorporationID.Equals(ses.corporationId) && users.Equals(ses.username)
+                            where ucp.CorporationID.Equals(ses.corporationId) && users.username.Equals(ses.username)
                             orderby users.firstname
                             select users;
-                userlist.Add(new TransferUser(query.First(), ses.permissions));
+                userlist.Add(new TransferUser(query.ToArray()[0], ses.permissions));
                 if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "EditUser") || CheckPermission(validate, ses, "DeleteUser") || CheckPermission(validate, ses, "AddUser"))
                 {
 
@@ -350,7 +359,8 @@ namespace ServerSideData
                                 select users;
                         break;
                 }
-                    foreach (User user in query)
+                    IEnumerable<User> userresult = query.ToArray();
+                    foreach (User user in userresult)
                     {
                         var permquery = from perm in db.Permissions
                                         join ucp in db.UCP on perm.ID equals ucp.PermissionID
@@ -368,7 +378,38 @@ namespace ServerSideData
 
         public IEnumerable<Member> GetMembers(Validation validate, string searchvalue = "", string searchtype = "")
         {
-            throw new NotImplementedException();
+            List<Member> memberlist = new();
+            Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+            if (ValidateTokken(validate))
+            {
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "EditMember") || CheckPermission(validate, ses, "DeleteMember") || CheckPermission(validate, ses, "AddMember"))
+                {
+                    var query = from members in db.Members
+                                where members.ID.Equals(0)
+                                select members;
+
+                    switch (searchtype)
+                    {
+                        case "Test":
+
+
+                            break;
+                        default:
+                            query = from members in db.Members
+                                    where members.CorporationID.Equals(ses.corporationId)
+                                    orderby members.firstname
+                                    select members;
+                            break;
+                    }
+                    foreach (Member member in query)
+                    {
+                        memberlist.Add(member);
+
+                    }
+                }
+
+            }
+            return memberlist;
         }
 
         public IEnumerable<FinanceEntry> GetFinances(Validation validate, string konti = "", string searchvalue = "", string searchtype = "")
