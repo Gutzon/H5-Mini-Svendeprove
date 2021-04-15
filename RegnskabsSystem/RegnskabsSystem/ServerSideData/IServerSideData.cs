@@ -16,8 +16,8 @@ namespace ServerSideData
         public bool Logout(Validation validate);
         public Permissions GetPermissions(Validation validate);
         public bool CreateUser(Validation validate, TransferUser user);
-        public bool EditUser(Validation validate, User user, User newuser);
-        public bool DeleteUser(Validation validate, User user);
+        public bool EditUser(Validation validate, TransferUser user, TransferUser newuser);
+        public bool DeleteUser(Validation validate, TransferUser user);
         public bool CreateMember(Validation validate, Member member);
         public bool EditMember(Validation validate, Member member, Member newmember);
         public bool DeleteMember(Validation validate, Member member);

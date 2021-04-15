@@ -20,6 +20,10 @@ namespace ServerSideData.Models
             this.lastname = user.lastname;
             this.mail = user.mail;
         }
+        public User(Session ses)
+        {
+            this.username = ses.username;
+        }
 
         public int Id { get; set; }
         public string username { get; set; }
