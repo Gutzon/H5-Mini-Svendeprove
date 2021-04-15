@@ -52,6 +52,12 @@ namespace RegnskabsSystem.Controllers
         }
 
 
+        [HttpGet("creation-dev-temp")]
+        public ActionResult CreationDevTemp()
+        {
+            return View();
+        }
+
 
         [HttpPost("login")]
         public ActionResult<UserLogin> Login([FromBody] LoginModel loginData)

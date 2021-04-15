@@ -25,14 +25,29 @@ function getFormJsonData(formId) {
     let form = document.forms[formId];
     if (form == null) return formDataObject;
     for (let elm of document.forms[formId]) {
-        if (elm.getAttribute("type") !== "button") {
-            let elmName = elm.getAttribute("name");
-            if (elmName !== undefined) {
-                formDataObject[elmName] = elm.value;
-            }
+        placeElmValueInObject(formDataObject, elm);
+    }
+    console.log(formDataObject); // <- For debugging purposes in console.
+    return formDataObject
+}
+
+function placeElmValueInObject(formDataObject, elm) {
+    let elmType = elm.getAttribute("type");
+    if (elmType === "button") return;
+
+    let elmName = elm.getAttribute("name");
+    if (elmName === undefined) return;
+
+    let subObjectPosition = getJsonObjectForValue(elm);
+    if (subObjectPosition.length > 0) {
+        for (let pos of subObjectPosition) {
+            if (formDataObject[pos] == undefined) formDataObject[pos] = {};
+            formDataObject[pos][elmName] = (elmType === "checkbox") ? elm.checked : elm.value;
         }
     }
-    return formDataObject
+    else {
+        formDataObject[elmName] = (elmType === "checkbox") ? elm.checked : elm.value;
+    }
 }
 
 
@@ -88,6 +103,20 @@ function removeClass(elm, className) {
         newClass += (newClass.length > 0 ? " " : "") + classParts[i]
     }
     elm.setAttribute("class", newClass);
+}
+
+function getJsonObjectForValue(elm) {
+    let jsonObjectToPlace = [];
+    let currentClass = elm.getAttribute("class");
+    if (currentClass === null) currentClass = "";
+    let classParts = currentClass.split(" ");
+    for (let i = 0; i < classParts.length; i++) {
+        if (classParts[i].indexOf("ToJsonObject") != 0) {
+            continue;
+        }
+        jsonObjectToPlace.push(classParts[i].substring("ToJsonObject".length));
+    }
+    return jsonObjectToPlace;
 }
 
 
