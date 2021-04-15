@@ -1,0 +1,34 @@
+﻿@{
+    ViewData["Title"] = "Opret bruger";
+}
+
+<div id="bodyContainer">
+    <center>
+        Tilbage til overblik <a href="/">Link</a><br><br><br>
+
+        Medlems overblik <a href="/member">Link</a><br>
+        Opret medlem <a href="/member/creation">Link</a><br>
+        Rediger medlem <a href="/member/edit">Link</a><br>
+        <br>
+        Ret medlem<br>
+
+        <form id="memberEditForm">
+            gammelt fornavn <input readonly type="text" name="oldFirstName"><br>
+            gammelt efternavn <input readonly type="text" name="oldLastName"><br>
+            gammel mail <input readonly type="text" name="oldMail"><br>
+            gammelt telefonnummer <input readonly type="text" name="oldPhoneNumber"><br>
+
+            Nyt fornavn: <input type="text" name="firstName"><br>
+            Nyt efternavn: <input type="text" name="lastName"><br>
+            Ny email: <input type="text" name="mail"><br>
+            Nyt telefon nummer: <input type="text" name="phoneNumber"><br>
+            <br>
+            <input type="button" onclick="memberEdit()" value="Tilføj medlem"><br>
+        </form>
+
+
+    </center>
+</div>
+<!-- Design to be fixed -->
+<br>
+<br>

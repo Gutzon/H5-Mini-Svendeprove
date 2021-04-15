@@ -20,7 +20,7 @@ function startFunctions() {
 
 
 // General functionality
-function GetFormJsonData(formId) {
+function getFormJsonData(formId) {
     var formDataObject = {};
     let form = document.forms[formId];
     if (form == null) return formDataObject;
@@ -245,7 +245,7 @@ function changeCorporation() {
 
 
 // User handling
-function UserCreate() {
+function userCreate() {
     let userCreateForm = document.forms["userCreateForm"];
     if (userCreateForm == undefined) return;
     
@@ -274,6 +274,30 @@ function UserCreate() {
         }
     }
 
-    let formData = GetFormJsonData("userCreateForm");
+    let formData = getFormJsonData("userCreateForm");
     xhr.send(JSON.stringify(formData));
+}
+
+function userEdit() {
+    //console.log(getFormJsonData(userEditForm));
+    alert("Not ready");
+}
+
+
+
+
+
+
+
+
+
+// Member handling
+function memberCreate() {
+    console.log(getFormJsonData(memberCreateForm));
+    alert("Not ready");
+}
+
+function memberEdit() {
+    console.log(getFormJsonData(memberEditForm));
+    alert("Not ready");
 }
