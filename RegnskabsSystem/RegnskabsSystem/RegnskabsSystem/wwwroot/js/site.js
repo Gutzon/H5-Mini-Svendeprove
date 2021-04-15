@@ -14,7 +14,10 @@
 // Run start functions
 document.documentElement.onload += startFunctions();
 function startFunctions() {
-    validateLogin();
+    let loggedIn = validateLogin();
+    if (loggedIn) {
+        populateUsers();
+    }
 }
 
 
@@ -54,20 +57,22 @@ function placeElmValueInObject(formDataObject, elm) {
 
 // Access restrictions
 function validateLogin() {
+    let loggedIn = validateToken();
     let currentPage = document.location.pathname;
     if (currentPage === "/") {
         dashboardToggle();
-        return;
+        return loggedIn;
     }
 
     // Redirect to frontpage/login on login restricted pages
-    if (!validateToken()) {
+    if (!loggedIn) {
         let nonLoginRequiredPages = ["/Api/Privacy"];
         if (nonLoginRequiredPages.indexOf(currentPage) == -1) {
             alert("This page requires login. Please login again.");
             document.location.href = "/";
         }
-    }            
+    }
+    return loggedIn;
 }
 
 function validateToken() {
@@ -191,6 +196,8 @@ function handleLogin(responseText) {
         setCookieParam("corporations", escape(JSON.stringify(jsonObject.corporations)));
         setCookieParam("accessToken", jsonObject.tokken);
         setCookieParam("userName", loginForm.user.value);
+        if (jsonObject.editRights) setCookieParam("editRights", jsonObject.editRights);
+        if (jsonObject.deleteRights) setCookieParam("deleteRights", jsonObject.deleteRights);
         dashboardToggle();
     }
     catch {
@@ -212,6 +219,8 @@ function logOut() {
                 removeCookieParam("selectedCorp");
                 removeCookieParam("accessToken");
                 removeCookieParam("userName");
+                removeCookieParam("editRights");
+                removeCookieParam("deleteRights");
                 document.location.href = "/";
             }
         }
@@ -285,23 +294,78 @@ function populateUsers() {
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             jsonObject = JSON.parse(xhr.responseText);
-            console.log(jsonObject);
+            addUsersToOverview(userTableList, jsonObject);
         }
     }
     xhr.send();
 }
 
-
-function addUser(userList) {
-
+function CreateUserColumnElm(user, columnNumber) {
+    switch (columnNumber) {
+        case 0:
+            return document.createTextNode(user["username"]);
+        case 1:
+            return document.createTextNode(user["mail"]);
+        case 2:
+            return document.createTextNode(user["firstname"] + " " + user["lastname"]);
+        case 3:
+            return document.createTextNode(user["lastseen"]);
+        case 4:
+            let hasEditRights = getCookieParam("editRights") !== "";
+            return !hasEditRights ? null : document.createTextNode("");
+        case 5:
+            let hasDeleteRights = getCookieParam("deleteRights") !== "";
+            return !hasDeleteRights ? null : document.createTextNode("");
+        default:
+            return document.createTextNode("Undefined case");
+    }
 }
 
+function addUsersToOverview(userTableList, userList) {
+    let userCloneRow = userTableList.getElementsByTagName("tr")[1];
+    cleanUserOverviewElements(userCloneRow);
+    removeClass(userCloneRow, "hideElm");
+
+    for (var user of userList) {
+        let rowCloned = userCloneRow.cloneNode(true);
+        let rowTds = rowCloned.getElementsByTagName("td");
+
+        let removeTds = [];
+        for (var i = 0; i < rowTds.length; i++) {
+            let objectToAppend = CreateUserColumnElm(user, i);
+            if (objectToAppend != null) rowTds[i].appendChild(objectToAppend);
+            else removeTds.push(rowTds[i]);
+        }
+
+        while (removeTds.length > 0) {
+            let td = removeTds.pop();
+            td.parentNode.removeChild(td);
+        }
+        userTableList.appendChild(rowCloned);
+    }
+}
+
+
+function cleanUserOverviewElements(userCloneRow) {
+    userCloneRow.parentNode.removeChild(userCloneRow);
+    let editHeader = document.getElementById("editUserHeader");
+    if (getCookieParam("editRights") === "") {
+        editHeader.parentNode.removeChild(editHeader);
+    }
+    else editHeader.style.display = "table-cell";
+
+    let deleteHeader = document.getElementById("deleteUserHeader");
+    if (getCookieParam("deleteRights") === "") {
+        deleteHeader.parentNode.removeChild(deleteHeader);
+    }
+    else deleteHeader.style.display = "table-cell";
+}
 
 
 function userCreate() {
     let userCreateForm = document.forms["userCreateForm"];
     if (userCreateForm == undefined) return;
-    
+
     let xhr = new XMLHttpRequest();
     xhr.open("POST", '/user', true);
     xhr.setRequestHeader("Content-Type", "application/json");

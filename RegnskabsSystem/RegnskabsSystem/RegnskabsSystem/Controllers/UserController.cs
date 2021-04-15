@@ -52,23 +52,27 @@ namespace RegnskabsSystem.Controllers
         }
 
 
-        [HttpGet("creation-dev-temp")]
-        public ActionResult CreationDevTemp()
-        {
-            return View();
-        }
-
-
         [HttpPost("login")]
         public ActionResult<UserLogin> Login([FromBody] LoginModel loginData)
         {
             var hashedPassword = SecurityHelper.GetHashCode(loginData.user + loginData.GetUnEscapedPassword);
             var userLogin = serverSideData.Login(loginData.user, hashedPassword);
-            return userLogin.status switch
+            switch (userLogin.status)
             {
-                "Error" => BadRequest("AccessDenied"),
-                "Fail" => BadRequest("AccountFail"),
-                _ => Ok(userLogin),
+                case "Error":
+                    return BadRequest("AccessDenied");
+                case "Fail":
+                    return BadRequest("AccountFail");
+                default:
+
+                    // Todo: Ask Kennie to extend so login returns the edit/delete rights or perhaps all of the users rights
+                    // or allow user to get their own user rights using get permissions... for now use workaround
+                    var adminLogin = serverSideData.Login("admin", SecurityHelper.GetHashCode("admin"+"admin"));
+                    var users = serverSideData.GetUsers(new Validation("admin", adminLogin.tokken));
+                    var currentUserRights = users.FirstOrDefault(u => u.username == loginData.user).permissions;
+                    userLogin.editRights = currentUserRights.EditUser;
+                    userLogin.deleteRights = currentUserRights.DeleteUser;
+                    return Ok(userLogin);
             };
         }
 

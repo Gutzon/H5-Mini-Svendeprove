@@ -18,28 +18,191 @@
             Email: <input type="text" name="mail"><br>
             - Bemærk kodeord oprettes automatisk og sendes til brugeren.<br>
             <br>
+            <br>
+
+
+            <!--
+            public bool AddCorporation { get; set; }<br>
+            public bool Admin { get; set; }<br>
+            public bool AddUser { get; set; }<br>
+            public bool EditUser { get; set; }<br>
+            public bool DeleteUser { get; set; }<br>
+            public bool AddMember { get; set; }<br>
+            public bool EditMember { get; set; }<br>
+            public bool DeleteMember { get; set; }<br>
+            public bool AddFinance { get; set; }<br>
+            public bool ViewFinance { get; set; }<br>
+            public bool LimitedViewFinance { get; set; }<br>
+            public bool AddInventory { get; set; }<br>
+            public bool EditInventory { get; set; }<br>
+            public bool DeleteInventory { get; set; }<br>-->
+            Bruger rettigheder:<br>
+            <table class="tempUserCreate">
+                <thead>
+                    <tr>
+                        <td>
+                            Rettighed
+                        </td>
+                        <td>
+                            Egen adgang
+                        </td>
+                        <td>
+                            Bruger adgang
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            AddCorporation
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="ToJsonObjectPermissions" name="AddCorporation">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Admin
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="ToJsonObjectPermissions" name="Admin">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            AddUser
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="ToJsonObjectPermissions" name="AddUser">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            EditUser
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="ToJsonObjectPermissions" name="EditUser">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            DeleteUser
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="ToJsonObjectPermissions" name="DeleteUser">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            AddMember
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="ToJsonObjectPermissions" name="AddMember">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            EditMember
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="ToJsonObjectPermissions" name="EditMember">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            DeleteMember
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="ToJsonObjectPermissions" name="DeleteMember">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            AddFinance
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="ToJsonObjectPermissions" name="AddFinance">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            ViewFinance
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="ToJsonObjectPermissions" name="ViewFinance">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            LimitedViewFinance
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="ToJsonObjectPermissions" name="LimitedViewFinance">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            AddInventory
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="ToJsonObjectPermissions" name="AddInventory">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            EditInventory
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="ToJsonObjectPermissions" name="EditInventory">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            DeleteInventory
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="ToJsonObjectPermissions" name="DeleteInventory">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <br>
+            <br>
+
             <input type="button" onclick="userCreate()" value="Tilføj bruger"><br>
         </form>
 
-
-        <br>
-        Permission checkbokse?<br><br>
-        Tekst ? | Egen rettighed ? | Ny bruger rettighed ?<br>
-
-        public bool AddCorporation { get; set; }<br>
-        public bool Admin { get; set; }<br>
-        public bool AddUser { get; set; }<br>
-        public bool EditUser { get; set; }<br>
-        public bool DeleteUser { get; set; }<br>
-        public bool AddMember { get; set; }<br>
-        public bool EditMember { get; set; }<br>
-        public bool DeleteMember { get; set; }<br>
-        public bool AddFinance { get; set; }<br>
-        public bool ViewFinance { get; set; }<br>
-        public bool LimitedViewFinance { get; set; }<br>
-        public bool AddInventory { get; set; }<br>
-        public bool EditInventory { get; set; }<br>
-        public bool DeleteInventory { get; set; }<br>
 
 
 

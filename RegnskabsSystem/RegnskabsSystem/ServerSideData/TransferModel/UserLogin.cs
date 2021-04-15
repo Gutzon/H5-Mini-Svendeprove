@@ -12,5 +12,7 @@ namespace ServerSideData.TransferModel
         public string tokken { get; set; }
         public List<Corporation> Corporations { get; set; }
         public string status { get; set; }
+        public bool editRights { get; set; }
+        public bool deleteRights { get; set; }
     }
 }
