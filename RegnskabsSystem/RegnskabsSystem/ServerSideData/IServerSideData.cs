@@ -22,7 +22,7 @@ namespace ServerSideData
         public bool EditMember(Validation validate, Member member, Member newmember);
         public bool DeleteMember(Validation validate, Member member);
         public bool ValidateTokken(Validation validate);
-        public IEnumerable<User> GetUsers(Validation validate, string searchvalue = "", string searchtype = "");
+        public IEnumerable<TransferUser> GetUsers(Validation validate, string searchvalue = "", string searchtype = "");
         public IEnumerable<Member> GetMembers(Validation validate, string searchvalue = "", string searchtype = "");
         public IEnumerable<FinanceEntry> GetFinances(Validation validate, string konti = "", string searchvalue = "", string searchtype = "");
         public IEnumerable<Corporation> GetCorporations();

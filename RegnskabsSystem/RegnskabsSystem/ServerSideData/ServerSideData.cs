@@ -137,7 +137,7 @@ namespace ServerSideData
                 {
                     if (db.Users.Where(o => o.username.Equals(user.username)).Count() == 0 && user.username != "" && user.hashPassword != "")
                     {
-                        var newusercheck = CheckUserPermissions(new TransferUser(new User(ses, ses.permissions), user);
+                        var newusercheck = CheckUserPermissions(new TransferUser(new User(ses), ses.permissions), user);
                         if (newusercheck.Item1)
                         {
                             User newuser = new User(newusercheck.Item2);
@@ -320,9 +320,50 @@ namespace ServerSideData
             throw new NotImplementedException();
         }
 
-        public IEnumerable<User> GetUsers(Validation validate, string searchvalue = "", string searchtype = "")
+        public IEnumerable<TransferUser> GetUsers(Validation validate, string searchvalue = "", string searchtype = "")
         {
-            throw new NotImplementedException();
+            List<TransferUser> userlist = new();
+            Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+            if (ValidateTokken(validate))
+            {
+                var query = from users in db.Users
+                            join ucp in db.UCP on users.Id equals ucp.UserID
+                            where ucp.CorporationID.Equals(ses.corporationId) && users.Equals(ses.username)
+                            orderby users.firstname
+                            select users;
+                userlist.Add(new TransferUser(query.First(), ses.permissions));
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "EditUser") || CheckPermission(validate, ses, "DeleteUser") || CheckPermission(validate, ses, "AddUser"))
+                {
+
+                
+                switch (searchtype)
+                {
+                    case "Test":
+
+                        
+                        break;
+                    default:
+                        query = from users in db.Users
+                                join ucp in db.UCP on users.Id equals ucp.UserID
+                                where ucp.CorporationID.Equals(ses.corporationId) && !users.username.Equals(ses.username)
+                                orderby users.firstname
+                                select users;
+                        break;
+                }
+                    foreach (User user in query)
+                    {
+                        var permquery = from perm in db.Permissions
+                                        join ucp in db.UCP on perm.ID equals ucp.PermissionID
+                                        where ucp.UserID.Equals(user.Id) && ucp.CorporationID.Equals(ses.corporationId)
+                                        select perm;
+                        userlist.Add(new TransferUser(user, permquery.First()));
+
+                    }
+
+                }
+                
+            }
+            return userlist;
         }
 
         public IEnumerable<Member> GetMembers(Validation validate, string searchvalue = "", string searchtype = "")
