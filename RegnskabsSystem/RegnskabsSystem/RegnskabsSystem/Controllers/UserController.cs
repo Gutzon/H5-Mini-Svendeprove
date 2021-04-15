@@ -91,7 +91,15 @@ namespace RegnskabsSystem.Controllers
         public ActionResult<IEnumerable<TransferUser>> Overview()
         {
             var validation = CookieHelper.GetValidation(Request);
-            return Ok(serverSideData.GetUsers(validation));
+            var users = serverSideData.GetUsers(validation);
+            
+            // When sending js data back on user overview - then exclude password hashes or permissions
+            foreach (var user in users)
+            {
+                user.hashPassword = "";
+                user.permissions = null;
+            }
+            return Ok(users);
         }
 
 

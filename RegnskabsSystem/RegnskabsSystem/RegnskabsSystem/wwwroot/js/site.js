@@ -17,6 +17,8 @@ function startFunctions() {
     let loggedIn = validateLogin();
     if (loggedIn) {
         populateUsers();
+        showNavbar(true);
+        populateCorporationSelector();
     }
 }
 
@@ -68,7 +70,7 @@ function validateLogin() {
     if (!loggedIn) {
         let nonLoginRequiredPages = ["/Api/Privacy"];
         if (nonLoginRequiredPages.indexOf(currentPage) == -1) {
-            alert("This page requires login. Please login again.");
+            alert("Denne side kræver login, log venligst ind igen.");
             document.location.href = "/";
         }
     }
@@ -199,6 +201,7 @@ function handleLogin(responseText) {
         if (jsonObject.editRights) setCookieParam("editRights", jsonObject.editRights);
         if (jsonObject.deleteRights) setCookieParam("deleteRights", jsonObject.deleteRights);
         dashboardToggle();
+        showNavbar(true);
     }
     catch {
         alert("En fejl skete under login, kontakt venligst en administrator.");
@@ -214,7 +217,6 @@ function logOut() {
 
         xhr.onreadystatechange = function () {
             if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-                alert("Log ud er gennemført");
                 removeCookieParam("corporations");
                 removeCookieParam("selectedCorp");
                 removeCookieParam("accessToken");
@@ -228,6 +230,7 @@ function logOut() {
     }
     // Toggle view if for it allowed logout button, though logout had occured (cache/timeout)
     dashboardToggle();
+    showNavbar(false);
 }
 
 
@@ -270,9 +273,9 @@ function changeCorporation() {
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             let corporationChanged = (xhr.responseText.toLowerCase() === "true");
-            alert("Organisationen blev " + (!corporationChanged ? "ikke " : "") + "skiftet");
             if (corporationChanged) {
                 setCookieParam("selectedCorp", corporationSelector.value);
+                populateUsers();
             }
         }
     }
@@ -322,7 +325,10 @@ function CreateUserColumnElm(user, columnNumber) {
 }
 
 function addUsersToOverview(userTableList, userList) {
-    let userCloneRow = userTableList.getElementsByTagName("tr")[1];
+    let trUsers = userTableList.getElementsByTagName("tr");
+    while (trUsers.length > 2) trUsers[2].parentNode.removeChild(trUsers[2]);
+
+    let userCloneRow = userTableList.getElementsByTagName("tr")[1].cloneNode(true);
     cleanUserOverviewElements(userCloneRow);
     removeClass(userCloneRow, "hideElm");
 
@@ -347,7 +353,6 @@ function addUsersToOverview(userTableList, userList) {
 
 
 function cleanUserOverviewElements(userCloneRow) {
-    userCloneRow.parentNode.removeChild(userCloneRow);
     let editHeader = document.getElementById("editUserHeader");
     if (getCookieParam("editRights") === "") {
         editHeader.parentNode.removeChild(editHeader);
@@ -431,4 +436,13 @@ function memberCreate() {
 function memberEdit() {
     console.log(getFormJsonData(memberEditForm));
     alert("Not ready");
+}
+
+
+// Navigation
+function showNavbar(show) {
+    let navbar = document.getElementById("headerArea").getElementsByTagName("navbar")[0];
+    if (navbar == null) return;
+    if (show) removeClass(navbar, "hideElm");
+    else addClass(navbar, "hideElm");
 }
