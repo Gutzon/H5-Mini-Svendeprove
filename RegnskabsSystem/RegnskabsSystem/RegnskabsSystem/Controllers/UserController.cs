@@ -52,12 +52,6 @@ namespace RegnskabsSystem.Controllers
         }
 
 
-        // Temp to not interfere with Jannik's design work
-        [HttpGet("creation-dev")]
-        public ActionResult CreationDev()
-        {
-            return View();
-        }
 
         [HttpPost("login")]
         public ActionResult<UserLogin> Login([FromBody] LoginModel loginData)
