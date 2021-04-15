@@ -109,7 +109,7 @@ namespace RegnskabsSystem.Controllers
         }
 
         [HttpPost()]
-        public ActionResult<UserCreatedModel> CreateUser([FromBody] User user)
+        public ActionResult<UserCreatedModel> CreateUser([FromBody] TransferUser user)
         {
             var validation = CookieHelper.GetValidation(Request);
             if (validation == null) return new UserCreatedModel();

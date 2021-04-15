@@ -9,6 +9,10 @@ namespace ServerSideData.TransferModel
 {
     public class TransferUser
     {
+        public TransferUser()
+        {
+        }
+
         public TransferUser(string username, string hashPassword, string firstname, string lastname, string mail, TransferPermissions permissions)
         {
             this.username = username;
@@ -18,6 +22,7 @@ namespace ServerSideData.TransferModel
             this.mail = mail;
             this.permissions = permissions;
         }
+
         public TransferUser(User user, Permissions permissions)
         {
             this.username = user.username;
@@ -28,11 +33,11 @@ namespace ServerSideData.TransferModel
             this.permissions = new TransferPermissions(permissions);
         }
 
-        public string username { get; }
-        public string hashPassword { get; }
-        public string firstname { get; }
-        public string lastname { get; }
-        public string mail { get;}
-        public TransferPermissions permissions { get;}
+        public string username { get; set; }
+        public string hashPassword { get; set; }
+        public string firstname { get; set; }
+        public string lastname { get; set; }
+        public string mail { get; set; }
+        public TransferPermissions permissions { get; set; }
     }
 }

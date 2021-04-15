@@ -137,7 +137,7 @@ namespace ServerSideData
 
 
 
-        public bool CreateUser(Validation validate, User user)
+        public bool CreateUser(Validation validate, TransferUser user)
         {
             if (ValidateTokken(validate))
             {
