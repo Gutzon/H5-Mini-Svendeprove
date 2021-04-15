@@ -146,7 +146,7 @@ namespace ServerSideData
                 {
                     if(db.Users.Where(o => o.username.Equals(user.username)).Count() == 0 && user.username != "" && user.hashPassword != "" )
                     {
-                    db.Users.Add(user);
+                    db.Users.Add(new User(user));
                     Commit();
                     return true;
                     }
