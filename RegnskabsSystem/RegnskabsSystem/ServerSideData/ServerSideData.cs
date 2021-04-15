@@ -118,19 +118,10 @@ namespace ServerSideData
         {
             if (ValidateTokken(validate))
             {
-               /* Session ses = sessions.Find(o => o.username.Equals(validate.username));
-                var query = from perm in db.Permissions
-                                join ucp in db.UCP on perm.ID equals ucp.PermissionID
-                                join users in db.Users on ucp.UserID equals users.Id
-                                where users.username.Equals(ses.username) && ucp.CorporationID.Equals(ses.corporationId)
-                                select perm;
-                    Permissions permmis = query.First();*/
                 if ((bool)typeof(Permissions).GetProperty(permission).GetValue(ses.permissions, null))
                 {
                     return true;
                 }
-
-
             }
             return false;
         }
@@ -141,33 +132,63 @@ namespace ServerSideData
         {
             if (ValidateTokken(validate))
             {
-                Session ses = sessions.Find(o => o.username.Equals(validate.username));
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 if (CheckPermission(validate, ses, "AddUser"))
                 {
-                    if(db.Users.Where(o => o.username.Equals(user.username)).Count() == 0 && user.username != "" && user.hashPassword != "" )
+                    if (db.Users.Where(o => o.username.Equals(user.username)).Count() == 0 && user.username != "" && user.hashPassword != "")
                     {
-                    db.Users.Add(new User(user));
-                    Commit();
-                    return true;
+                        User newuser = new User(user);
+                        user.permissions = new TransferPermissions(true, false, true, false, true, false, true, false, true, false, true, false, true, false);
+                        Permissions perm = new(user.permissions);
+                        db.Users.Add(newuser);
+                        db.Permissions.Add(perm);
+                        Commit();
+                        db.UCP.Add(new User_Corp_Permission(newuser.Id, perm.ID, ses.corporationId));
+                        Commit();
+                        CheckUserPermissions(user, user);
+                        return true;
                     }
-                    else
-                    {
-                        return false;
-                    }
+                }
+            }
+            return false;
+        }
+        private (bool, TransferUser) CheckUserPermissions(TransferUser olduser, TransferUser newuser)
+        {
+            if ((olduser.permissions.AddCorporation || !olduser.permissions.AddCorporation) && (newuser.permissions.AddCorporation || !newuser.permissions.AddCorporation))
+            {
+
+                Dictionary<string, bool> olduserperm = PermissionToDictionary(olduser.permissions);
+                Dictionary<string, bool> newuserperm = PermissionToDictionary(newuser.permissions);
+                if (olduserperm.Where(o => o.Key.Equals("AddCorporation")).First().Value)
+                {
+
                 }
                 else
                 {
-                    return false;
+                    foreach (var obj in newuserperm.Where(o => o.Value.Equals(true)))
+                    {
+                        if (!((olduserperm.Where(o => o.Key.Equals(obj.Key)).First().Value || olduserperm.Where(o => o.Key.Equals("Admin")).First().Value) && obj.Key != "AddCorporation"))
+                        {
+                            newuserperm[obj.Key] = false;
+                        }
+                    }
                 }
+                return (true, newuser);
             }
-            else
-            {
-                return false;
-            }
+            return (false, olduser);
         }
-        private bool checkuser()
+        private Dictionary<string, bool> PermissionToDictionary(TransferPermissions perm)
         {
-            return true;
+            Dictionary<string, bool> dict = new();
+            foreach (var p in typeof(TransferPermissions).GetProperties().Select(o =>
+            {
+                object value = o.Name;
+                return value == null ? null : value.ToString();
+            }).ToArray())
+            {
+                dict.Add(p, (bool)typeof(TransferPermissions).GetProperty(p).GetValue(perm, null));
+            }
+            return dict;
         }
 
 
@@ -198,7 +219,7 @@ namespace ServerSideData
                     if (SelectCorporation(new Validation(username, userLogin.tokken), corpQuery.First().ID))
                     {
                         userLogin.status = "OK";
-                        
+
                     }
                     else
                     {
@@ -271,12 +292,12 @@ namespace ServerSideData
             throw new NotImplementedException();
         }
 
-        public bool EditUser(Validation validate, User user, User newuser)
+        public bool EditUser(Validation validate, TransferUser user, TransferUser newuser)
         {
             throw new NotImplementedException();
         }
 
-        public bool DeleteUser(Validation validate, User user)
+        public bool DeleteUser(Validation validate, TransferUser user)
         {
             throw new NotImplementedException();
         }
