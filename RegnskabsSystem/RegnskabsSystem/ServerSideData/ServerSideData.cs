@@ -317,7 +317,7 @@ namespace ServerSideData
             throw new NotImplementedException();
         }
 
-        public bool CreateMember(Validation validate, Member member)
+        public string CreateMember(Validation validate, Member member)
         {
             throw new NotImplementedException();
         }
