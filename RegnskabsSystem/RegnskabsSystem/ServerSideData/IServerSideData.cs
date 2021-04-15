@@ -15,10 +15,10 @@ namespace ServerSideData
         public bool SelectCorporation(Validation validate, int ID);
         public bool Logout(Validation validate);
         public Permissions GetPermissions(Validation validate);
-        public bool CreateUser(Validation validate, TransferUser user);
+        public string CreateUser(Validation validate, TransferUser user);
         public bool EditUser(Validation validate, TransferUser user, TransferUser newuser);
         public bool DeleteUser(Validation validate, TransferUser user);
-        public bool CreateMember(Validation validate, Member member);
+        public string CreateMember(Validation validate, Member member);
         public bool EditMember(Validation validate, Member member, Member newmember);
         public bool DeleteMember(Validation validate, Member member);
         public bool ValidateTokken(Validation validate);

@@ -128,7 +128,7 @@ namespace ServerSideData
 
 
 
-        public bool CreateUser(Validation validate, TransferUser user)
+        public string CreateUser(Validation validate, TransferUser user)
         {
             if (ValidateTokken(validate))
             {
@@ -147,12 +147,15 @@ namespace ServerSideData
                             Commit();
                             db.UCP.Add(new User_Corp_Permission(newuser.Id, perm.ID, ses.corporationId));
                             Commit();
-                            return true;
+                            return "OK";
                         }
+                        return "Failed setting permission check";
                     }
+                    return "Username already in use";
                 }
+                return "Not permited";
             }
-            return false;
+            return "No session";
         }
         private (bool, TransferUser) CheckUserPermissions(TransferUser olduser, TransferUser newuser)
         {
@@ -300,7 +303,7 @@ namespace ServerSideData
             if (ValidateTokken(validate))
             {
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
-                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "EditUser"))
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "EditUser") || user.username.Equals(ses.username))
                 {
 
 
