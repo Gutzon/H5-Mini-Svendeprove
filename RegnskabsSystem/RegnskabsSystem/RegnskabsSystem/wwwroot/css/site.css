@@ -74,13 +74,14 @@ body {
     display: none;
 }
 
+
+
 /* Temp */
 .tempUserCreate td {
     text-align: center;
     border: 1px solid #555;
     padding: 5px;
 }
-
 
 
 
@@ -97,6 +98,9 @@ body {
     border-bottom-right-radius: 50px;
     box-shadow: 0px 10px 10px grey;
 }
+
+/*  _____________________________Login page________________________________________ */
+
 
 .modularLogin {
     border: solid;
@@ -145,3 +149,59 @@ body {
 ::placeholder {
     opacity: 0.3;
 }
+
+
+/* ________________________________________Grid css____________________________________________________ */
+
+
+.gridContainer {
+    margin-left: 10vw;
+    margin-top: 5vh;
+    width: 80vw;
+}
+
+.mainTable {
+    width: 100%;
+}
+
+.tableHeaders {
+    border-bottom: solid grey 2px;
+    border-right: solid grey 2px;
+    color: white;
+    background-color: rgb(32, 32, 32);
+    width: 20%;
+    height: 5vh;
+    margin: 0;
+    text-align: center;
+}
+
+.tableHeaderEnd {
+    border-right: hidden;
+}
+
+.tableData {
+    height: 3vh;
+    border-bottom: solid darkgray 2px;
+    border-right: solid darkgray 2px;
+    padding-left: 5px;
+}
+
+.tableDataEnd {
+    border-right: hidden;
+}
+
+.thImg {
+    width: 10%;
+}
+
+.tdImg {
+    text-align: center;
+}
+
+.tableImgDelete {
+    height: 2vh;
+}
+
+.tableImgEdit {
+    height: 3vh;
+}}

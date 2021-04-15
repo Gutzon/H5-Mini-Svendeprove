@@ -44,7 +44,7 @@ body {
     height: 10%;
     width: 50%;
     border-radius: 25px;
-    background-color: 0DAAD2;
+    background-color: #0DAAD2;
     border: none;
     color: white;
     font-size: 26px;
@@ -84,6 +84,7 @@ body {
     width: 20%;
     height: 5vh;
     margin: 0;
+    text-align: center;
 }
 
 .tableHeaderEnd {
