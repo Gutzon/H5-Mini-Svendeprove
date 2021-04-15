@@ -137,16 +137,18 @@ namespace ServerSideData
                 {
                     if (db.Users.Where(o => o.username.Equals(user.username)).Count() == 0 && user.username != "" && user.hashPassword != "")
                     {
-                        User newuser = new User(user);
-                        user.permissions = new TransferPermissions(true, false, true, false, true, false, true, false, true, false, true, false, true, false);
-                        Permissions perm = new(user.permissions);
-                        db.Users.Add(newuser);
-                        db.Permissions.Add(perm);
-                        Commit();
-                        db.UCP.Add(new User_Corp_Permission(newuser.Id, perm.ID, ses.corporationId));
-                        Commit();
-                        CheckUserPermissions(user, user);
-                        return true;
+                        var newusercheck = CheckUserPermissions(new TransferUser(new User(ses, ses.permissions), user);
+                        if (newusercheck.Item1)
+                        {
+                            User newuser = new User(newusercheck.Item2);
+                            Permissions perm = new(newusercheck.Item2.permissions);
+                            db.Users.Add(newuser);
+                            db.Permissions.Add(perm);
+                            Commit();
+                            db.UCP.Add(new User_Corp_Permission(newuser.Id, perm.ID, ses.corporationId));
+                            Commit();
+                            return true;
+                        }
                     }
                 }
             }
@@ -170,6 +172,7 @@ namespace ServerSideData
                         if (!((olduserperm.Where(o => o.Key.Equals(obj.Key)).First().Value || olduserperm.Where(o => o.Key.Equals("Admin")).First().Value) && obj.Key != "AddCorporation"))
                         {
                             newuserperm[obj.Key] = false;
+                            typeof(TransferPermissions).GetProperty(obj.Key).SetValue(newuser.permissions, false);
                         }
                     }
                 }
