@@ -397,7 +397,7 @@ namespace ServerSideData
             throw new NotImplementedException();
         }
 
-        public IEnumerable<TransferUser> GetUsers(Validation validate, string searchvalue = "", string searchtype = "")
+        public IEnumerable<TransferUser> GetUsers(Validation validate, string searchvalue = "", string searchtype = "Self")
         {
             List<TransferUser> userlist = new();
             Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
@@ -415,10 +415,13 @@ namespace ServerSideData
                 
                 switch (searchtype)
                 {
-                    case "Test":
+                        case "Test":
 
                         
                         break;
+                        case "Self":
+
+                            break;
                     default:
                         query = from users in db.Users
                                 join ucp in db.UCP on users.Id equals ucp.UserID
