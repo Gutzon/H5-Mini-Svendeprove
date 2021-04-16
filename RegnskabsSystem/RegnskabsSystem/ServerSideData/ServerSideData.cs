@@ -180,8 +180,6 @@ namespace ServerSideData
             return false;
         }
 
-
-
         public string CreateUser(Validation validate, TransferUser user)
         {
             if (ValidateTokken(validate))
@@ -357,9 +355,22 @@ namespace ServerSideData
             if (ValidateTokken(validate))
             {
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
-                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "EditUser") || user.username.Equals(ses.username))
+                if ((CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "EditUser") || user.username.Equals(ses.username)) && user.username.Equals(newuser.username))
                 {
-
+                    var query = from users in db.Users
+                                join ucp in db.UCP on users.Id equals ucp.UserID
+                                join perm in db.Permissions on ucp.PermissionID equals perm.ID
+                                where users.username.Equals(user.username) && ucp.CorporationID.Equals(ses.corporationId)
+                                select new {users, perm};
+                    if (query.Count() == 1)
+                    {
+                        TransferUser resultuser = new(query.First().users, query.First().perm);
+                        newuser = CheckUserPermissions(resultuser, newuser).Item2;
+                        db.Users.Update(new User(query.First().users, resultuser));
+                        db.Permissions.Update(new Permissions(query.First().perm, resultuser.permissions));
+                        Commit();
+                        return true;
+                    }
 
                 }
             }
@@ -419,6 +430,7 @@ namespace ServerSideData
                     IEnumerable<User> userresult = query.ToArray();
                     foreach (User user in userresult)
                     {
+                        user.hashPassword = "";
                         var permquery = from perm in db.Permissions
                                         join ucp in db.UCP on perm.ID equals ucp.PermissionID
                                         where ucp.UserID.Equals(user.Id) && ucp.CorporationID.Equals(ses.corporationId)
