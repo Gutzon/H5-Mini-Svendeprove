@@ -30,6 +30,7 @@ namespace ServerSideData.TransferModel
             this.lastname = user.lastname;
             this.mail = user.mail;
             this.permissions = new TransferPermissions(permissions);
+            lastSeen = user.lastSeen;
         }
 
         public string username { get; set; }
@@ -37,6 +38,7 @@ namespace ServerSideData.TransferModel
         public string firstname { get; set; }
         public string lastname { get; set; }
         public string mail { get; set; }
+        public DateTime lastSeen { get; set; }
         public TransferPermissions permissions { get; set; }
     }
 }

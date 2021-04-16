@@ -248,9 +248,6 @@ namespace ServerSideData
             }
             return dict;
         }
-
-
-
         public UserLogin Login(string username, string password)
         {
             var query = from d in db.Users
@@ -338,17 +335,14 @@ namespace ServerSideData
             if (sessions.Exists(o => o.tokken.Equals(validate.tokken) && o.username.Equals(validate.username)))
             {
                 sessions.Find(o => o.tokken.Equals(validate.tokken) && o.username.Equals(validate.username)).lastUsed = DateTime.Now;
+                db.Users.Where(o => o.username.Equals(validate.username)).First().lastSeen = DateTime.Now;
+                Commit();
                 return true;
             }
             else
             {
                 return false;
             }
-        }
-
-        public Permissions GetPermissions(Validation validate)
-        {
-            throw new NotImplementedException();
         }
 
         public bool EditUser(Validation validate, TransferUser user, TransferUser newuser)
@@ -385,7 +379,23 @@ namespace ServerSideData
 
         public string CreateMember(Validation validate, Member member)
         {
-            throw new NotImplementedException();
+            if (ValidateTokken(validate))
+            {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                if (CheckPermission(validate, ses, "AddMember"))
+                {
+                    if (member.firstname != "" && member.lastname != "")
+                    {
+                        member.CorporationID = ses.corporationId;
+                        db.Members.Add(member);
+                        Commit();
+                        return "OK";
+                    }
+                    return "Name empty";
+                }
+                return "Not permited";
+            }
+            return "No session";
         }
 
         public bool EditMember(Validation validate, Member member, Member newmember)

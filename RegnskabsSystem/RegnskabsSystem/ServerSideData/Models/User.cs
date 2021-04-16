@@ -36,6 +36,7 @@ namespace ServerSideData.Models
             this.firstname = tuser.firstname;
             this.lastname = tuser.lastname;
             this.mail = tuser.mail;
+            lastSeen = user.lastSeen;
         }
 
         public int Id { get; set; }
@@ -44,6 +45,7 @@ namespace ServerSideData.Models
         public string firstname { get; set; }
         public string lastname { get; set; }
         public string mail { get; set; }
+        public DateTime lastSeen { get; set; }
 
     }
 }

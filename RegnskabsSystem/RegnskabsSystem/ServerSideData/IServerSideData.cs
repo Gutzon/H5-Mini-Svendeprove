@@ -14,7 +14,6 @@ namespace ServerSideData
         public UserLogin Login(string username, string password);
         public bool SelectCorporation(Validation validate, int ID);
         public bool Logout(Validation validate);
-        public Permissions GetPermissions(Validation validate);
         public string CreateUser(Validation validate, TransferUser user);
         public bool EditUser(Validation validate, TransferUser user, TransferUser newuser);
         public bool DeleteUser(Validation validate, TransferUser user);
