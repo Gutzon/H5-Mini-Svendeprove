@@ -327,7 +327,7 @@ function CreateUserColumnElm(user, columnNumber) {
         case 2:
             return document.createTextNode(user["firstname"] + " " + user["lastname"]);
         case 3:
-            return document.createTextNode(user["lastseen"]);
+            return document.createTextNode(user["lastSeen"]);
         case 4:
             return !getPermissions().editUser ? null : document.createTextNode("");
         case 5:
