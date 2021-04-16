@@ -362,7 +362,7 @@ namespace ServerSideData
                                 join perm in db.Permissions on ucp.PermissionID equals perm.ID
                                 where users.username.Equals(user.username) && ucp.CorporationID.Equals(ses.corporationId)
                                 select new {users, perm};
-                    if (query.Count() == 1)
+                    if ((query.Count() == 1 && !(query.First().perm.AddCorporation || query.First().perm.Admin)) || ses.username.Equals(query.First().users.username) )
                     {
                         TransferUser resultuser = new(query.First().users, query.First().perm);
                         newuser = CheckUserPermissions(resultuser, newuser).Item2;
