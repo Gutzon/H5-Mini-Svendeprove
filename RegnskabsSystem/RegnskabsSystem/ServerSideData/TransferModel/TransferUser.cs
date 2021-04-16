@@ -26,7 +26,6 @@ namespace ServerSideData.TransferModel
         public TransferUser(User user, Permissions permissions)
         {
             this.username = user.username;
-            this.hashPassword = user.hashPassword;
             this.firstname = user.firstname;
             this.lastname = user.lastname;
             this.mail = user.mail;

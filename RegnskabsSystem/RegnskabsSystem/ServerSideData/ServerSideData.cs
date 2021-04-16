@@ -180,8 +180,6 @@ namespace ServerSideData
             return false;
         }
 
-
-
         public string CreateUser(Validation validate, TransferUser user)
         {
             if (ValidateTokken(validate))
@@ -266,12 +264,13 @@ namespace ServerSideData
                                 join corp in db.Corporations on ucp.CorporationID equals corp.ID
                                 where user.username.Equals(query.First().username)
                                 orderby corp.name
-                                select corp;
+                                select corp ;
 
                 userLogin = new()
                 {
                     tokken = Guid.NewGuid().ToString(),
                     Corporations = corpQuery.ToList<Corporation>()
+
                 };
                 sessions.Add(new Session(query.First().username, query.First().Id, userLogin.tokken, DateTime.Now));
                 if (corpQuery.Count() == 1)
@@ -357,9 +356,22 @@ namespace ServerSideData
             if (ValidateTokken(validate))
             {
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
-                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "EditUser") || user.username.Equals(ses.username))
+                if ((CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "EditUser") || user.username.Equals(ses.username)) && user.username.Equals(newuser.username))
                 {
-
+                    var query = from users in db.Users
+                                join ucp in db.UCP on users.Id equals ucp.UserID
+                                join perm in db.Permissions on ucp.PermissionID equals perm.ID
+                                where users.username.Equals(user.username) && ucp.CorporationID.Equals(ses.corporationId)
+                                select new {users, perm};
+                    if ((query.Count() == 1 && !(query.First().perm.AddCorporation || query.First().perm.Admin)) || ses.username.Equals(query.First().users.username) || (ses.permissions.AddCorporation || ses.permissions.Admin))
+                    {
+                        TransferUser resultuser = new(query.First().users, query.First().perm);
+                        newuser = CheckUserPermissions(resultuser, newuser).Item2;
+                        db.Users.Update(new User(query.First().users, resultuser));
+                        db.Permissions.Update(new Permissions(query.First().perm, resultuser.permissions));
+                        Commit();
+                        return true;
+                    }
 
                 }
             }
@@ -404,10 +416,13 @@ namespace ServerSideData
                 
                 switch (searchtype)
                 {
-                    case "Test":
+                        case "Test":
 
                         
                         break;
+                        case "Self":
+
+                            break;
                     default:
                         query = from users in db.Users
                                 join ucp in db.UCP on users.Id equals ucp.UserID
@@ -419,6 +434,7 @@ namespace ServerSideData
                     IEnumerable<User> userresult = query.ToArray();
                     foreach (User user in userresult)
                     {
+                        user.hashPassword = "";
                         var permquery = from perm in db.Permissions
                                         join ucp in db.UCP on perm.ID equals ucp.PermissionID
                                         where ucp.UserID.Equals(user.Id) && ucp.CorporationID.Equals(ses.corporationId)

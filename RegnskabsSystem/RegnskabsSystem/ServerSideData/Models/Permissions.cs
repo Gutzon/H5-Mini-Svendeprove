@@ -26,6 +26,122 @@ namespace ServerSideData.Models
             EditInventory = permissions.EditInventory;
             DeleteInventory = permissions.DeleteInventory;
         }
+        public Permissions(Permissions perm, TransferPermissions permissions)
+        {
+            ID = perm.ID;
+            if (perm.AddCorporation)
+            {
+                AddCorporation = true;
+            }
+            else
+            {
+                AddCorporation = permissions.AddCorporation;
+            }
+            if (perm.Admin)
+            {
+                Admin = true;
+            }
+            else
+            {
+                Admin = permissions.Admin;
+            }
+            if (perm.AddUser)
+            {
+                AddUser = true;
+            }
+            else
+            {
+                AddUser = permissions.AddUser;
+            }
+            if (perm.EditUser)
+            {
+                EditUser = true;
+            }
+            else
+            {
+                EditUser = permissions.EditUser;
+            }
+            if (perm.DeleteUser)
+            {
+                DeleteUser = true;
+            }
+            else
+            {
+                DeleteUser = permissions.DeleteUser;
+            }
+            if (perm.AddMember)
+            {
+                AddMember = true;
+            }
+            else
+            {
+                AddMember = permissions.AddMember;
+            }
+            if (perm.EditMember)
+            {
+                EditMember = true;
+            }
+            else
+            {
+                EditMember = permissions.EditMember;
+            }
+            if (perm.DeleteMember)
+            {
+                DeleteMember = true;
+            }
+            else
+            {
+                DeleteMember = permissions.DeleteMember;
+            }
+            if (perm.AddFinance)
+            {
+                AddFinance = true;
+            }
+            else
+            {
+                AddFinance = permissions.AddFinance;
+            }
+            if (perm.ViewFinance)
+            {
+                ViewFinance = true;
+            }
+            else
+            {
+                ViewFinance = permissions.ViewFinance;
+            }
+            if (perm.LimitedViewFinance)
+            {
+                LimitedViewFinance = true;
+            }
+            else
+            {
+                LimitedViewFinance = permissions.LimitedViewFinance;
+            }
+            if (perm.AddInventory)
+            {
+                AddInventory = true;
+            }
+            else
+            {
+                AddInventory = permissions.AddInventory;
+            }
+            if (perm.EditInventory)
+            {
+                EditInventory = true;
+            }
+            else
+            {
+                EditInventory = permissions.EditInventory;
+            }
+            if (perm.DeleteInventory)
+            {
+                DeleteInventory = true;
+            }
+            else
+            {
+                DeleteInventory = permissions.DeleteInventory;
+            }
+        }
 
         public Permissions(bool addCorporation = false, bool admin = false, bool addUser = false, bool editUser = false, bool deleteUser = false, bool addMember = false, bool editMember = false, bool deleteMember = false, bool addFinance = false, bool viewFinance = false, bool limitedViewFinance = false, bool addInventory = false, bool editInventory = false, bool deleteInventory = false)
         {

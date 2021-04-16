@@ -25,6 +25,19 @@ namespace ServerSideData.Models
             this.username = ses.username;
         }
 
+        public User(User user, TransferUser tuser)
+        {
+            Id = user.Id;
+            this.username = user.username;
+            if (tuser.hashPassword != "" && tuser.hashPassword != null)
+            {
+                this.hashPassword = hashPassword;
+            }
+            this.firstname = tuser.firstname;
+            this.lastname = tuser.lastname;
+            this.mail = tuser.mail;
+        }
+
         public int Id { get; set; }
         public string username { get; set; }
         public string hashPassword { get; set; }
