@@ -331,9 +331,9 @@ function CreateUserColumnElm(user, columnNumber) {
             // temp
             let test = getPermissions();
 
-            return !getPermissions()["editUser"] ? null : document.createTextNode("");
+            return !getPermissions().editUser ? null : document.createTextNode("");
         case 5:
-            return !getPermissions()["deleteUser"] ? null : document.createTextNode("");
+            return !getPermissions().deleteUser ? null : document.createTextNode("");
         default:
             return document.createTextNode("Undefined case");
     }
@@ -369,13 +369,13 @@ function addUsersToOverview(userTableList, userList) {
 
 function cleanUserOverviewElements(userCloneRow) {
     let editHeader = document.getElementById("editUserHeader");
-    if (getCookieParam("editUserRights") === "") {
+    if (!getPermissions().editUser) {
         editHeader.parentNode.removeChild(editHeader);
     }
     else editHeader.style.display = "table-cell";
 
     let deleteHeader = document.getElementById("deleteUserHeader");
-    if (getCookieParam("deleteUserRights") === "") {
+    if (!getPermissions().deleteUser) {
         deleteHeader.parentNode.removeChild(deleteHeader);
     }
     else deleteHeader.style.display = "table-cell";
@@ -470,11 +470,9 @@ function CreateMemberColumnElm(user, columnNumber) {
         case 2:
             return document.createTextNode(user["phoneNumber"]);
         case 3:
-            let hasEditRights = getCookieParam("editMemberRights") !== "";
-            return !hasEditRights ? null : document.createTextNode("");
+            return !getPermissions().editMember ? null : document.createTextNode("");
         case 4:
-            let hasDeleteRights = getCookieParam("deleteMemberRights") !== "";
-            return !hasDeleteRights ? null : document.createTextNode("");
+            return !getPermissions().deleteMember ? null : document.createTextNode("");
         default:
             return document.createTextNode("Undefined case");
     }
@@ -510,13 +508,13 @@ function addMembersToOverview(memberTableList, memberList) {
 
 function cleanMemberOverviewElements(userCloneRow) {
     let editHeader = document.getElementById("editMemberHeader");
-    if (getCookieParam("editMemberRights") === "") {
+    if (!getPermissions().editMember) {
         editHeader.parentNode.removeChild(editHeader);
     }
     else editHeader.style.display = "table-cell";
 
     let deleteHeader = document.getElementById("deleteMemberHeader");
-    if (getCookieParam("deleteMemberRights") === "") {
+    if (!getPermissions().deleteMember) {
         deleteHeader.parentNode.removeChild(deleteHeader);
     }
     else deleteHeader.style.display = "table-cell";
