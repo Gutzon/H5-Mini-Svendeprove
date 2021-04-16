@@ -264,12 +264,13 @@ namespace ServerSideData
                                 join corp in db.Corporations on ucp.CorporationID equals corp.ID
                                 where user.username.Equals(query.First().username)
                                 orderby corp.name
-                                select corp;
+                                select corp ;
 
                 userLogin = new()
                 {
                     tokken = Guid.NewGuid().ToString(),
                     Corporations = corpQuery.ToList<Corporation>()
+
                 };
                 sessions.Add(new Session(query.First().username, query.First().Id, userLogin.tokken, DateTime.Now));
                 if (corpQuery.Count() == 1)
@@ -362,7 +363,7 @@ namespace ServerSideData
                                 join perm in db.Permissions on ucp.PermissionID equals perm.ID
                                 where users.username.Equals(user.username) && ucp.CorporationID.Equals(ses.corporationId)
                                 select new {users, perm};
-                    if ((query.Count() == 1 && !(query.First().perm.AddCorporation || query.First().perm.Admin)) || ses.username.Equals(query.First().users.username) )
+                    if ((query.Count() == 1 && !(query.First().perm.AddCorporation || query.First().perm.Admin)) || ses.username.Equals(query.First().users.username) || (ses.permissions.AddCorporation || ses.permissions.Admin))
                     {
                         TransferUser resultuser = new(query.First().users, query.First().perm);
                         newuser = CheckUserPermissions(resultuser, newuser).Item2;

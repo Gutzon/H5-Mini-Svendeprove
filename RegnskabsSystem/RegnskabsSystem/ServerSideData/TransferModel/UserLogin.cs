@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ServerSideData.Models;
+using ServerSideData.TransferModel;
 
 namespace ServerSideData.TransferModel
 {
@@ -12,9 +13,6 @@ namespace ServerSideData.TransferModel
         public string tokken { get; set; }
         public List<Corporation> Corporations { get; set; }
         public string status { get; set; }
-        public bool editUser { get; set; }
-        public bool deleteUser { get; set; }
-        public bool editMember { get; set; }
-        public bool deleteMember { get; set; }
+        public TransferUser User { get; set; }
     }
 }
