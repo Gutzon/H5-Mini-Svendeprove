@@ -397,7 +397,7 @@ namespace ServerSideData
             throw new NotImplementedException();
         }
 
-        public IEnumerable<TransferUser> GetUsers(Validation validate, string searchvalue = "", string searchtype = "Self")
+        public IEnumerable<TransferUser> GetUsers(Validation validate, string searchvalue = "", string searchtype = "")
         {
             List<TransferUser> userlist = new();
             Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
