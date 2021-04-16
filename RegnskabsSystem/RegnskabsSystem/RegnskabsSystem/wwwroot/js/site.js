@@ -271,9 +271,10 @@ function changeCorporation() {
 
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            let corporationChanged = (xhr.responseText.toLowerCase() === "true");
-            if (corporationChanged) {
+            let corporationChanged = JSON.parse(xhr.responseText);
+            if (corporationChanged.changeSuccess) {
                 setCookieParam("selectedCorp", corporationSelector.value);
+                setPermissions(corporationChanged.permissions);
                 populateUsers();
                 populateMembers();
             }
@@ -328,9 +329,6 @@ function CreateUserColumnElm(user, columnNumber) {
         case 3:
             return document.createTextNode(user["lastseen"]);
         case 4:
-            // temp
-            let test = getPermissions();
-
             return !getPermissions().editUser ? null : document.createTextNode("");
         case 5:
             return !getPermissions().deleteUser ? null : document.createTextNode("");

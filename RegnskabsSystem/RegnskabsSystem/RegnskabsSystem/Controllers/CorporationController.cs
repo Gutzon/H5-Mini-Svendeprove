@@ -24,10 +24,8 @@ namespace RegnskabsSystem.Controllers
         }
 
         [HttpPost("change")]
-        public bool ChangeCorporation([FromBody]Dictionary<string, int> corporationSelectionData)
+        public CorporationChangeModel ChangeCorporation([FromBody]Dictionary<string, int> corporationSelectionData)
         {
-            // TODO : return bool + new permission
-            // Set new permissions in frontend
             var corporationSelectionId = corporationSelectionData.First().Value;
             var validation = CookieHelper.GetValidation(Request);
 
@@ -43,7 +41,7 @@ namespace RegnskabsSystem.Controllers
                 corporationChangeModel.permissions = currentUser.permissions;
             }
 
-            return corporationChangeModel.ChangeSuccess;
+            return corporationChangeModel;
 
         }
     }
