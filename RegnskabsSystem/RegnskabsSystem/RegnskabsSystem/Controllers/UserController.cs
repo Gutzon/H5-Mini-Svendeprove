@@ -64,16 +64,9 @@ namespace RegnskabsSystem.Controllers
                 case "Fail":
                     return BadRequest("AccountFail");
                 default:
-
-                    // Todo: Ask Kennie to extend so login returns the edit/delete rights or perhaps all of the users rights
-                    // or allow user to get their own user rights using get permissions... for now use workaround
-                    var adminLogin = serverSideData.Login("admin", SecurityHelper.GetHashCode("admin"+"admin"));
-                    var users = serverSideData.GetUsers(new Validation("admin", adminLogin.tokken));
-                    var currentUserRights = users.FirstOrDefault(u => u.username == loginData.user).permissions;
-                    userLogin.editUser = currentUserRights.EditUser;
-                    userLogin.deleteUser = currentUserRights.DeleteUser;
-                    userLogin.editMember = currentUserRights.EditMember;
-                    userLogin.deleteMember = currentUserRights.DeleteMember;
+                    var users = serverSideData.GetUsers(new Validation(loginData.user, userLogin.tokken));
+                    var currentUser = users.FirstOrDefault(u => u.username == loginData.user);
+                    userLogin.user = currentUser;
                     return Ok(userLogin);
             };
         }
@@ -94,13 +87,6 @@ namespace RegnskabsSystem.Controllers
         {
             var validation = CookieHelper.GetValidation(Request);
             var users = serverSideData.GetUsers(validation);
-            
-            // When sending js data back on user overview - then exclude password hashes or permissions
-            foreach (var user in users)
-            {
-                user.hashPassword = "";
-                user.permissions = null;
-            }
             return Ok(users);
         }
 

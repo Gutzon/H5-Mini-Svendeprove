@@ -199,10 +199,7 @@ function handleLogin(responseText) {
         setCookieParam("corporations", escape(JSON.stringify(jsonObject.corporations)));
         setCookieParam("accessToken", jsonObject.tokken);
         setCookieParam("userName", loginForm.user.value);
-        if (jsonObject.editUser) setCookieParam("editUserRights", jsonObject.editUser);
-        if (jsonObject.deleteUser) setCookieParam("deleteUserRights", jsonObject.deleteUser);
-        if (jsonObject.editMember) setCookieParam("editMemberRights", jsonObject.editMember);
-        if (jsonObject.deleteMember) setCookieParam("deleteMemberRights", jsonObject.deleteMember);
+        setCookieParam("user", jsonObject.user);
         dashboardToggle();
         showNavbar(true);
     }
@@ -224,10 +221,7 @@ function logOut() {
                 removeCookieParam("selectedCorp");
                 removeCookieParam("accessToken");
                 removeCookieParam("userName");
-                removeCookieParam("editUserRights");
-                removeCookieParam("deleteUserRights");
-                removeCookieParam("editMemberRights");
-                removeCookieParam("deleteMemberRights");
+                removeCookieParam("user");
                 document.location.href = "/";
             }
         }
@@ -309,6 +303,20 @@ function populateUsers() {
     xhr.send();
 }
 
+function setPermissions(permission) {
+    let userData = getCookieParam("user");
+    if (userData == "") return null;
+    let userObject = JSON.parse(userData);
+    userObject.permissions = permission;
+    setCookieParam("user", JSON.stringify(userObject));
+}
+
+function getPermissions() {
+    let userData = getCookieParam("user");
+    if (userData == "") return null;
+    return JSON.parse(userData).permissions;
+}
+
 function CreateUserColumnElm(user, columnNumber) {
     switch (columnNumber) {
         case 0:
@@ -320,11 +328,12 @@ function CreateUserColumnElm(user, columnNumber) {
         case 3:
             return document.createTextNode(user["lastseen"]);
         case 4:
-            let hasEditRights = getCookieParam("editUserRights") !== "";
-            return !hasEditRights ? null : document.createTextNode("");
+            // temp
+            let test = getPermissions();
+
+            return !getPermissions()["editUser"] ? null : document.createTextNode("");
         case 5:
-            let hasDeleteRights = getCookieParam("deleteUserRights") !== "";
-            return !hasDeleteRights ? null : document.createTextNode("");
+            return !getPermissions()["deleteUser"] ? null : document.createTextNode("");
         default:
             return document.createTextNode("Undefined case");
     }
