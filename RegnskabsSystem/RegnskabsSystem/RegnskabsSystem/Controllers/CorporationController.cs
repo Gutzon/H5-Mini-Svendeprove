@@ -24,7 +24,7 @@ namespace RegnskabsSystem.Controllers
         }
 
         [HttpPost("change")]
-        public CorporationChangeModel ChangeCorporation([FromBody]Dictionary<string, int> corporationSelectionData)
+        public bool ChangeCorporation([FromBody]Dictionary<string, int> corporationSelectionData)
         {
             // TODO : return bool + new permission
             // Set new permissions in frontend
@@ -43,7 +43,7 @@ namespace RegnskabsSystem.Controllers
                 corporationChangeModel.permissions = currentUser.permissions;
             }
 
-            return corporationChangeModel;
+            return corporationChangeModel.ChangeSuccess;
 
         }
     }
