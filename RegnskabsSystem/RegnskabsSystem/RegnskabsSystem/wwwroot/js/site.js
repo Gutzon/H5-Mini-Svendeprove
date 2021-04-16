@@ -199,7 +199,7 @@ function handleLogin(responseText) {
         setCookieParam("corporations", escape(JSON.stringify(jsonObject.corporations)));
         setCookieParam("accessToken", jsonObject.tokken);
         setCookieParam("userName", loginForm.user.value);
-        setCookieParam("user", jsonObject.user);
+        setCookieParam("user", escape(JSON.stringify(jsonObject.user)));
         dashboardToggle();
         showNavbar(true);
     }
@@ -312,7 +312,7 @@ function setPermissions(permission) {
 }
 
 function getPermissions() {
-    let userData = getCookieParam("user");
+    let userData = unescape(getCookieParam("user"));
     if (userData == "") return null;
     return JSON.parse(userData).permissions;
 }
