@@ -663,8 +663,7 @@ function showPostings(postings) {
         financeColumns[column++].appendChild(document.createTextNode(postings[i].id));
 
         if (showSelectedAccount) {
-            let accountName = accountSelector.options[postings[i].kontiID].innerText;
-            financeColumns[column++].appendChild(document.createTextNode(accountName));
+            financeColumns[column++].appendChild(document.createTextNode(postings[i].konti));
         }
         else {
             financeColumns[column].parentNode.removeChild(financeColumns[column]);

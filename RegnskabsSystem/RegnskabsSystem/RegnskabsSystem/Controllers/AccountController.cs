@@ -36,7 +36,7 @@ namespace RegnskabsSystem.Controllers
             //var accounts = serverSideData.GetKonti?(validation);
 
             var accounts = new List<Konti>();
-            accounts.Add(new Konti() { CorporationID = 1, ID = 1, name = "Hoved konti" });
+            accounts.Add(new Konti() { CorporationID = 1, ID = 1, name = "Main" });
             accounts.Add(new Konti() { CorporationID = 1, ID = 2, name = "Salg af kioskvarer" });
             accounts.Add(new Konti() { CorporationID = 1, ID = 3, name = "Medlemsskaber" });
 
