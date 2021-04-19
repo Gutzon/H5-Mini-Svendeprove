@@ -3,18 +3,15 @@ using Microsoft.Extensions.Logging;
 using RegnskabsSystem.Helpers;
 using RegnskabsSystem.Models;
 using ServerSideData;
-using ServerSideData.Models;
 using ServerSideData.TransferModel;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RegnskabsSystem.Controllers
 {
     [Route("[controller]")]
     public class AccountController : Controller
     {
+        #region Attributes and constructors
         private readonly ILogger<AccountController> _logger;
         private readonly IServerSideData serverSideData;
 
@@ -23,12 +20,13 @@ namespace RegnskabsSystem.Controllers
             _logger = logger;
             this.serverSideData = serverSideData;
         }
+        #endregion
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+        #region View pages (Raw HTML delivered)
+        public IActionResult Index() => View();
+        #endregion
 
+        #region Api -> Serverside queries
         [HttpGet("accounts")]
         public ActionResult<IEnumerable<string>> Accounts()
         {
@@ -41,7 +39,7 @@ namespace RegnskabsSystem.Controllers
         public ActionResult<string> MakeFinanceEntry([FromBody] NewAccountModel newAccount)
         {
             var validation = CookieHelper.GetValidation(Request);
-            var financeAddSuccess = serverSideData.AddKonti(validation, newAccount.accountName);
+            var financeAddSuccess = serverSideData.AddKonti(validation, newAccount.AccountName);
             return Ok(financeAddSuccess);
         }
 
@@ -59,6 +57,7 @@ namespace RegnskabsSystem.Controllers
             var validation = CookieHelper.GetValidation(Request);
             var finances = serverSideData.GetFinances(validation);
             return Ok(finances);
+        }
+        #endregion
     }
-}
 }

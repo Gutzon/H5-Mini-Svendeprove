@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RegnskabsSystem.Helpers;
 using RegnskabsSystem.Models;
@@ -10,53 +9,47 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace RegnskabsSystem.Controllers
 {
     [Route("[controller]")]
     public class UserController : Controller
     {
+        #region Attributes and constructors
         private readonly ILogger<UserController> _logger;
         private readonly IServerSideData serverSideData;
-        private Random _random = new Random();
+        private Validation Credentials => CookieHelper.GetValidation(Request);
 
         public UserController(IServerSideData serverSideData, ILogger<UserController> logger)
         {
             _logger = logger;
             this.serverSideData = serverSideData;
         }
+        #endregion
 
-        // User view
-        public ActionResult Index()
-        {
-            return View();
-        }
+        #region View pages (Raw HTML delivered)
+        public ActionResult Index() => View();
 
         [HttpGet("creation")]
-        public ActionResult Creation()
-        {
-            return View();
-        }
+        public ActionResult Creation() => View();
 
         [HttpGet("edit")]
-        public ActionResult Edit()
-        {
-            return View();
-        }
+        public ActionResult Edit() => View();
 
         [HttpGet("deletion")]
-        public ActionResult Deletion()
-        {
-            return View();
-        }
+        public ActionResult Deletion() => View();
 
+        #endregion
 
+        #region Api -> Serverside queries
         [HttpPost("login")]
         public ActionResult<UserLogin> Login([FromBody] LoginModel loginData)
         {
             var hashedPassword = SecurityHelper.GetHashCode(loginData.User + loginData.GetUnEscapedPassword);
+            // Remove clear password as soon as possible as it is a security concern
+            loginData.Password = "";
             var userLogin = serverSideData.Login(loginData.User, hashedPassword);
+            
             switch (userLogin.status)
             {
                 case "Error":
@@ -64,57 +57,40 @@ namespace RegnskabsSystem.Controllers
                 case "Fail":
                     return BadRequest("AccountFail");
                 default:
-                    var users = serverSideData.GetUsers(new Validation(loginData.User, userLogin.tokken));
-                    var currentUser = users.FirstOrDefault(u => u.username == loginData.User);
-                    userLogin.user = currentUser;
+                    var users = serverSideData.GetUsers(new Validation(loginData.User, userLogin.tokken), "", "Self");
+                    if (users == null || !users.Any())
+                    {
+                        return BadRequest("AccountFail");
+                    }
+                    userLogin.user = users.First();
                     return Ok(userLogin);
             };
         }
 
-
         [HttpPost("logout")]
         public ActionResult<bool> LogOut()
         {
-            var validation = CookieHelper.GetValidation(Request);
-            if (validation == null) return true;
-            return serverSideData.Logout(validation);
+            serverSideData.Logout(Credentials);
+            return Ok(true);
         }
 
-
-        // GET: overview (gets user list)
         [HttpGet("overview")]
         public ActionResult<IEnumerable<TransferUser>> Overview()
         {
-            var validation = CookieHelper.GetValidation(Request);
-            var users = serverSideData.GetUsers(validation);
+            var users = serverSideData.GetUsers(Credentials);
             return Ok(users);
-        }
-
-
-
-        #region UserCreation
-        private string GetRandomPassword(int length = 11)
-        {
-            var passBuilder = new StringBuilder();
-            for (var i = 0; i < length; i++)
-            {
-                passBuilder.Append((char)_random.Next(33, 126));
-            }
-            return passBuilder.ToString();
         }
 
         [HttpPost()]
         public ActionResult<UserCreatedModel> CreateUser([FromBody] TransferUser user)
         {
-            var validation = CookieHelper.GetValidation(Request);
-            if (validation == null) return new UserCreatedModel(false, "FailSession");
-
-            var newPassword = GetRandomPassword();
+            var newPassword = SecurityHelper.GetRandomPassword();
             user.hashPassword = SecurityHelper.GetHashCode(user.username + newPassword);
 
-            var creationMsg = serverSideData.CreateUser(validation, user);
+            var creationMsg = serverSideData.CreateUser(Credentials, user);
             var userCreated = IsUserCreated(creationMsg, out var errorType);
 
+            // Send mail to user with initial password or confirm link where user can create password
             // The password transferral to frontend is needed as we do not have a hotel for the application (no mail to user)
             var userCreatedModel = new UserCreatedModel(userCreated, errorType, newPassword);
 
@@ -144,30 +120,5 @@ namespace RegnskabsSystem.Controllers
             return false;
         }
         #endregion
-
-        /* TODO
-        // GET: user/2 (gets specific user)
-        [HttpGet("{userId}")]
-        public ActionResult<bool> Get(int userId)
-        {
-            serverSideData.GetUsers("searchId/userName?");
-            return null;
-        }
-
-        // POST: user/2 (edits user)
-        [HttpPost("{userId}")]
-        public ActionResult<bool> Post(int userId, [FromBody] IFormCollection collection)
-        {
-            serverSideData.EditUser();
-            return null;
-        }
-
-        // POST: user/2/delete (edits user)
-        [HttpPost("{userId}/delete")]
-        public ActionResult<bool> Delete(int userId, [FromBody]IFormCollection collection)
-        {
-            serverSideData.DeleteUser();
-            return null;
-        }*/
     }
 }

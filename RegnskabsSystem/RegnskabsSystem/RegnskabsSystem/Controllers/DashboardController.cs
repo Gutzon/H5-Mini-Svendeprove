@@ -2,17 +2,14 @@
 using Microsoft.Extensions.Logging;
 using RegnskabsSystem.Helpers;
 using RegnskabsSystem.Models;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using ServerSideData.Models;
 using ServerSideData;
 
 namespace RegnskabsSystem.Controllers
 {
     public class DashboardController : Controller
     {
+        #region Attributes and constructors
         private readonly ILogger<DashboardController> _logger;
         private readonly IServerSideData serverSideData;
 
@@ -21,16 +18,19 @@ namespace RegnskabsSystem.Controllers
             _logger = logger;
             this.serverSideData = serverSideData;
         }
+        #endregion
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+        #region View pages (Raw HTML delivered)
+        public IActionResult Index() => View();
+        #endregion
+
+        #region Api -> Serverside queries
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+        #endregion
     }
 }

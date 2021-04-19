@@ -34,7 +34,6 @@ function getFormJsonData(formId) {
     for (let elm of document.forms[formId]) {
         placeElmValueInObject(formDataObject, elm);
     }
-    console.log(formDataObject); // <- For debugging purposes in console.
     return formDataObject
 }
 

@@ -7,16 +7,13 @@ using ServerSideData;
 using ServerSideData.Models;
 using ServerSideData.TransferModel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RegnskabsSystem.Controllers
 {
     [Route("[controller]")]
     public class InventoryController : Controller
     {
+        #region Attributes and constructors
         private readonly ILogger<InventoryController> _logger;
         private readonly IServerSideData serverSideData;
         private Random _random = new Random();
@@ -27,13 +24,13 @@ namespace RegnskabsSystem.Controllers
             this.serverSideData = serverSideData;
         }
 
-        // User view
-        public ActionResult Index()
-        {
-            return View();
-        }
+        #endregion
 
+        #region View pages (Raw HTML delivered)
+        public ActionResult Index() => View();
+        #endregion
 
+        #region Api -> Serverside queries
         // TODO:
         /*
         // GET: overview of inventory
@@ -43,5 +40,6 @@ namespace RegnskabsSystem.Controllers
             return null;
         }
         */
+        #endregion
     }
 }

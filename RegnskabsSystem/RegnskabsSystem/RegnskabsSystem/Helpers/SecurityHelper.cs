@@ -16,5 +16,16 @@ namespace RegnskabsSystem.Helpers
             byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(textToHash + salt));
             return String.Join("", bytes.Select(b => b.ToString("x2")));
         }
+
+        public static string GetRandomPassword(int length = 11)
+        {
+            var random = new Random();
+            var passBuilder = new StringBuilder();
+            for (var i = 0; i < length; i++)
+            {
+                passBuilder.Append((char)random.Next(33, 126));
+            }
+            return passBuilder.ToString();
+        }
     }
 }

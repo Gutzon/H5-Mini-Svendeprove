@@ -3,17 +3,15 @@ using Microsoft.Extensions.Logging;
 using RegnskabsSystem.Helpers;
 using RegnskabsSystem.Models;
 using ServerSideData;
-using ServerSideData.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace RegnskabsSystem.Controllers
 {
     [Route("[controller]")]
     public class CorporationController : Controller
     {
+        #region Attributes and constructors
         private readonly IServerSideData serverSideData;
         private readonly ILogger<CorporationController> logger;
 
@@ -22,7 +20,9 @@ namespace RegnskabsSystem.Controllers
             this.serverSideData = serverSideData;
             this.logger = logger;
         }
+        #endregion
 
+        #region Api -> Serverside queries
         [HttpPost("change")]
         public CorporationChangeModel ChangeCorporation([FromBody]Dictionary<string, int> corporationSelectionData)
         {
@@ -44,5 +44,6 @@ namespace RegnskabsSystem.Controllers
             return corporationChangeModel;
 
         }
+        #endregion
     }
 }
