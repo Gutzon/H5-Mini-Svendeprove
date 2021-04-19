@@ -10,8 +10,8 @@
         <option value="1">Alle posteringer</option>
         <option value="2">I dag</option>
         <option value="3">Seneste 2 dage</option>
-        <option value="7">Seneste 7 dage</option>
-        <option value="7">Seneste måned</option>
+        <option value="4">Seneste 7 dage</option>
+        <option value="5">Seneste måned</option>
     </select>
     <br><br>
 
@@ -19,12 +19,14 @@
     <table id="financeOverview" class="mainTable" CELLSPACING="0">
         <tr>
             <th class="tableHeaders">Posterings Id</th>
-            <th class="tableHeaders">Dato</th>
+            <th class="tableHeaders" id="accountColumn">Konti</th>
+            <th class="tableHeaders" id="dateColumn">Dato</th>
             <th class="tableHeaders">Kommentar</th>
             <th class="tableHeaders">Oprettet af</th>
             <th class="tableHeaders">Beløb</th>
         </tr>
         <tr id="fincanceSchema" class="hideElm">
+            <td class="tableData"></td>
             <td class="tableData"></td>
             <td class="tableData"></td>
             <td class="tableData"></td>

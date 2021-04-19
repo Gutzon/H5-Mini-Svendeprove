@@ -560,6 +560,11 @@ function showFinances() {
     let financeOverview = document.getElementById("financeOverview");
     if (financeOverview == null) return;
     injectAccounts();
+}
+
+
+
+function changeAccount() {
     getPostings();
 }
 
@@ -578,6 +583,7 @@ function injectAccounts() {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             jsonObject = JSON.parse(xhr.responseText);
             insertAccounts(jsonObject, acccountSelector);
+            getPostings();
         }
     }
     xhr.send();
@@ -628,24 +634,49 @@ function getPostings() {
 function showPostings(postings) {
     let postingHolder = document.getElementById("financeOverview");
     let trPostings = postingHolder.getElementsByTagName("tr");
-    while (trPostings.length > 2) trPostings[2].parentNode.removeChild(trMembers[2]);
+    while (trPostings.length > 2) trPostings[2].parentNode.removeChild(trPostings[2]);
+
+    let accountSelector = document.getElementById("accountSelector");
+    let selectedOption = accountSelector.options[accountSelector.selectedIndex];
+    let showSelectedAccount = selectedOption.value == 1;
+    let accountColumn = document.getElementById("accountColumn");
+
+    if (showSelectedAccount && accountColumn == null) {
+        let insertAccountBefore = document.getElementById("dateColumn");
+        let accountElm = document.createElement("td");
+        addClass(accountElm, "tableHeaders");
+        accountElm.setAttribute("id", "accountColumn");
+        accountElm.appendChild(document.createTextNode("Konti"));
+        trPostings[0].insertBefore(accountElm, insertAccountBefore);
+    }
+    else if (!showSelectedAccount && accountColumn != null) {
+        accountColumn.parentNode.removeChild(accountColumn);
+    }
 
     let financeSchema = document.getElementById("fincanceSchema");
     for (let i = 0; i < postings.length; i++) {
-
+        let column = 0;
         let financeClone = financeSchema.cloneNode(true);
         removeClass(financeClone, "hideElm");
 
         financeColumns = financeClone.getElementsByTagName("td");
-        financeColumns[0].appendChild(document.createTextNode(postings[i].id));
+        financeColumns[column++].appendChild(document.createTextNode(postings[i].id));
+
+        if (showSelectedAccount) {
+            let accountName = accountSelector.options[postings[i].kontiID].innerText;
+            financeColumns[column++].appendChild(document.createTextNode(accountName));
+        }
+        else {
+            financeColumns[column].parentNode.removeChild(financeColumns[column]);
+        }
 
         let parsedDate = (new Date());
         parsedDate.setTime(Date.parse(postings[i].payDate));
-        financeColumns[1].appendChild(document.createTextNode(parsedDate.toLocaleDateString()));
-        financeColumns[2].appendChild(document.createTextNode(postings[i].comment));
-        financeColumns[3].appendChild(document.createTextNode(postings[i].byWho));
-        financeColumns[4].appendChild(document.createTextNode(postings[i].value));
-        if (postings[i].value < 0) financeColumns[4].style.color = "red";
+        financeColumns[column++].appendChild(document.createTextNode(parsedDate.toLocaleDateString()));
+        financeColumns[column++].appendChild(document.createTextNode(postings[i].comment));
+        financeColumns[column++].appendChild(document.createTextNode(postings[i].byWho));
+        financeColumns[column].appendChild(document.createTextNode(postings[i].value));
+        if (postings[i].value < 0) financeColumns[column].style.color = "red";
 
         postingHolder.appendChild(financeClone);
     }
