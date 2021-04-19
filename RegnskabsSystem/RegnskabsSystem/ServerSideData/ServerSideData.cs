@@ -602,5 +602,29 @@ namespace ServerSideData
                         select d;
             return query;
         }
+
+        public IEnumerable<string> GetKonties(Validation validate)
+        {
+            List<string> kontiList = new();
+            Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+            if (ValidateTokken(validate))
+            {
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinace") || CheckPermission(validate, ses, "LimitedViewFinance"))
+                {
+                    var query = from kontis in db.Kontis 
+                                where kontis.CorporationID.Equals(ses.corporationId)
+                                orderby kontis.name
+                                select kontis;
+                    
+                        foreach (var q in query)
+                        {
+                        kontiList.Add(q.name);
+                        }
+                    
+                }
+
+            }
+            return kontiList;
+        }
     }
 }

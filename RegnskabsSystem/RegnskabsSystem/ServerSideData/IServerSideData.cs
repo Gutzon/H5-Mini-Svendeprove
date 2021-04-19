@@ -25,5 +25,6 @@ namespace ServerSideData
         public IEnumerable<Member> GetMembers(Validation validate, string searchvalue = "", string searchtype = "");
         public IEnumerable<TransferFinance> GetFinances(Validation validate, string konti = "", string searchvalue = "", string searchtype = "");
         public IEnumerable<Corporation> GetCorporations();
+        public IEnumerable<string> GetKonties(Validation validate);
     }
 }
