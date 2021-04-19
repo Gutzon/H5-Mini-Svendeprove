@@ -23,6 +23,8 @@ namespace ServerSideData
         public bool ValidateTokken(Validation validate);
         public IEnumerable<TransferUser> GetUsers(Validation validate, string searchvalue = "", string searchtype = "");
         public IEnumerable<Member> GetMembers(Validation validate, string searchvalue = "", string searchtype = "");
+        public string AddFinance(Validation validate, TransferFinance financeIn);
+        public string AddKonti(Validation validate, string name);
         public IEnumerable<TransferFinance> GetFinances(Validation validate, string konti = "", string searchvalue = "", string searchtype = "");
         public IEnumerable<Corporation> GetCorporations();
         public IEnumerable<string> GetKonties(Validation validate);

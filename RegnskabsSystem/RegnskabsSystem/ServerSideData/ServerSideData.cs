@@ -533,6 +533,39 @@ namespace ServerSideData
             }
             return memberlist;
         }
+        public string AddFinance(Validation validate, TransferFinance financeIn)
+        {
+            Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+            if (ValidateTokken(validate))
+            {
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance"))
+                {
+                    var query = from kontis in db.Kontis
+                                where kontis.CorporationID.Equals(ses.corporationId) && kontis.name.Equals(financeIn.konti)
+                                select kontis;
+                    if (query.Count() == 1)
+                    {
+                        FinanceEntry newEntry = new()
+                        {
+                            value = financeIn.value,
+                            KontiID = query.First().ID,
+                            comment = financeIn.comment,
+                            byWho = ses.username,
+                            addDate = DateTime.Now,
+                            payDate = DateTime.Now,
+
+                        };
+                    }
+                    return "Wrong Konti name";
+                }
+                return "not permitted";
+            }
+            return "no session";
+        }
+        public string AddKonti(Validation validate, string name)
+        {
+            return "no session";
+        }
 
         public IEnumerable<TransferFinance> GetFinances(Validation validate, string konti = "", string searchvalue = "", string searchtype = "")
         {
