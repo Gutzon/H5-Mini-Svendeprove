@@ -13,6 +13,7 @@ namespace RegnskabsSystem.Controllers
         #region Attributes and constructors
         private readonly ILogger<MemberController> _logger;
         private readonly IServerSideData serverSideData;
+        private Validation Credentials => CookieHelper.GetValidation(Request);
 
         public MemberController(IServerSideData serverSideData, ILogger<MemberController> logger)
         {
@@ -32,14 +33,10 @@ namespace RegnskabsSystem.Controllers
         #endregion
 
         #region Api -> Serverside queries
-
-
-        // GET: overview (gets member list)
         [HttpGet("overview")]
         public ActionResult<IEnumerable<Member>> Overview()
         {
-            var validation = CookieHelper.GetValidation(Request);
-            return Ok(serverSideData.GetMembers(validation));
+            return Ok(serverSideData.GetMembers(Credentials));
         }
         #endregion
     }

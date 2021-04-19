@@ -3,9 +3,9 @@ using Microsoft.Extensions.Logging;
 using RegnskabsSystem.Helpers;
 using RegnskabsSystem.Models;
 using ServerSideData;
+using ServerSideData.Models;
 using System.Collections.Generic;
 using System.Linq;
-
 namespace RegnskabsSystem.Controllers
 {
     [Route("[controller]")]
@@ -14,6 +14,7 @@ namespace RegnskabsSystem.Controllers
         #region Attributes and constructors
         private readonly IServerSideData serverSideData;
         private readonly ILogger<CorporationController> logger;
+        private Validation Credentials => CookieHelper.GetValidation(Request);
 
         public CorporationController(IServerSideData serverSideData, ILogger<CorporationController> logger)
         {
@@ -26,18 +27,16 @@ namespace RegnskabsSystem.Controllers
         [HttpPost("change")]
         public CorporationChangeModel ChangeCorporation([FromBody]Dictionary<string, int> corporationSelectionData)
         {
-            var corporationSelectionId = corporationSelectionData.First().Value;
-            var validation = CookieHelper.GetValidation(Request);
-
-            
-            var corporationSuccess = serverSideData.SelectCorporation(validation, corporationSelectionId);
+            var credentials = Credentials;
+            var corporationSelection = corporationSelectionData.First().Value;            
+            var corporationSuccess = serverSideData.SelectCorporation(credentials, corporationSelection);
             var corporationChangeModel = new CorporationChangeModel() {
                 ChangeSuccess = corporationSuccess
             };
             if (corporationSuccess)
             {
-                var users = serverSideData.GetUsers(validation);
-                var currentUser = users.FirstOrDefault(u => u.username == validation.username);
+                var users = serverSideData.GetUsers(credentials);
+                var currentUser = users.FirstOrDefault(u => u.username == credentials.username);
                 corporationChangeModel.Permissions = currentUser.permissions;
             }
 

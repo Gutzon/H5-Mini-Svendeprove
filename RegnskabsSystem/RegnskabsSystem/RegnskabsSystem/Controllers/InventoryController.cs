@@ -16,7 +16,7 @@ namespace RegnskabsSystem.Controllers
         #region Attributes and constructors
         private readonly ILogger<InventoryController> _logger;
         private readonly IServerSideData serverSideData;
-        private Random _random = new Random();
+        private Validation Credentials => CookieHelper.GetValidation(Request);
 
         public InventoryController(IServerSideData serverSideData, ILogger<InventoryController> logger)
         {

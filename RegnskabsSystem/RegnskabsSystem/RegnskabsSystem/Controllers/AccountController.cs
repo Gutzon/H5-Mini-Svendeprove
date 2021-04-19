@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using RegnskabsSystem.Helpers;
 using RegnskabsSystem.Models;
 using ServerSideData;
+using ServerSideData.Models;
 using ServerSideData.TransferModel;
 using System.Collections.Generic;
 
@@ -14,6 +15,7 @@ namespace RegnskabsSystem.Controllers
         #region Attributes and constructors
         private readonly ILogger<AccountController> _logger;
         private readonly IServerSideData serverSideData;
+        private Validation Credentials => CookieHelper.GetValidation(Request);
 
         public AccountController(IServerSideData serverSideData, ILogger<AccountController> logger)
         {
@@ -30,33 +32,25 @@ namespace RegnskabsSystem.Controllers
         [HttpGet("accounts")]
         public ActionResult<IEnumerable<string>> Accounts()
         {
-            var validation = CookieHelper.GetValidation(Request);
-            var accounts = serverSideData.GetKonties(validation);
-            return Ok(accounts);
+            return Ok(serverSideData.GetKonties(Credentials));
         }
 
         [HttpPost()]
         public ActionResult<string> MakeFinanceEntry([FromBody] NewAccountModel newAccount)
         {
-            var validation = CookieHelper.GetValidation(Request);
-            var financeAddSuccess = serverSideData.AddKonti(validation, newAccount.AccountName);
-            return Ok(financeAddSuccess);
+            return Ok(serverSideData.AddKonti(Credentials, newAccount.AccountName));
         }
 
         [HttpPost("finance")]
         public ActionResult<string> MakeFinanceEntry([FromBody] TransferFinance newFinanceEntry)
         {
-            var validation = CookieHelper.GetValidation(Request);
-            var financeAddSuccess = serverSideData.AddFinance(validation, newFinanceEntry);
-            return Ok(financeAddSuccess);
+            return Ok(serverSideData.AddFinance(Credentials, newFinanceEntry));
         }
 
         [HttpGet("overview")]
         public ActionResult<IEnumerable<TransferFinance>> Overview()
         {
-            var validation = CookieHelper.GetValidation(Request);
-            var finances = serverSideData.GetFinances(validation);
-            return Ok(finances);
+            return Ok(serverSideData.GetFinances(Credentials));
         }
         #endregion
     }
