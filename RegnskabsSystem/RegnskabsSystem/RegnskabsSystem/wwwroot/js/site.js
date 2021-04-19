@@ -573,6 +573,32 @@ function changeAccount() {
 }
 
 
+function addAccount() {
+    let addAccountForm = document.forms["addAccountForm"];
+    if (addAccountForm == undefined) return;
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", '/account', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            try {
+                var successMsg = xhr.responseText;
+                alert(successMsg);
+            }
+            catch {
+                alert("En fejl opstod under oprettelse af ny konti");
+            }
+        }
+    }
+
+    let formData = getFormJsonData("addAccountForm");
+    xhr.send(JSON.stringify(formData));
+
+}
+
+
 function injectAccounts() {
     let acccountSelector = document.getElementById("accountInjection");
     while (acccountSelector.childNodes.length > 0) {

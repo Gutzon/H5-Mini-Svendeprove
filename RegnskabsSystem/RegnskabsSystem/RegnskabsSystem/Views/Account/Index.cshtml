@@ -7,13 +7,15 @@
 
     <div>
         <div id="accountInjection" style="float:left;padding-right:10px;"></div>
-        <div><select id="timeframe">
-            <option value="1">Alle posteringer</option>
-            <option value="2">I dag</option>
-            <option value="3">Seneste 2 dage</option>
-            <option value="4">Seneste 7 dage</option>
-            <option value="5">Seneste måned</option>
-        </select></div>
+        <div>
+            <select id="timeframe">
+                <option value="1">Alle posteringer</option>
+                <option value="2">I dag</option>
+                <option value="3">Seneste 2 dage</option>
+                <option value="4">Seneste 7 dage</option>
+                <option value="5">Seneste måned</option>
+            </select>
+        </div>
     </div>
     <br><br>
 
@@ -36,6 +38,15 @@
             <td class="tableData tableDataEnd"></td>
         </tr>
     </table>
+    <br><br>
+    <form id="addAccountForm">
+        Ny konti:
+        <input type="text" name="accountName">
+        <button onclick="addAccount()">Tilføj konti</button>
+    </form>
+
+
+
     <br><br>
     Tilføj postering ... skiftes til pop over modal design når det er klar fra Jannik:<br>
     <form id="addFinanceForm">

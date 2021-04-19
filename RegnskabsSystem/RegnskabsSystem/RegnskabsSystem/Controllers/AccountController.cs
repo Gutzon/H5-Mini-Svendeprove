@@ -37,6 +37,14 @@ namespace RegnskabsSystem.Controllers
             return Ok(accounts);
         }
 
+        [HttpPost()]
+        public ActionResult<string> MakeFinanceEntry([FromBody] NewAccountModel newAccount)
+        {
+            var validation = CookieHelper.GetValidation(Request);
+            var financeAddSuccess = serverSideData.AddKonti(validation, newAccount.accountName);
+            return Ok(financeAddSuccess);
+        }
+
         [HttpPost("finance")]
         public ActionResult<string> MakeFinanceEntry([FromBody] TransferFinance newFinanceEntry)
         {
