@@ -545,6 +545,11 @@ namespace ServerSideData
                                 select kontis;
                     if (query.Count() == 1)
                     {
+                        var query2 = from entries in db.FinanceEntries
+                                     join kontis in db.Kontis on entries.KontiID equals kontis.ID
+                                     where kontis.CorporationID.Equals(ses.corporationId)
+                                     orderby entries.payDate
+                                     select new { entries, kontis };
                         FinanceEntry newEntry = new()
                         {
                             value = financeIn.value,
@@ -553,8 +558,13 @@ namespace ServerSideData
                             byWho = ses.username,
                             addDate = DateTime.Now,
                             payDate = DateTime.Now,
-
+                            newSaldoKonti = query2.Where(o => o.kontis.name.Equals(financeIn.konti)).Last().entries.newSaldoKonti + financeIn.value,
+                            newSaldoMain = query2.Last().entries.newSaldoMain + financeIn.value
                         };
+                        db.FinanceEntries.Add(newEntry);
+                        Commit();
+                        return "ok";
+
                     }
                     return "Wrong Konti name";
                 }
