@@ -20,6 +20,7 @@ function startFunctions() {
         populateMembers();
         showNavbar(true);
         populateCorporationSelector();
+        showFinances();
     }
 }
 
@@ -327,7 +328,11 @@ function CreateUserColumnElm(user, columnNumber) {
         case 2:
             return document.createTextNode(user["firstname"] + " " + user["lastname"]);
         case 3:
-            return document.createTextNode(user["lastSeen"]);
+            let lastSeenTime = Date.parse(user["lastSeen"]);
+            let parsedDate = (new Date());
+            parsedDate.setTime(lastSeenTime);
+            let lastSeen = parsedDate.toLocaleString() != "1.1.1 00.00.00" ? parsedDate.toLocaleString(): "Ikke logget på endnu";
+            return document.createTextNode(lastSeen);
         case 4:
             return !getPermissions().editUser ? null : document.createTextNode("");
         case 5:
@@ -542,3 +547,107 @@ function showNavbar(show) {
     if (show) removeClass(navbar, "hideElm");
     else addClass(navbar, "hideElm");
 }
+
+
+
+
+
+
+
+
+// Finances
+function showFinances() {
+    let financeOverview = document.getElementById("financeOverview");
+    if (financeOverview == null) return;
+    injectAccounts();
+    getPostings();
+}
+
+
+function injectAccounts() {
+    let acccountSelector = document.getElementById("accountInjection");
+    while (acccountSelector.childNodes.length > 0) {
+        acccountSelector.removeChild(acccountSelector.childNodes[0]);
+    }
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", '/account/accounts', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            jsonObject = JSON.parse(xhr.responseText);
+            insertAccounts(jsonObject, acccountSelector);
+        }
+    }
+    xhr.send();
+}
+
+
+
+
+
+function insertAccounts(accounts, acccountSelector) {
+    let selectedAcc = getCookieParam("selectedAcc");
+    if (accounts.length == 1) {
+        acccountSelector.appendChild(document.createTextNode(accounts[0].name));
+    }
+    else {
+        let select = document.createElement("select");
+        select.setAttribute("id", "accountSelector");
+        select.setAttribute("class", "selectors");
+        select.addEventListener("change", () => changeAccount());
+
+        for (let account of accounts) {
+            let option = document.createElement("option")
+            option.appendChild(document.createTextNode(account.name));
+            option.setAttribute("value", account.id);
+            if (selectedAcc == account.id) option.setAttribute("Selected", "Selected");
+            select.appendChild(option);
+        }
+        acccountSelector.appendChild(select);
+    }
+}
+
+
+function getPostings() {
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", '/account/overview', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            jsonObject = JSON.parse(xhr.responseText);
+            showPostings(jsonObject);
+        }
+    }
+    xhr.send();
+}
+
+function showPostings(postings) {
+    let postingHolder = document.getElementById("financeOverview");
+    let trPostings = postingHolder.getElementsByTagName("tr");
+    while (trPostings.length > 2) trPostings[2].parentNode.removeChild(trMembers[2]);
+
+    let financeSchema = document.getElementById("fincanceSchema");
+    for (let i = 0; i < postings.length; i++) {
+
+        let financeClone = financeSchema.cloneNode(true);
+        removeClass(financeClone, "hideElm");
+
+        financeColumns = financeClone.getElementsByTagName("td");
+        financeColumns[0].appendChild(document.createTextNode(postings[i].id));
+
+        let parsedDate = (new Date());
+        parsedDate.setTime(Date.parse(postings[i].payDate));
+        financeColumns[1].appendChild(document.createTextNode(parsedDate.toLocaleDateString()));
+        financeColumns[2].appendChild(document.createTextNode(postings[i].comment));
+        financeColumns[3].appendChild(document.createTextNode(postings[i].byWho));
+        financeColumns[4].appendChild(document.createTextNode(postings[i].value));
+        if (postings[i].value < 0) financeColumns[4].style.color = "red";
+
+        postingHolder.appendChild(financeClone);
+    }
+}
+

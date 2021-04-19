@@ -2,24 +2,34 @@
     ViewData["Title"] = "Konti overblik";
 }
 
-<br>
-<a href="/account/view?income">Indtægter</a>
-<br>
-<br>
-<br>
-Herinde måske et overblik over konti, da hver konti har et navn?
-... så man kan trykke på den enkelte konti?
-
-        Tilbage til overblik <a href="/">Link</a>
-<br>
-<br>
-<br>
-
-<br>
+<div class="gridContainer">
 
 
-        public string name { get; set; }
+    <div id="accountInjection"></div>
+    <select id="timeframe">
+        <option value="1">Alle posteringer</option>
+        <option value="2">I dag</option>
+        <option value="3">Seneste 2 dage</option>
+        <option value="7">Seneste 7 dage</option>
+        <option value="7">Seneste måned</option>
+    </select>
+    <br><br>
 
 
-
-To be designed...
+    <table id="financeOverview" class="mainTable" CELLSPACING="0">
+        <tr>
+            <th class="tableHeaders">Posterings Id</th>
+            <th class="tableHeaders">Dato</th>
+            <th class="tableHeaders">Kommentar</th>
+            <th class="tableHeaders">Oprettet af</th>
+            <th class="tableHeaders">Beløb</th>
+        </tr>
+        <tr id="fincanceSchema" class="hideElm">
+            <td class="tableData"></td>
+            <td class="tableData"></td>
+            <td class="tableData"></td>
+            <td class="tableData"></td>
+            <td class="tableData tableDataEnd"></td>
+        </tr>
+    </table>
+</div>
