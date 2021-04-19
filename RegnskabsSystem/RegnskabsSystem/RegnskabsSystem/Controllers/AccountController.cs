@@ -30,17 +30,18 @@ namespace RegnskabsSystem.Controllers
 
 
         [HttpGet("accounts")]
-        public ActionResult<IEnumerable<Konti>> Accounts()
+        public ActionResult<IEnumerable<string>> Accounts()
         {
             var validation = CookieHelper.GetValidation(Request);
-            //var accounts = serverSideData.GetKonti?(validation);
-
+            var accounts = serverSideData.GetKonties(validation);
+            return Ok(accounts);
+            /*
             var accounts = new List<Konti>();
             accounts.Add(new Konti() { CorporationID = 1, ID = 1, name = "Main" });
             accounts.Add(new Konti() { CorporationID = 1, ID = 2, name = "Salg af kioskvarer" });
             accounts.Add(new Konti() { CorporationID = 1, ID = 3, name = "Medlemsskaber" });
 
-            return Ok(accounts);
+            return Ok(accounts);*/
         }
 
 

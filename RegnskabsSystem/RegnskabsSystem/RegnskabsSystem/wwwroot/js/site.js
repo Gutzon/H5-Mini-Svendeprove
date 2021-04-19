@@ -278,6 +278,7 @@ function changeCorporation() {
                 setPermissions(corporationChanged.permissions);
                 populateUsers();
                 populateMembers();
+                changeAccount();
             }
         }
     }
@@ -565,6 +566,8 @@ function showFinances() {
 
 
 function changeAccount() {
+    let accountSelected = document.getElementById("accountSelector").value;
+    setCookieParam("selectedAcc", accountSelected);
     getPostings();
 }
 
@@ -595,24 +598,20 @@ function injectAccounts() {
 
 function insertAccounts(accounts, acccountSelector) {
     let selectedAcc = getCookieParam("selectedAcc");
-    if (accounts.length == 1) {
-        acccountSelector.appendChild(document.createTextNode(accounts[0].name));
-    }
-    else {
-        let select = document.createElement("select");
-        select.setAttribute("id", "accountSelector");
-        select.setAttribute("class", "selectors");
-        select.addEventListener("change", () => changeAccount());
 
-        for (let account of accounts) {
-            let option = document.createElement("option")
-            option.appendChild(document.createTextNode(account.name));
-            option.setAttribute("value", account.id);
-            if (selectedAcc == account.id) option.setAttribute("Selected", "Selected");
-            select.appendChild(option);
-        }
-        acccountSelector.appendChild(select);
+    let select = document.createElement("select");
+    select.setAttribute("id", "accountSelector");
+    select.setAttribute("class", "selectors");
+    select.addEventListener("change", () => changeAccount());
+
+    for (let account of accounts) {
+        let option = document.createElement("option")
+        option.appendChild(document.createTextNode(account));
+        option.setAttribute("value", account);
+        if (selectedAcc == account) option.setAttribute("Selected", "Selected");
+        select.appendChild(option);
     }
+    acccountSelector.appendChild(select);
 }
 
 
