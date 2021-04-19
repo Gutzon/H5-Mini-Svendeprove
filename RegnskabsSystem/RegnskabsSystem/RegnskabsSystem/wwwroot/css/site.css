@@ -85,6 +85,16 @@ body {
 }
 
 /* Temp rule until design is ready */
+#addFinanceSchema .LoginFormBox, #addFinanceSchema button {
+    height: 30px;
+    margin: 5px auto;
+    width: 90%;
+    font-size: 16px;
+}
+
+#addFinanceSchema td {
+    text-align: center;
+}
 
 #headerArea navbar {
     padding: 0 1vh 2vh;

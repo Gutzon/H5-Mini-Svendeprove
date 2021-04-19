@@ -9,6 +9,10 @@ namespace ServerSideData.TransferModel
 {
     public class TransferFinance
     {
+        public TransferFinance()
+        {
+        }
+
         public TransferFinance(FinanceEntry entry, Konti konti, string type = "" , bool kontifiltered = false)
         {
             if (type == "Full")

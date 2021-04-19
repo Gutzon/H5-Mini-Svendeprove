@@ -568,6 +568,7 @@ function showFinances() {
 function changeAccount() {
     let accountSelected = document.getElementById("accountSelector").value;
     setCookieParam("selectedAcc", accountSelected);
+    document.forms["addFinanceForm"]["konti"].value = accountSelected;
     getPostings();
 }
 
@@ -611,6 +612,7 @@ function insertAccounts(accounts, acccountSelector) {
         if (selectedAcc == account) option.setAttribute("Selected", "Selected");
         select.appendChild(option);
     }
+    document.forms["addFinanceForm"]["konti"].value = selectedAcc == "" ? select.options[0].value : selectedAcc;
     acccountSelector.appendChild(select);
 }
 
@@ -637,7 +639,7 @@ function showPostings(postings) {
 
     let accountSelector = document.getElementById("accountSelector");
     let selectedOption = accountSelector.options[accountSelector.selectedIndex];
-    let showSelectedAccount = selectedOption.value == 1;
+    let showSelectedAccount = selectedOption.value == "Main";
     let accountColumn = document.getElementById("accountColumn");
 
     if (showSelectedAccount && accountColumn == null) {
@@ -689,3 +691,44 @@ function showPostings(postings) {
     }
 }
 
+
+
+function addFinance() {
+    let addFinanceForm = document.forms["addFinanceForm"];
+    if (addFinanceForm == undefined) return;
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", '/account/finance', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            try {
+                var successMsg = xhr.responseText;
+                if (successMsg == "ok") {
+                    getPostings();
+                }
+                else switch (successMsg) {
+                    case "Wrong Konti name":
+                        alert("Der skete en teknisk fejl i forhold til at oprette postering under kontien.");
+                            logOut();
+                            break;
+                        case "not permitted":
+                            alert("Du kan ikke tilføje en postering.");
+                            break;
+                        case "no session":
+                            alert("Dit login er udløbet, du logges ud. Log venligst på igen.");
+                            logOut();
+                            break;
+                        default:
+                }
+            }
+            catch {
+                alert("En fejl opstod under oprettelse af postering");
+            }
+        }
+    }
+
+    let formData = getFormJsonData("addFinanceForm");
+    xhr.send(JSON.stringify(formData));
+}

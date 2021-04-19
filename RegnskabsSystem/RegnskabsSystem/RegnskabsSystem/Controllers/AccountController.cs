@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RegnskabsSystem.Helpers;
+using RegnskabsSystem.Models;
 using ServerSideData;
 using ServerSideData.Models;
 using ServerSideData.TransferModel;
@@ -28,22 +29,21 @@ namespace RegnskabsSystem.Controllers
             return View();
         }
 
-
         [HttpGet("accounts")]
         public ActionResult<IEnumerable<string>> Accounts()
         {
             var validation = CookieHelper.GetValidation(Request);
             var accounts = serverSideData.GetKonties(validation);
             return Ok(accounts);
-            /*
-            var accounts = new List<Konti>();
-            accounts.Add(new Konti() { CorporationID = 1, ID = 1, name = "Main" });
-            accounts.Add(new Konti() { CorporationID = 1, ID = 2, name = "Salg af kioskvarer" });
-            accounts.Add(new Konti() { CorporationID = 1, ID = 3, name = "Medlemsskaber" });
-
-            return Ok(accounts);*/
         }
 
+        [HttpPost("finance")]
+        public ActionResult<string> MakeFinanceEntry([FromBody] TransferFinance newFinanceEntry)
+        {
+            var validation = CookieHelper.GetValidation(Request);
+            var financeAddSuccess = serverSideData.AddFinance(validation, newFinanceEntry);
+            return Ok(financeAddSuccess);
+        }
 
         [HttpGet("overview")]
         public ActionResult<IEnumerable<TransferFinance>> Overview()
@@ -51,29 +51,6 @@ namespace RegnskabsSystem.Controllers
             var validation = CookieHelper.GetValidation(Request);
             var finances = serverSideData.GetFinances(validation);
             return Ok(finances);
-
-
-
-            // Temp until endpoint ready
-            /*var random = new Random();
-            var finances = new List<FinanceEntry>();
-            var sum = 0;
-            for (var i = 0; i < 30; i++)
-            {
-                finances.Add(new FinanceEntry()
-                {
-                    value = random.Next(-500, 500),
-                    addDate = new DateTime(DateTime.Now.Ticks).AddDays(random.Next(-5, -1)),
-                    byWho = "User " + random.Next(1, 100),
-                    comment = "Postering tekst " + random.Next(1, 10000),
-                    payDate = new DateTime(DateTime.Now.Ticks).AddDays(random.Next(-5, -1)),
-                    KontiID = random.Next(1,3),
-                    ID = i+1
-                });
-            }*/
-
-
-            //return Ok(finances);
-        }
     }
+}
 }
