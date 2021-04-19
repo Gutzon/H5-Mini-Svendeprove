@@ -675,8 +675,17 @@ function showPostings(postings) {
         financeColumns[column++].appendChild(document.createTextNode(parsedDate.toLocaleDateString()));
         financeColumns[column++].appendChild(document.createTextNode(postings[i].comment));
         financeColumns[column++].appendChild(document.createTextNode(postings[i].byWho));
-        financeColumns[column].appendChild(document.createTextNode(postings[i].value));
-        if (postings[i].value < 0) financeColumns[column].style.color = "red";
+
+        let valueHolder = document.createElement("div");
+        valueHolder.appendChild(document.createTextNode(postings[i].value));
+        financeColumns[column].appendChild(valueHolder);
+        if (postings[i].value < 0) valueHolder.style.color = "red";
+
+        let sumHolder = document.createElement("div");
+        sumHolder.appendChild(document.createTextNode(postings[i].newSaldo));
+        financeColumns[column].appendChild(sumHolder);
+        sumHolder.style.textAlign = "right";
+        if (postings[i].newSaldo < 0) sumHolder.style.color = "red";
 
         postingHolder.appendChild(financeClone);
     }

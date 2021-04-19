@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using RegnskabsSystem.Helpers;
 using ServerSideData;
 using ServerSideData.Models;
+using ServerSideData.TransferModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,11 +45,11 @@ namespace RegnskabsSystem.Controllers
 
 
         [HttpGet("overview")]
-        public ActionResult<IEnumerable<FinanceEntry>> Overview()
+        public ActionResult<IEnumerable<TransferFinance>> Overview()
         {
             var validation = CookieHelper.GetValidation(Request);
-            return Ok(serverSideData.GetFinances(validation));
-
+            var finances = serverSideData.GetFinances(validation);
+            return Ok(finances);
 
 
 
