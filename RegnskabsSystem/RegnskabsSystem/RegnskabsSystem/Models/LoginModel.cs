@@ -7,8 +7,8 @@ namespace RegnskabsSystem.Models
 {
     public class LoginModel
     {
-        public string user { get; set; }
-        public string password { get; set; }
-        public string GetUnEscapedPassword => Uri.UnescapeDataString(password ?? "");
+        public string User { get; set; }
+        public string Password { get; set; }
+        public string GetUnEscapedPassword => Uri.UnescapeDataString(Password ?? "");
     }
 }

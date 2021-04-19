@@ -13,7 +13,6 @@ namespace RegnskabsSystem.Helpers
     {
         public static Validation GetValidation(HttpRequest request)
         {
-            // Cases where request for logout should not occur as it already is logged out.
             if (!request.Cookies.TryGetValue("accessToken", out var accessTokenValue)
                 || string.IsNullOrEmpty(accessTokenValue))
             {

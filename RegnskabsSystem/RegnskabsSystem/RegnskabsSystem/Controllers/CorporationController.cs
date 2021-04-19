@@ -38,7 +38,7 @@ namespace RegnskabsSystem.Controllers
             {
                 var users = serverSideData.GetUsers(validation);
                 var currentUser = users.FirstOrDefault(u => u.username == validation.username);
-                corporationChangeModel.permissions = currentUser.permissions;
+                corporationChangeModel.Permissions = currentUser.permissions;
             }
 
             return corporationChangeModel;

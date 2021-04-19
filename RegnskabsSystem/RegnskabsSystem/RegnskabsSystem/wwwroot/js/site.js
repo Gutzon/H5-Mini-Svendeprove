@@ -189,7 +189,11 @@ function login() {
             logOut();
         }
     }
-    xhr.send('{"user": "' + loginForm.user.value + '", "password": "' + escape(loginForm.password.value) + '"}');
+
+    let formData = getFormJsonData("loginForm");
+    xhr.send(JSON.stringify(formData));
+    /*
+    xhr.send('{"user": "' + loginForm.user.value + '", "password": "' + escape(loginForm.password.value) + '"}');*/
 }
 
 function handleLogin(responseText) {
@@ -199,7 +203,7 @@ function handleLogin(responseText) {
         setCookieParam("selectedCorp", jsonObject.corporations[0].id);
         setCookieParam("corporations", escape(JSON.stringify(jsonObject.corporations)));
         setCookieParam("accessToken", jsonObject.tokken);
-        setCookieParam("userName", loginForm.user.value);
+        setCookieParam("userName", loginForm.User.value);
         setCookieParam("user", escape(JSON.stringify(jsonObject.user)));
         dashboardToggle();
         showNavbar(true);

@@ -55,8 +55,8 @@ namespace RegnskabsSystem.Controllers
         [HttpPost("login")]
         public ActionResult<UserLogin> Login([FromBody] LoginModel loginData)
         {
-            var hashedPassword = SecurityHelper.GetHashCode(loginData.user + loginData.GetUnEscapedPassword);
-            var userLogin = serverSideData.Login(loginData.user, hashedPassword);
+            var hashedPassword = SecurityHelper.GetHashCode(loginData.User + loginData.GetUnEscapedPassword);
+            var userLogin = serverSideData.Login(loginData.User, hashedPassword);
             switch (userLogin.status)
             {
                 case "Error":
@@ -64,8 +64,8 @@ namespace RegnskabsSystem.Controllers
                 case "Fail":
                     return BadRequest("AccountFail");
                 default:
-                    var users = serverSideData.GetUsers(new Validation(loginData.user, userLogin.tokken));
-                    var currentUser = users.FirstOrDefault(u => u.username == loginData.user);
+                    var users = serverSideData.GetUsers(new Validation(loginData.User, userLogin.tokken));
+                    var currentUser = users.FirstOrDefault(u => u.username == loginData.User);
                     userLogin.user = currentUser;
                     return Ok(userLogin);
             };

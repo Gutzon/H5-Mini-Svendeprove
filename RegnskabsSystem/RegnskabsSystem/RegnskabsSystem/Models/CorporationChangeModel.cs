@@ -9,6 +9,6 @@ namespace RegnskabsSystem.Models
     public class CorporationChangeModel
     {
         public bool ChangeSuccess { get; set; }
-        public TransferPermissions permissions {get; set; }
+        public TransferPermissions Permissions {get; set; }
     }
 }
