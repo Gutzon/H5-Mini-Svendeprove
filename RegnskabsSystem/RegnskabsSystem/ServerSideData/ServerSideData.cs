@@ -108,6 +108,45 @@ namespace ServerSideData
                 };
                 db.UCP.Add(ucp);
                 Commit();
+                Konti konti1 = new()
+                {
+                    CorporationID = corporation1.ID,
+                    name = "Main"
+                };
+                db.Kontis.Add(konti1);
+                Konti konti2 = new()
+                {
+                    CorporationID = corporation2.ID,
+                    name = "Main"
+                };
+                db.Kontis.Add(konti2);
+                Commit();
+                FinanceEntry entry1 = new()
+                {
+                    KontiID = konti1.ID,
+                    value = 10000,
+                    comment = "Start Value",
+                    byWho = "admin",
+                    newSaldoKonti = 10000,
+                    newSaldoMain = 10000,
+                    addDate = DateTime.Now,
+                    payDate = DateTime.Now
+                };
+                db.FinanceEntries.Add(entry1);
+                FinanceEntry entry2 = new()
+                {
+                    KontiID = konti2.ID,
+                    value = 9000,
+                    comment = "Start Value",
+                    byWho = "admin",
+                    newSaldoKonti = 9000,
+                    newSaldoMain = 9000,
+                    addDate = DateTime.Now,
+                    payDate = DateTime.Now
+                };
+                db.FinanceEntries.Add(entry2);
+                Commit();
+
                 AddMembers();
             }
         }
@@ -495,9 +534,65 @@ namespace ServerSideData
             return memberlist;
         }
 
-        public IEnumerable<FinanceEntry> GetFinances(Validation validate, string konti = "", string searchvalue = "", string searchtype = "")
+        public IEnumerable<TransferFinance> GetFinances(Validation validate, string konti = "", string searchvalue = "", string searchtype = "")
         {
-            throw new NotImplementedException();
+            List<TransferFinance> finacelist = new();
+            Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+            if (ValidateTokken(validate))
+            {
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinace") || CheckPermission(validate, ses, "LimitedViewFinance"))
+                {
+                    var query = from finaces in db.FinanceEntries
+                                join kontis in db.Kontis on finaces.KontiID equals kontis.ID
+                                where finaces.ID.Equals(0)
+                                select new {finaces, kontis};
+                    bool kontifiltered = true;
+                    if (konti == "" || konti == "Main")
+                    {
+                        kontifiltered = false;
+                        query = from finaces in db.FinanceEntries
+                                join kontis in db.Kontis on finaces.KontiID equals kontis.ID
+                                where kontis.CorporationID.Equals(ses.corporationId)
+                                orderby finaces.ID
+                                select new {finaces, kontis};
+                    }
+                    else
+                    {
+                        query = from finaces in db.FinanceEntries
+                                join kontis in db.Kontis on finaces.KontiID equals kontis.ID
+                                where kontis.CorporationID.Equals(ses.corporationId) && kontis.name.Equals(konti)
+                                orderby finaces.ID
+                                select new {finaces, kontis};
+                    }
+
+                    switch (searchtype)
+                    {
+                        case "Test":
+
+
+                            break;
+                        default:
+                            break;
+                    }
+                    if (ses.permissions.AddFinance || ses.permissions.ViewFinance)
+                    {
+                        foreach (var q in query)
+                        {
+                            finacelist.Add(new TransferFinance(q.finaces, q.kontis, "Full", kontifiltered));
+                        }
+                    }
+                    else
+                    {
+                        foreach (var q in query)
+                        {
+                            finacelist.Add(new TransferFinance(q.finaces, q.kontis, "Limited", kontifiltered));
+                        }
+                    }
+                    
+                }
+
+            }
+            return finacelist;
         }
 
         public IEnumerable<Corporation> GetCorporations()

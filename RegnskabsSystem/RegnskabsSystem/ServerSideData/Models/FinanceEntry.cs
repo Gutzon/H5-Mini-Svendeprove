@@ -13,6 +13,8 @@ namespace ServerSideData.Models
         public double value { get; set; }
         public string comment { get; set; }
         public string byWho { get; set; }
+        public double newSaldoKonti { get; set; }
+        public double newSaldoMain { get; set; }
         public DateTime addDate { get; set; }
         public DateTime payDate { get; set; }
     }
