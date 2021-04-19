@@ -11,7 +11,7 @@ namespace ServerSideData.TransferModel
     {
         public TransferFinance(FinanceEntry entry, Konti konti, string type = "" , bool kontifiltered = false)
         {
-            if (type == "full")
+            if (type == "Full")
             {
                 ID = entry.ID;
                 this.comment = entry.comment;
@@ -25,13 +25,13 @@ namespace ServerSideData.TransferModel
             {
                 this.newSaldo = entry.newSaldoMain;
             }
-            this.value = value;
-            this.konti = konti;
-            this.payDate = payDate;
+            this.value = entry.value;
+            this.konti = konti.name;
+            this.payDate = entry.payDate;
+            this.addDate = entry.addDate;
         }
 
         public int ID { get; set; }
-        public int KontiID { get; set; }
         public double value { get; set; }
         public string comment { get; set; }
         public string byWho { get; set; }
@@ -39,6 +39,6 @@ namespace ServerSideData.TransferModel
 
         public DateTime addDate { get; set; }
         public DateTime payDate { get; set; }
-        public Konti konti { get; set; }
+        public string konti { get; set; }
     }
 }
