@@ -47,13 +47,13 @@ namespace RegnskabsSystem.Controllers
         public ActionResult<IEnumerable<FinanceEntry>> Overview()
         {
             var validation = CookieHelper.GetValidation(Request);
-            //var finances = serverSideData.GetFinances(validation);
+            return Ok(serverSideData.GetFinances(validation));
 
 
 
 
             // Temp until endpoint ready
-            var random = new Random();
+            /*var random = new Random();
             var finances = new List<FinanceEntry>();
             var sum = 0;
             for (var i = 0; i < 30; i++)
@@ -68,10 +68,10 @@ namespace RegnskabsSystem.Controllers
                     KontiID = random.Next(1,3),
                     ID = i+1
                 });
-            }
+            }*/
 
 
-            return Ok(finances);
+            //return Ok(finances);
         }
     }
 }
