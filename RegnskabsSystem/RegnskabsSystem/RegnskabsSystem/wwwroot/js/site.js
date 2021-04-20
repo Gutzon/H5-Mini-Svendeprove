@@ -418,7 +418,7 @@ function cleanUserOverviewElements(userCloneRow) {
 }
 
 
-function userCreate(e) {
+function performUserCreate(e) {
     e.preventDefault();
     let userCreateForm = document.forms["userCreateForm"];
     if (userCreateForm == undefined) return;
@@ -436,7 +436,8 @@ function userCreate(e) {
                     alert("Brugeren blev oprettet");
                     console.log("Midlertidig levering af kodeord, da vi ikke har webhotel på app'en:");
                     console.log(jsonObject.userPassword);
-                    hideModal(null, "userAddSchema");
+                    hideModal(null, "userCreateSchema");
+                    populateUsers();
                 }
                 else if (jsonObject.error !== "") {
                     switch (jsonObject.error) {
@@ -529,28 +530,6 @@ function showUserEditPermissions(userPermissions) {
     }
 }
 
-function newPermissionCheckBox(elmName, checked, disabled, toPermissionObj, hideDisabled) {
-    if (hideDisabled && disabled) return document.createTextNode("Hemmelig");
-    let checkbox = document.createElement("input");
-    checkbox.setAttribute("type", "checkbox");
-    checkbox.setAttribute("name", elmName);
-    if (checked) checkbox.setAttribute("checked", "checked");
-    if (disabled) checkbox.setAttribute("disabled", "disabled");
-    if (toPermissionObj) addClass(checkbox, "ToJsonObjectPermissions");
-    return checkbox;
-}
-
-function newPermissionCheckBox(elmName, checked, disabled, toPermissionObj, hideDisabled) {
-    if (hideDisabled && disabled) return document.createTextNode("Hemmelig");
-    let checkbox = document.createElement("input");
-    checkbox.setAttribute("type", "checkbox");
-    checkbox.setAttribute("name", elmName);
-    if (checked) checkbox.setAttribute("checked", "checked");
-    if (disabled) checkbox.setAttribute("disabled", "disabled");
-    if (toPermissionObj) addClass(checkbox, "ToJsonObjectPermissions");
-    return checkbox;
-}
-
 function performUserEdit(e, oldUser) {
     e.preventDefault();
     let xhr = new XMLHttpRequest();
@@ -562,6 +541,7 @@ function performUserEdit(e, oldUser) {
             if (xhr.responseText == "true") {
                 alert("Bruger blev redigeret");
                 hideModal(null, "userEditSchema");
+                populateUsers();
             }
             else alert("Bruger blev ikke redigeret");
         }
@@ -578,10 +558,59 @@ function performUserEdit(e, oldUser) {
 
 
 
+function userCreate(e) {
+    e.preventDefault();
+    showUserCreatePermissions();
+
+    // Assign perform create function
+    let createButton = document.getElementById("performCreateButton");
+    let clonedButton = createButton.cloneNode(true);
+    clonedButton.addEventListener("click", function () { performUserCreate(event) });
+    let createButtonParent = createButton.parentNode;
+    createButtonParent.removeChild(createButton);
+    createButtonParent.appendChild(clonedButton);
+
+    showModal(event, 'userCreateSchema');
+}
+
+
+function showUserCreatePermissions() {
+    let permissionTBody = document.getElementById("createUserRights").getElementsByTagName("tbody")[0];
+    let permissionRows = permissionTBody.getElementsByTagName("tr");
+    while (permissionRows.length > 1) permissionRows[1].parentNode.removeChild(permissionRows[1]);
+
+    let ownData = getCookieParam("user");
+    if (ownData == "") logOut(null, true);
+    let ownPermissions = JSON.parse(getCookieParam("user")).permissions;
+
+    for (let permission in ownPermissions) {
+        let permissionRow = permissionTBody.getElementsByTagName("tr")[0].cloneNode(true);
+        removeClass(permissionRow, "hideElm");
+
+        let permissionColumns = permissionRow.getElementsByTagName("td");
+        permissionColumns[0].appendChild(document.createTextNode(permission)); // Oversæt evt. senere
+        permissionColumns[1].appendChild(newPermissionCheckBox("userCreateOwn_" + permission, ownPermissions[permission], true, false, false))
+        permissionColumns[2].appendChild(newPermissionCheckBox(permission, false, !ownPermissions[permission], true, false))
+        permissionTBody.appendChild(permissionRow)
+    }
+}
 
 
 
 
+
+
+
+function newPermissionCheckBox(elmName, checked, disabled, toPermissionObj, hideDisabled) {
+    if (hideDisabled && disabled) return document.createTextNode("Hemmelig");
+    let checkbox = document.createElement("input");
+    checkbox.setAttribute("type", "checkbox");
+    checkbox.setAttribute("name", elmName);
+    if (checked) checkbox.setAttribute("checked", "checked");
+    if (disabled) checkbox.setAttribute("disabled", "disabled");
+    if (toPermissionObj) addClass(checkbox, "ToJsonObjectPermissions");
+    return checkbox;
+}
 
 
 

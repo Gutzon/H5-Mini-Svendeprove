@@ -21,7 +21,7 @@
             <td class="tableData tdImg tableDataEnd"><img src="Media\DeleteIcon.png" class="tableImgDelete"></td>
         </tr>
     </table>
-    <div class="text-center"><input type="button" class="FormSubmit submit-smaller" onclick="showModal(event, 'userAddSchema')" value="Tilføj ny bruger"></div>
+    <div class="text-center"><input type="button" class="FormSubmit submit-smaller" onclick="userCreate(event)" value="Tilføj ny bruger"></div>
 </div>
 
 <div id="userEditSchema" class="modal-main hideElm">
@@ -48,7 +48,7 @@
                     <tr>
                         <td class="tableData">Fornavn</td>
                         <td class="tableData"><span id="userEdit_firstname"></span></td>
-                        <td class="tableData tableDataEnd"><input type="text"  name="firstname" value=""></td>
+                        <td class="tableData tableDataEnd"><input type="text" name="firstname" value=""></td>
                     </tr>
                     <tr>
                         <td class="tableData">Efternavn</td>
@@ -90,6 +90,62 @@
 
 
 
+<div id="userCreateSchema" class="modal-main hideElm">
+    <div class="modal-content">
+        <div class="modal-head">
+            <div>Opret bruger</div>
+            <a href="/closeModal" onclick="hideModal(event, 'userCreateSchema')"><img src="/Media/DeleteIcon.png"></a>
+        </div>
+        <form id="userCreateForm">
+            <table class="mainTable">
+                <thead>
+                    <tr>
+                        <td class="tableHeaders">Info</td>
+                        <td class="tableHeaders">Værdi</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tableData">Bruger navn</td>
+                        <td class="tableData tableDataEnd"><input type="text" name="username" value=""></td>
+                    </tr>
+                    <tr>
+                        <td class="tableData">Fornavn</td>
+                        <td class="tableData tableDataEnd"><input type="text" name="firstname" value=""></td>
+                    </tr>
+                    <tr>
+                        <td class="tableData">Efternavn</td>
+                        <td class="tableData tableDataEnd"><input type="text" name="lastname" value=""></td>
+                    </tr>
+                    <tr>
+                        <td class="tableData">E-mail</td>
+                        <td class="tableData tableDataEnd"><input type="text" name="mail" value=""></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table class="mainTable" id="createUserRights">
+                <thead>
+                    <tr>
+                        <td class="tableHeaders">Rettighed</td>
+                        <td class="tableHeaders">Kan tildeles</td>
+                        <td class="tableHeaders">Tildel</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="hideElm">
+                        <td class="tableData"></td>
+                        <td class="tableData text-center"></td>
+                        <td class="tableData tableDataEnd text-center"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="text-center"><input type="button" class="FormSubmit submit-smaller" id="performCreateButton" value="Opret bruger"></div>
+        </form>
+    </div>
+</div>
+
+<!--
 <div id="userAddSchema" class="modal-main hideElm">
     <div class="modal-content">
         <div class="modal-head">
@@ -105,22 +161,6 @@
             <br>
             <br>
 
-
-            <!--
-            public bool AddCorporation { get; set; }<br>
-            public bool Admin { get; set; }<br>
-            public bool AddUser { get; set; }<br>
-            public bool EditUser { get; set; }<br>
-            public bool DeleteUser { get; set; }<br>
-            public bool AddMember { get; set; }<br>
-            public bool EditMember { get; set; }<br>
-            public bool DeleteMember { get; set; }<br>
-            public bool AddFinance { get; set; }<br>
-            public bool ViewFinance { get; set; }<br>
-            public bool LimitedViewFinance { get; set; }<br>
-            public bool AddInventory { get; set; }<br>
-            public bool EditInventory { get; set; }<br>
-            public bool DeleteInventory { get; set; }<br>-->
             Bruger rettigheder:<br>
             <table class="tempUserCreate">
                 <thead>
@@ -288,4 +328,4 @@
             <input type="button" onclick="userCreate(event)" value="Tilføj bruger"><br>
         </form>
     </div>
-</div>
+</div>-->
