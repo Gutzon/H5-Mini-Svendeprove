@@ -150,7 +150,6 @@ namespace ServerSideData
                 AddMembers();
             }
         }
-
         private void AddMembers()
         {
             var lilleFnugId = GetCorporations().FirstOrDefault(c => c.name == "Lillefnug").ID;
@@ -202,7 +201,6 @@ namespace ServerSideData
             db.Members.Add(member5);
             Commit();
         }
-
         private int Commit()
         {
             return db.SaveChanges();
@@ -218,7 +216,6 @@ namespace ServerSideData
             }
             return false;
         }
-
         public string CreateUser(Validation validate, TransferUser user)
         {
             if (ValidateTokken(validate))
@@ -407,12 +404,10 @@ namespace ServerSideData
             }
             return false;
         }
-
         public bool DeleteUser(Validation validate, TransferUser user)
         {
             throw new NotImplementedException();
         }
-
         public string CreateMember(Validation validate, Member member)
         {
             if (ValidateTokken(validate))
@@ -433,17 +428,14 @@ namespace ServerSideData
             }
             return "No session";
         }
-
         public bool EditMember(Validation validate, Member member, Member newmember)
         {
             throw new NotImplementedException();
         }
-
         public bool DeleteMember(Validation validate, Member member)
         {
             throw new NotImplementedException();
         }
-
         public IEnumerable<TransferUser> GetUsers(Validation validate, string searchvalue = "", string searchtype = "")
         {
             List<TransferUser> userlist = new();
@@ -494,7 +486,6 @@ namespace ServerSideData
             }
             return userlist;
         }
-
         public IEnumerable<Member> GetMembers(Validation validate, string searchvalue = "", string searchtype = "")
         {
             List<Member> memberlist = new();
@@ -615,20 +606,20 @@ namespace ServerSideData
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 oldname = oldname.Trim();
                 newname = newname.Trim();
-                if ((CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance")) && oldname != "" && newname != "")
+                if ((CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance")) && oldname != "" && newname != "" && oldname != "Main" && newname != "Main")
                 {
                     var query = from kontis in db.Kontis
                                 where kontis.CorporationID.Equals(ses.corporationId) && kontis.name.Equals(oldname)
                                 orderby kontis.name
                                 select kontis;
-                    if (query.Count() == 1)
+                    if (query.Count() == 1 && !db.Kontis.Where(o => o.CorporationID.Equals(ses.corporationId) && o.name.Equals(newname)).Any())
                     {
                         query.First().name = newname;
                         db.Kontis.Update(query.First());
                         Commit();
                         return "OK";
                     }
-                    return "Didn't exist";
+                    return "Name problem";
                 }
                 return "Not permitted";
             }
@@ -640,6 +631,7 @@ namespace ServerSideData
             if (ValidateTokken(validate))
             {
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                konti = konti.Trim();
                 if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinace") || CheckPermission(validate, ses, "LimitedViewFinance"))
                 {
                     var query = from finaces in db.FinanceEntries
@@ -694,7 +686,6 @@ namespace ServerSideData
             }
             return finacelist;
         }
-
         public IEnumerable<Corporation> GetCorporations()
         {
             var query = from d in db.Corporations
@@ -702,7 +693,6 @@ namespace ServerSideData
                         select d;
             return query;
         }
-
         public IEnumerable<string> GetKonties(Validation validate)
         {
             List<string> kontiList = new();
@@ -725,6 +715,92 @@ namespace ServerSideData
 
             }
             return kontiList;
+        }
+
+        public string AddRepFinance(Validation validate, TransferRepFinance transferRepFinance)
+        {
+            if (ValidateTokken(validate))
+            {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance"))
+                {
+                   /* var query = from kontis in db.Kontis
+                                where kontis.CorporationID.Equals(ses.corporationId) && kontis.name.Equals(transferRepFinance.konti)
+                                select kontis;
+                    if (query.Count() == 1)
+                    {
+                        var query2 = from entries in db.FinanceEntries
+                                     join kontis in db.Kontis on entries.KontiID equals kontis.ID
+                                     where kontis.CorporationID.Equals(ses.corporationId)
+                                     orderby entries.payDate
+                                     select new { entries, kontis };
+
+                        db.FinanceEntries.Add(newEntry);
+                        Commit();
+                        return "ok";
+
+                    }
+                    return "Wrong Konti name";*/
+                }
+                return "not permitted";
+            }
+            return "no session";
+        }
+
+        public string RemoveRepFinance(Validation validate, TransferRepFinance transferRepFinance)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<TransferRepFinance> GetRepFinance(Validation validate, string konti = "")
+        {
+            List<TransferRepFinance> repFinacelist = new();
+            if (ValidateTokken(validate))
+            {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                konti = konti.Trim();
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinace") || CheckPermission(validate, ses, "LimitedViewFinance"))
+                {
+                    var query = from repFinaces in db.RepFinanceEntries
+                                join kontis in db.Kontis on repFinaces.KontiID equals kontis.ID
+                                where repFinaces.ID.Equals(0)
+                                select new { repFinaces, kontis };
+                    if (konti == "" || konti == "Main")
+                    {
+                        query = from repFinaces in db.RepFinanceEntries
+                                join kontis in db.Kontis on repFinaces.KontiID equals kontis.ID
+                                where kontis.CorporationID.Equals(ses.corporationId)
+                                orderby repFinaces.ID
+                                select new { repFinaces, kontis };
+                    }
+                    else
+                    {
+                        query = from repFinaces in db.RepFinanceEntries
+                                join kontis in db.Kontis on repFinaces.KontiID equals kontis.ID
+                                where kontis.CorporationID.Equals(ses.corporationId) && kontis.name.Equals(konti)
+                                orderby repFinaces.ID
+                                select new { repFinaces, kontis };
+                    }
+
+                    if (ses.permissions.AddFinance || ses.permissions.ViewFinance)
+                    {
+                        foreach (var q in query)
+                        {
+                            repFinacelist.Add(new TransferRepFinance(q.repFinaces, q.kontis, "Full"));
+                        }
+                    }
+                    else
+                    {
+                        foreach (var q in query)
+                        {
+                            repFinacelist.Add(new TransferRepFinance(q.repFinaces, q.kontis, "Limited"));
+                        }
+                    }
+
+                }
+
+            }
+            return repFinacelist;
         }
     }
 }

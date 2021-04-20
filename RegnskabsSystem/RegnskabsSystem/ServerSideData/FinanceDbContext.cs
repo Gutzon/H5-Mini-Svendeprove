@@ -23,7 +23,7 @@ namespace ServerSideData
         public DbSet<Inventory> Inventories { get; set; }
         public DbSet<Corporation> Corporations{ get; set; }
         public DbSet<FinanceEntry> FinanceEntries { get; set; }
-
+        public DbSet<RepFinanceEntry> RepFinanceEntries { get; set; }
 
 
     }
