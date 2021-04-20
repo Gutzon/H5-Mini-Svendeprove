@@ -559,13 +559,19 @@ function performUserEdit(e, oldUser) {
 
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            alert(xhr.responseText);
+            if (xhr.responseText == "true") {
+                alert("Bruger blev redigeret");
+                hideModal(null, "userEditSchema");
+            }
+            else alert("Bruger blev ikke redigeret");
+        }
+        else if (this.readyState === XMLHttpRequest.DONE && this.status === 500) {
+            alert("Redigering af brugeren blev ikke fuldført, en kritisk fejl opstod.")
         }
     }
 
     let formData = getFormJsonData("userEditForm");
     let userEditObject = { oldUser: oldUser, newUser: formData}
-    console.log(userEditObject);
     xhr.send(JSON.stringify(userEditObject));
 }
 
