@@ -290,6 +290,9 @@ function changeCorporation() {
                 populateUsers();
                 populateMembers();
                 changeAccount();
+
+                removeCookieParam("selectedAcc");
+                showFinances();
             }
         }
     }
