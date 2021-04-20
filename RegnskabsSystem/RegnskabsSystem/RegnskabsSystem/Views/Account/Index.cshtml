@@ -2,34 +2,36 @@
     ViewData["Title"] = "Konti overblik";
 }
 
-<div class="gridContainer">
 
 
-    <div>
-        <div id="accountInjection" style="float:left;padding-right:10px;"></div>
-        <div>
-            <select id="timeframe">
-                <option value="1">Alle posteringer</option>
-                <option value="2">I dag</option>
-                <option value="3">Seneste 2 dage</option>
-                <option value="4">Seneste 7 dage</option>
-                <option value="5">Seneste måned</option>
-            </select>
-        </div>
+
+<div class="drowdownsContainer">
+    <div class="dropdownDiv">
+        <Select class="regnskabsDropdowns" id="accountInjection" onchange="changeAccount()">
+            <option>A</option>
+            <option>B</option>
+        </Select>
     </div>
-    <br><br>
 
+    <div class="dropdownDiv">
+        <select class="regnskabsDropdowns" id="timeframe">
+            <option>Uge</option>
+            <option>Måned</option>
+        </select>
+    </div>
+</div>
 
-    <table id="financeOverview" class="mainTable" CELLSPACING="0">
+<div class="gridContainer">
+    <table class="mainTable" id="financeOverview">
         <tr>
-            <th class="tableHeaders">Posterings Id</th>
+            <th class="tableHeaders">Postering</th>
+            <th class="tableHeaders">Kommentar</th>
             <th class="tableHeaders" id="accountColumn">Konti</th>
             <th class="tableHeaders" id="dateColumn">Dato</th>
-            <th class="tableHeaders">Kommentar</th>
-            <th class="tableHeaders">Oprettet af</th>
-            <th class="tableHeaders">Beløb</th>
+            <th class="tableHeaders">Bogført af</th>
+            <th class="tableHeaders tableHeaderEnd">Posterings Id</th>
         </tr>
-        <tr id="fincanceSchema" class="hideElm">
+        <tr id="financeSchema" class="hideElm">
             <td class="tableData"></td>
             <td class="tableData"></td>
             <td class="tableData"></td>
@@ -38,6 +40,19 @@
             <td class="tableData tableDataEnd"></td>
         </tr>
     </table>
+</div>
+
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<div class="gridContainer">
+
     <br><br>
     <form id="addAccountForm">
         Ny konti:
@@ -50,7 +65,6 @@
     <br><br>
     Tilføj postering ... skiftes til pop over modal design når det er klar fra Jannik:<br>
     <form id="addFinanceForm">
-        <input type="text" class="hideElm" name="konti">
         <table id="addFinance" class="mainTable" CELLSPACING="0">
             <tr>
                 <th class="tableHeaders">Kommentar</th>
@@ -60,6 +74,35 @@
             <tr id="addFinanceSchema">
                 <td class="tableData"><input type="text" name="comment" class="LoginFormBox"></td>
                 <td class="tableData"><input type="text" name="value" class="LoginFormBox"></td>
+                <td class="tableData tableDataEnd"><button type="button" class="FormSubmit" onclick="addFinance()">Tilføj</button></td>
+            </tr>
+        </table>
+    </form>
+
+
+
+    <br><br>
+    Tilføj gentagende postering ... skiftes til pop over modal design når det er klar fra Jannik:<br>
+    <form id="addRepetitiveFinance">
+        <input type="text" class="hideElm" name="konti">
+        <table id="addFinance" class="mainTable" CELLSPACING="0">
+            <tr>
+                <th class="tableHeaders">Kommentar</th>
+                <th class="tableHeaders">Beløb</th>
+                <th class="tableHeaders">Gentagelse</th>
+                <th class="tableHeaders">Gennemfør</th>
+            </tr>
+            <tr id="addFinanceSchema">
+                <td class="tableData"><input type="text" name="comment" class="LoginFormBox"></td>
+                <td class="tableData"><input type="text" name="value" class="LoginFormBox"></td>
+                <td class="tableData">
+                    <input type="date" name="payDate" class="LoginFormBox">
+                    <select name="repetitiveInterval">
+                        <option value="1">Repeat on day interval</option>
+                        <option value="2">Repeat on day interval</option>
+                        <option value="3">Repeat on day interval</option>
+                    </select>
+                </td>
                 <td class="tableData tableDataEnd"><button type="button" class="FormSubmit" onclick="addFinance()">Tilføj</button></td>
             </tr>
         </table>

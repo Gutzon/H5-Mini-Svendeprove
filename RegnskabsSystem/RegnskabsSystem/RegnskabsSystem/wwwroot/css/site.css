@@ -85,6 +85,7 @@ body {
 }
 
 /* Temp rule until design is ready */
+
 #addFinanceSchema .LoginFormBox, #addFinanceSchema button {
     height: 30px;
     margin: 5px auto;
@@ -96,6 +97,7 @@ body {
     text-align: center;
 }
 
+/* Temp Header design until final design is ready from Jannik */
 #headerArea navbar {
     padding: 0 1vh 2vh;
     display: flex;
@@ -142,7 +144,7 @@ body {
 
 #headerArea {
     background-color: #0DAAD2;
-    min-height: 8vh;
+    height: 10vh;
     border-bottom-left-radius: 50px;
     border-bottom-right-radius: 50px;
     box-shadow: 0px 10px 10px grey;
@@ -254,3 +256,27 @@ body {
 .tableImgEdit {
     height: 3vh;
 }
+
+
+/* ________________________________________Regnskabsside____________________________________________________ */
+
+.dropdownDiv {
+    display: inline-block;
+    width: 49%;
+}
+
+.drowdownsContainer {
+    margin-top: 4vh;
+    width: 40vw;
+    margin-left: 35vw;
+}
+
+.regnskabsDropdowns {
+    background-color: #0DAAD2;
+    color: white;
+    width: 10vw;
+    height: 5vh;
+    font-size: 18px;
+    font-weight: bold;
+    align-content: center;
+}}

@@ -569,7 +569,7 @@ function showFinances() {
 
 
 function changeAccount() {
-    let accountSelected = document.getElementById("accountSelector").value;
+    let accountSelected = document.getElementById("accountSelect").value;
     setCookieParam("selectedAcc", accountSelected);
     document.forms["addFinanceForm"]["konti"].value = accountSelected;
     getPostings();
@@ -602,10 +602,11 @@ function addAccount() {
 }
 
 
+
 function injectAccounts() {
-    let acccountSelector = document.getElementById("accountInjection");
-    while (acccountSelector.childNodes.length > 0) {
-        acccountSelector.removeChild(acccountSelector.childNodes[0]);
+    let accountSelect = document.getElementById("accountInjection");
+    while (accountSelect.childNodes.length > 0) {
+        accountSelect.removeChild(accountSelect.childNodes[0]);
     }
 
     let xhr = new XMLHttpRequest();
@@ -615,7 +616,7 @@ function injectAccounts() {
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             jsonObject = JSON.parse(xhr.responseText);
-            insertAccounts(jsonObject, acccountSelector);
+            insertAccounts(jsonObject, accountSelect);
             getPostings();
         }
     }
@@ -626,23 +627,14 @@ function injectAccounts() {
 
 
 
-function insertAccounts(accounts, acccountSelector) {
+function insertAccounts(accounts, accountSelect) {
     let selectedAcc = getCookieParam("selectedAcc");
-
-    let select = document.createElement("select");
-    select.setAttribute("id", "accountSelector");
-    select.setAttribute("class", "selectors");
-    select.addEventListener("change", () => changeAccount());
-
     for (let account of accounts) {
         let option = document.createElement("option")
         option.appendChild(document.createTextNode(account));
-        option.setAttribute("value", account);
         if (selectedAcc == account) option.setAttribute("Selected", "Selected");
-        select.appendChild(option);
+        accountSelect.appendChild(option);
     }
-    document.forms["addFinanceForm"]["konti"].value = selectedAcc == "" ? select.options[0].value : selectedAcc;
-    acccountSelector.appendChild(select);
 }
 
 
@@ -661,16 +653,21 @@ function getPostings() {
     xhr.send();
 }
 
+
+
+
 function showPostings(postings) {
     let postingHolder = document.getElementById("financeOverview");
     let trPostings = postingHolder.getElementsByTagName("tr");
     while (trPostings.length > 2) trPostings[2].parentNode.removeChild(trPostings[2]);
 
-    let accountSelector = document.getElementById("accountSelector");
-    let selectedOption = accountSelector.options[accountSelector.selectedIndex];
-    let showSelectedAccount = selectedOption.value == "Main";
+    let accountSelect = document.getElementById("accountInjection");
+    let showSelectedAccount = accountSelect.value == "Main";
     let accountColumn = document.getElementById("accountColumn");
 
+    let postingOrder = ["value", "comment", "konti", "payDate", "byWho", "id"];
+
+    // Remove/add column as needed
     if (showSelectedAccount && accountColumn == null) {
         let insertAccountBefore = document.getElementById("dateColumn");
         let accountElm = document.createElement("td");
@@ -683,41 +680,58 @@ function showPostings(postings) {
         accountColumn.parentNode.removeChild(accountColumn);
     }
 
-    let financeSchema = document.getElementById("fincanceSchema");
+    let financeSchema = document.getElementById("financeSchema");
     for (let i = 0; i < postings.length; i++) {
-        let column = 0;
+
         let financeClone = financeSchema.cloneNode(true);
         removeClass(financeClone, "hideElm");
 
-        financeColumns = financeClone.getElementsByTagName("td");
-        financeColumns[column++].appendChild(document.createTextNode(postings[i].id));
+        let financeColumns = financeClone.getElementsByTagName("td");
+        let column = 0;
 
-        if (showSelectedAccount) {
-            financeColumns[column++].appendChild(document.createTextNode(postings[i].konti));
+        for (let columnId of postingOrder) {
+            if (columnId == "konti" && !showSelectedAccount) {
+                financeColumns[column].parentNode.removeChild(financeColumns[column]);
+                continue;
+            }
+            let columnChild = getFinanceChild(postings[i], columnId);
+            financeColumns[column++].appendChild(columnChild);
         }
-        else {
-            financeColumns[column].parentNode.removeChild(financeColumns[column]);
-        }
-
-        let parsedDate = (new Date());
-        parsedDate.setTime(Date.parse(postings[i].payDate));
-        financeColumns[column++].appendChild(document.createTextNode(parsedDate.toLocaleDateString()));
-        financeColumns[column++].appendChild(document.createTextNode(postings[i].comment));
-        financeColumns[column++].appendChild(document.createTextNode(postings[i].byWho));
-
-        let valueHolder = document.createElement("div");
-        valueHolder.appendChild(document.createTextNode(postings[i].value));
-        financeColumns[column].appendChild(valueHolder);
-        if (postings[i].value < 0) valueHolder.style.color = "red";
-
-        let sumHolder = document.createElement("div");
-        sumHolder.appendChild(document.createTextNode(postings[i].newSaldo));
-        financeColumns[column].appendChild(sumHolder);
-        sumHolder.style.textAlign = "right";
-        if (postings[i].newSaldo < 0) sumHolder.style.color = "red";
 
         postingHolder.appendChild(financeClone);
     }
+}
+
+function getFinanceChild(posting, columnId) {
+    let columnData = posting[columnId];
+    if (columnId == "payDate") {
+        let parsedDate = (new Date());
+        parsedDate.setTime(Date.parse(posting[columnId]));
+        let month = ((parsedDate.getMonth()+1).length > 1 ? "" : "0") + (parsedDate.getMonth()+1);
+        columnData = parsedDate.getDate() + "/" + month + "-" + parsedDate.getFullYear();
+    }
+
+    if (columnId != "value") return document.createTextNode(columnData);
+
+    // Dual data in value section, value and summary
+    let valuesHolder = document.createElement("div");
+
+    let valueHolder = document.createElement("div");
+    valueHolder.appendChild(document.createTextNode(toFinanceNumber(columnData)));
+    if (columnData < 0) valueHolder.style.color = "red";
+    valuesHolder.appendChild(valueHolder);
+
+    let sumHolder = document.createElement("div");
+    sumHolder.appendChild(document.createTextNode(toFinanceNumber(posting.newSaldo)));
+    if (posting.newSaldo < 0) sumHolder.style.color = "red";
+    valuesHolder.appendChild(sumHolder);
+    return valuesHolder;
+}
+
+function toFinanceNumber(value) {
+    let toFixedDecimals = value.toFixed(2).replace(".", ",");
+    let hasNoDecimals = (toFixedDecimals == value + ",00");
+    return hasNoDecimals ? value + ",-" : toFixedDecimals;
 }
 
 
@@ -759,5 +773,7 @@ function addFinance() {
     }
 
     let formData = getFormJsonData("addFinanceForm");
+    formData.value = formData.value.replace(",", ".");
+    formData.konti = document.getElementById("accountInjection").value;
     xhr.send(JSON.stringify(formData));
 }
