@@ -355,7 +355,6 @@ namespace ServerSideData
             }
             return false;
         }
-
         public bool Logout(Validation validate)
         {
             if (ValidateTokken(validate))
@@ -368,7 +367,6 @@ namespace ServerSideData
                 return false;
             }
         }
-
         public bool ValidateTokken(Validation validate)
         {
             if (sessions.Exists(o => o.tokken.Equals(validate.tokken) && o.username.Equals(validate.username)))
@@ -383,7 +381,6 @@ namespace ServerSideData
                 return false;
             }
         }
-
         public bool EditUser(Validation validate, TransferUser user, TransferUser newuser)
         {
             if (ValidateTokken(validate))
@@ -450,9 +447,9 @@ namespace ServerSideData
         public IEnumerable<TransferUser> GetUsers(Validation validate, string searchvalue = "", string searchtype = "")
         {
             List<TransferUser> userlist = new();
-            Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
             if (ValidateTokken(validate))
             {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 var query = from users in db.Users
                             join ucp in db.UCP on users.Id equals ucp.UserID
                             where ucp.CorporationID.Equals(ses.corporationId) && users.username.Equals(ses.username)
@@ -501,9 +498,9 @@ namespace ServerSideData
         public IEnumerable<Member> GetMembers(Validation validate, string searchvalue = "", string searchtype = "")
         {
             List<Member> memberlist = new();
-            Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
             if (ValidateTokken(validate))
             {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "EditMember") || CheckPermission(validate, ses, "DeleteMember") || CheckPermission(validate, ses, "AddMember"))
                 {
                     var query = from members in db.Members
@@ -535,9 +532,9 @@ namespace ServerSideData
         }
         public string AddFinance(Validation validate, TransferFinance financeIn)
         {
-            Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
             if (ValidateTokken(validate))
             {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance"))
                 {
                     var query = from kontis in db.Kontis
@@ -574,15 +571,60 @@ namespace ServerSideData
         }
         public string AddKonti(Validation validate, string name)
         {
-            return "no session";
+            if (ValidateTokken(validate))
+            {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                name = name.Trim();
+                if ((CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance")) && name != "")
+                {
+                    var query = from kontis in db.Kontis
+                                where kontis.CorporationID.Equals(ses.corporationId) && kontis.name.Equals(name)
+                                orderby kontis.name
+                                select kontis;
+                    if (!query.Any())
+                    {
+                        db.Kontis.Add(new Konti() {name = name, CorporationID = ses.corporationId });
+                        Commit();
+                        return "OK";
+                    }
+                    return "Alredy exist";
+                }
+                return "Not permitted";
+            }
+            return "No session";
         }
-
+        public string ChangeKontiName(Validation validate, string oldname, string newname)
+        {
+            if (ValidateTokken(validate))
+            {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                oldname = oldname.Trim();
+                newname = newname.Trim();
+                if ((CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance")) && oldname != "" && newname != "")
+                {
+                    var query = from kontis in db.Kontis
+                                where kontis.CorporationID.Equals(ses.corporationId) && kontis.name.Equals(oldname)
+                                orderby kontis.name
+                                select kontis;
+                    if (query.Count() == 1)
+                    {
+                        query.First().name = newname;
+                        db.Kontis.Update(query.First());
+                        Commit();
+                        return "OK";
+                    }
+                    return "Didn't exist";
+                }
+                return "Not permitted";
+            }
+            return "No session";
+        }
         public IEnumerable<TransferFinance> GetFinances(Validation validate, string konti = "", string searchvalue = "", string searchtype = "")
         {
             List<TransferFinance> finacelist = new();
-            Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
             if (ValidateTokken(validate))
             {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinace") || CheckPermission(validate, ses, "LimitedViewFinance"))
                 {
                     var query = from finaces in db.FinanceEntries
@@ -649,9 +691,9 @@ namespace ServerSideData
         public IEnumerable<string> GetKonties(Validation validate)
         {
             List<string> kontiList = new();
-            Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
             if (ValidateTokken(validate))
             {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinace") || CheckPermission(validate, ses, "LimitedViewFinance"))
                 {
                     var query = from kontis in db.Kontis 
