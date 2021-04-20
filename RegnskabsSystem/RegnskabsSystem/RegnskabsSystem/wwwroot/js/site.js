@@ -39,7 +39,7 @@ function getFormJsonData(formId) {
 
 function placeElmValueInObject(formDataObject, elm) {
     let elmType = elm.getAttribute("type");
-    if (elmType === "button") return;
+    if (elmType === "button" || elmType == null) return;
 
     let elmName = elm.getAttribute("name");
     if (elmName === undefined) return;
@@ -652,6 +652,46 @@ function insertAccounts(accounts, accountSelect) {
         setCookieParam("selectedAcc", accountSelect.value);
     }
 }
+
+
+
+
+
+
+
+
+function changeAccountName(e) {
+    e.preventDefault();
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", '/account/change', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            setCookieParam("selectedAcc", getFormJsonData("changeAccountForm").NewAccountName);
+            showFinances();
+            alert("Ok");
+        }
+        else if (this.readyState === XMLHttpRequest.DONE && this.status === 400) {
+            alert("Error");
+        }
+    }
+
+    let formData = getFormJsonData("changeAccountForm");
+    formData.AccountName = getCookieParam("selectedAcc");
+    xhr.send(JSON.stringify(formData));
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 function getPostings() {

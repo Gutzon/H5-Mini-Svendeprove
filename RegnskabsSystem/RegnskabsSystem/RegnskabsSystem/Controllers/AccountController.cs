@@ -64,6 +64,18 @@ namespace RegnskabsSystem.Controllers
             if (accountToUse.AccountName == null) accountToUse.AccountName = "";
             return Ok(serverSideData.GetFinances(Credentials, accountToUse.AccountName));
         }
+
+        [HttpPost("change")]
+        public ActionResult<string> Change([FromBody] NewAccountModel newAccountName)
+        {
+            if (newAccountName.AccountName == "Main") return BadRequest("ErrorMainAccount");
+            if (newAccountName.NewAccountName == "Main") return BadRequest("ErrorMainAccountDuplicate");
+
+            var accountChangeSuccess = serverSideData.ChangeKontiName(Credentials, newAccountName.AccountName, newAccountName.NewAccountName);
+
+            if (accountChangeSuccess == "OK") return Ok(accountChangeSuccess);
+            else return BadRequest(accountChangeSuccess);
+        }
         #endregion
     }
 }

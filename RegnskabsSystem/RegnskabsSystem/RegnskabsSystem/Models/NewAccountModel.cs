@@ -8,5 +8,6 @@ namespace RegnskabsSystem.Models
     public class NewAccountModel
     {
         public string AccountName { get; set; }
+        public string NewAccountName { get; set; }
     }
 }
