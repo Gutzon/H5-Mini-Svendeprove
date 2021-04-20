@@ -290,7 +290,7 @@ function changeCorporation() {
                 populateUsers();
                 populateMembers();
                 changeAccount();
-
+                    
                 removeCookieParam("selectedAcc");
                 showFinances();
             }
@@ -837,4 +837,43 @@ function addFinance(e) {
     formData.value = formData.value.replace(",", ".");
     formData.konti = document.getElementById("accountInjection").value;
     xhr.send(JSON.stringify(formData));
+}
+
+
+
+/* Modals */
+let activeModal = null;
+
+window.onresize += resizeModal();
+
+function resizeModal(e) {
+    if (activeModal == null) return;
+    showModal(null, elmId)
+}
+
+function showModal(e, elmId) {
+    if (e != null) {
+        e.preventDefault();
+        activeModal = elmId;
+    }
+    let modal = document.getElementById(elmId);
+    let modalSizeEvaluation = document.getElementById("sizeEvaluation");
+    modalSizeEvaluation.appendChild(modal);
+    removeClass(modal, "hideElm");
+
+    let modalContent = modal.getElementsByTagName("div")[0];
+    let modalMargin = 0;
+
+    modalMarginH = Math.round((modalContent.offsetHeight / window.innerHeight) * 100);
+    if (modalMarginH < 2) modalMarginH = 2;
+    modalContent.style.margin = ((100 - modalMarginH) / 2) + "vh auto";
+
+    document.body.appendChild(modal);
+}
+
+
+function hideModal(e, elmId) {
+    e.preventDefault();
+    let modal = document.getElementById(elmId);
+    addClass(modal, "hideElm");
 }

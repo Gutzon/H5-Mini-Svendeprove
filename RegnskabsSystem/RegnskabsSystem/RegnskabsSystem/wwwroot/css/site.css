@@ -84,8 +84,60 @@ body {
     display: none;
 }
 
-/* Temp rule until design is ready */
+#sizeEvaluation {
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
 
+/* Temp modal design until final design is ready from Jannik */
+.modal-main {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(100,100,100,0.9);
+    overflow: auto;
+}
+
+#sizeEvaluation .modal-main {
+    position: relative;
+}
+
+.modal-content {
+    position: relative;
+    margin: 2vh auto;
+    background: #ddd;
+    border: 2px solid #aaa;
+    border-radius: 10px;
+    width: max-content;
+    padding: 3px;
+}
+
+.modal-head div {
+    font-weight: bolder;
+    padding: 10px;
+    border-bottom: 2px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.modal-head a {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: #ddd;
+    border: 2px solid #aaa;
+    padding: 0 1vh 1vh;
+    border-radius: 0 10px 0;
+}
+
+.modal-head a img {
+    height: 2vh;
+}
+
+
+/* Temp finance design until final design is ready from Jannik */
 #addFinanceSchema .LoginFormBox, #addFinanceSchema button {
     height: 30px;
     margin: 5px auto;
@@ -97,7 +149,7 @@ body {
     text-align: center;
 }
 
-/* Temp Header design until final design is ready from Jannik */
+/* Temp Header navbar design until final design is ready from Jannik */
 #headerArea navbar {
     padding: 0 1vh 2vh;
     display: flex;
