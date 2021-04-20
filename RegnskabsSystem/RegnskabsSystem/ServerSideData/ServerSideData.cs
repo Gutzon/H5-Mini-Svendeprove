@@ -554,10 +554,25 @@ namespace ServerSideData
                             comment = financeIn.comment,
                             byWho = ses.username,
                             addDate = DateTime.Now,
-                            payDate = DateTime.Now,
-                            newSaldoKonti = query2.Where(o => o.kontis.name.Equals(financeIn.konti)).Last().entries.newSaldoKonti + financeIn.value,
-                            newSaldoMain = query2.Last().entries.newSaldoMain + financeIn.value
+                            payDate = DateTime.Now
                         };
+                        if (query2.Where(o => o.kontis.name.Equals(financeIn.konti)).Any())
+                        {
+                            newEntry.newSaldoKonti = query2.Where(o => o.kontis.name.Equals(financeIn.konti)).Last().entries.newSaldoKonti + financeIn.value;
+                        }
+                        else
+                        {
+                            newEntry.newSaldoKonti = financeIn.value;
+                        }
+                        if (query2.Any())
+                        {
+                            newEntry.newSaldoMain = query2.Last().entries.newSaldoMain + financeIn.value;
+                        }
+                        else
+                        {
+                            newEntry.newSaldoKonti = financeIn.value;
+                        }
+
                         db.FinanceEntries.Add(newEntry);
                         Commit();
                         return "ok";
