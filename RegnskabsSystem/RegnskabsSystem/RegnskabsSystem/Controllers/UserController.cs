@@ -42,6 +42,14 @@ namespace RegnskabsSystem.Controllers
         #endregion
 
         #region Api -> Serverside queries
+        [HttpGet("login/validate")]
+        public ActionResult<bool> LoginValidation()
+        {
+            var loggedIn = serverSideData.ValidateTokken(Credentials);
+            if (loggedIn) return Ok(loggedIn);
+            return BadRequest("Session timeout / login not active");
+        }
+
         [HttpPost("login")]
         public ActionResult<UserLogin> Login([FromBody] LoginModel loginData)
         {

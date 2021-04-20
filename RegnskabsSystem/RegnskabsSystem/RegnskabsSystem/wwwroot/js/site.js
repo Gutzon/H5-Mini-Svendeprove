@@ -80,7 +80,23 @@ function validateLogin() {
 
 function validateToken() {
     let isLoggedIn = (getCookieParam("accessToken") !== "");
-    // Todo: Change to query server on each query
+    if (isLoggedIn) {
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", '/user/login/validate', true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = function () {
+            if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                // Ignore, as user is still logged in
+            }
+            else if (this.readyState === XMLHttpRequest.DONE && this.status === 400) {
+                alert("Dit login er udløbet, log venligst på igen.");
+                logOut();
+            }
+        }
+
+        xhr.send();
+    }
     return isLoggedIn;
 }
 
@@ -191,8 +207,6 @@ function login() {
 
     let formData = getFormJsonData("loginForm");
     xhr.send(JSON.stringify(formData));
-    /*
-    xhr.send('{"user": "' + loginForm.user.value + '", "password": "' + escape(loginForm.password.value) + '"}');*/
 }
 
 function handleLogin(responseText) {
