@@ -6,6 +6,7 @@ using ServerSideData;
 using ServerSideData.Models;
 using ServerSideData.TransferModel;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RegnskabsSystem.Controllers
 {
@@ -32,7 +33,17 @@ namespace RegnskabsSystem.Controllers
         [HttpGet("accounts")]
         public ActionResult<IEnumerable<string>> Accounts()
         {
-            return Ok(serverSideData.GetKonties(Credentials));
+            var accounts = serverSideData.GetKonties(Credentials);
+
+            // Main account must always be first in list for select option
+            if(accounts.Any(a => a == "Main")){
+                var accountList = accounts.ToList();
+                accountList.Remove("Main");
+                accountList.Insert(0, "Main");
+                accounts = accountList.AsEnumerable<string>();
+            }
+
+            return Ok(accounts);
         }
 
         [HttpPost()]
@@ -47,10 +58,11 @@ namespace RegnskabsSystem.Controllers
             return Ok(serverSideData.AddFinance(Credentials, newFinanceEntry));
         }
 
-        [HttpGet("overview")]
-        public ActionResult<IEnumerable<TransferFinance>> Overview()
+        [HttpPost("overview")]
+        public ActionResult<IEnumerable<TransferFinance>> Overview([FromBody] NewAccountModel accountToUse)
         {
-            return Ok(serverSideData.GetFinances(Credentials));
+            if (accountToUse.AccountName == null) accountToUse.AccountName = "";
+            return Ok(serverSideData.GetFinances(Credentials, accountToUse.AccountName));
         }
         #endregion
     }

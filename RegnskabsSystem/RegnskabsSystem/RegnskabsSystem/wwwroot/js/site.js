@@ -569,9 +569,8 @@ function showFinances() {
 
 
 function changeAccount() {
-    let accountSelected = document.getElementById("accountSelect").value;
+    let accountSelected = document.getElementById("accountInjection").value;
     setCookieParam("selectedAcc", accountSelected);
-    document.forms["addFinanceForm"]["konti"].value = accountSelected;
     getPostings();
 }
 
@@ -635,13 +634,16 @@ function insertAccounts(accounts, accountSelect) {
         if (selectedAcc == account) option.setAttribute("Selected", "Selected");
         accountSelect.appendChild(option);
     }
+    if (selectedAcc == "") {
+        setCookieParam("selectedAcc", accountSelect.value);
+    }
 }
 
 
 function getPostings() {
 
     let xhr = new XMLHttpRequest();
-    xhr.open("GET", '/account/overview', true);
+    xhr.open("POST", '/account/overview', true);
     xhr.setRequestHeader("Content-Type", "application/json");
 
     xhr.onreadystatechange = function () {
@@ -650,7 +652,10 @@ function getPostings() {
             showPostings(jsonObject);
         }
     }
-    xhr.send();
+    let accountSelect = {
+        "AccountName": getCookieParam("selectedAcc")
+    };
+    xhr.send(JSON.stringify(accountSelect));
 }
 
 
