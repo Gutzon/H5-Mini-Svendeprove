@@ -18,6 +18,7 @@ function startFunctions() {
     if (loggedIn) {
         populateUsers();
         populateMembers();
+        highlightMenu();
         showNavbar(true);
         populateCorporationSelector();
         showFinances();
@@ -25,6 +26,15 @@ function startFunctions() {
 }
 
 
+// Navigation
+function highlightMenu() {
+    let menu = document.getElementsByTagName("navbar")[0];
+    for (var navChild of menu.childNodes) {
+        if (navChild.localName != "a") continue;
+        let linkPath = new URL(navChild.href).pathname;
+        if (document.location.pathname == linkPath) addClass(navChild, "activeNav");
+    }
+}
 
 // General functionality
 function getFormJsonData(formId) {
@@ -110,7 +120,7 @@ function addClass(elm, className) {
             return;
         }
     }
-    elm.setAttribute("class", currentClass + " " + className);
+    elm.setAttribute("class", currentClass + (currentClass.length > 0 ? " " : "") + className);
 }
 
 function removeClass(elm, className) {
@@ -209,7 +219,8 @@ function handleLogin(responseText) {
     }
 }
 
-function logOut() {
+function logOut(e) {
+    e.preventDefault();
     let tokenSet = getCookieParam("accessToken");
     if (tokenSet !== "") {
         let xhr = new XMLHttpRequest();
