@@ -79,11 +79,26 @@ body {
 
 
 
-/* Extras */
+
+/* Temp design */
+input.submit-smaller {
+    height: 5vh;
+    font-size: 3vh;
+    width: auto;
+    padding: 0 2vh;
+    margin: 2vh;
+}
+
 #editUserHeader, #deleteUserHeader {
     display: none;
 }
 
+.un-editable {
+    background: #999;
+}
+
+
+/* Extras */
 #sizeEvaluation {
     width: 0;
     height: 0;
@@ -164,16 +179,16 @@ body {
     display: inline-block;
     margin: 0 1vh;
     min-height: 6vh;
-    border-radius: 0 0 25px 25px;
+    border-radius: 0 0 5vh 5vh;
     background-color: #1861ac;
     border: none;
     color: white;
-    font-size: 26px;
-    padding: 5px;
+    font-size: 4vh;
+    padding: 1vh;
 }
 
 #headerArea navbar div select {
-    border-radius: 0 0 10px 10px;
+    border-radius: 0 0 3vh 3vh;
     height: 90%;
     width: 90%;
 }

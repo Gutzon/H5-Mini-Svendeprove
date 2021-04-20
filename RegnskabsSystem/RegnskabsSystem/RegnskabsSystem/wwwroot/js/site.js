@@ -12,7 +12,7 @@
 // This is a team decision to learn more about datahandling in frontend.
 
 // Run start functions
-document.documentElement.onload += startFunctions();
+document.documentElement.addEventListener("load", startFunctions());
 function startFunctions() {
     let loggedIn = validateLogin();
     if (loggedIn) {
@@ -50,6 +50,8 @@ function getFormJsonData(formId) {
 function placeElmValueInObject(formDataObject, elm) {
     let elmType = elm.getAttribute("type");
     if (elmType === "button" || elmType == null) return;
+    let disabled = elm.getAttribute("disabled");
+    if (disabled != null) return;
 
     let elmName = elm.getAttribute("name");
     if (elmName === undefined) return;
@@ -219,8 +221,8 @@ function handleLogin(responseText) {
     }
 }
 
-function logOut(e) {
-    e.preventDefault();
+function logOut(e, confirmLogout) {
+    if(e != null) e.preventDefault();
     let tokenSet = getCookieParam("accessToken");
     if (tokenSet !== "") {
         let xhr = new XMLHttpRequest();
@@ -234,6 +236,7 @@ function logOut(e) {
                 removeCookieParam("accessToken");
                 removeCookieParam("userName");
                 removeCookieParam("user");
+                if (confirmLogout) alert("Du er blevet logget ud.")
                 document.location.href = "/";
             }
         }
@@ -349,13 +352,28 @@ function CreateUserColumnElm(user, columnNumber) {
             let lastSeen = parsedDate.toLocaleString() != "1.1.1 00.00.00" ? parsedDate.toLocaleString(): "Ikke logget på endnu";
             return document.createTextNode(lastSeen);
         case 4:
-            return !getPermissions().editUser ? null : document.createTextNode("");
+            return !getPermissions().editUser ? null : getEditUserElm(user);
         case 5:
             return !getPermissions().deleteUser ? null : document.createTextNode("");
         default:
             return document.createTextNode("Undefined case");
     }
 }
+
+function getEditUserElm(user) {
+    let elmHref = document.createElement("a");
+    elmHref.setAttribute("href", "/user/edit");
+    elmHref.addEventListener("click", function () { userEdit(event, user) });
+
+    let elmImage = document.createElement("img");
+    elmImage.setAttribute("src", "/Media/EditIcon.png");
+    addClass(elmImage, "tableImgEdit");
+
+    elmHref.appendChild(elmImage);
+    return elmHref;
+}
+
+
 
 function addUsersToOverview(userTableList, userList) {
     let trUsers = userTableList.getElementsByTagName("tr");
@@ -418,6 +436,7 @@ function userCreate(e) {
                     alert("Brugeren blev oprettet");
                     console.log("Midlertidig levering af kodeord, da vi ikke har webhotel på app'en:");
                     console.log(jsonObject.userPassword);
+                    hideModal(null, "userAddSchema");
                 }
                 else if (jsonObject.error !== "") {
                     switch (jsonObject.error) {
@@ -448,10 +467,115 @@ function userCreate(e) {
     xhr.send(JSON.stringify(formData));
 }
 
-function userEdit() {
-    //console.log(getFormJsonData(userEditForm));
-    alert("Not ready");
+
+
+
+
+function userEdit(e, user) {
+    e.preventDefault();
+
+    let editForm = document.getElementById("userEditForm");
+    for (let userParam in user) {
+
+        if (userParam == "permissions") {
+            showUserEditPermissions(user[userParam]);
+            continue;
+        }
+
+        let newUserFormElm = editForm.elements[userParam];
+        if (newUserFormElm != undefined) {
+            newUserFormElm.value = user[userParam];
+        }
+
+        let oldUserElm = document.getElementById("userEdit_" + userParam);
+        if (oldUserElm == undefined) continue;
+        for (let child of oldUserElm.childNodes) {
+            child.parentNode.removeChild(child);
+        }
+        oldUserElm.appendChild(document.createTextNode(user[userParam]));
+    }
+
+    // Assign perform edit function
+    let editButton = document.getElementById("performEditButton");
+    let clonedButton = editButton.cloneNode(true);
+    clonedButton.addEventListener("click", function () { performUserEdit(event, user) });
+    let editButtonParent = editButton.parentNode;
+    editButtonParent.removeChild(editButton);
+    editButtonParent.appendChild(clonedButton);
+
+    showModal(event, 'userEditSchema');
 }
+
+
+function showUserEditPermissions(userPermissions) {
+    let permissionTBody = document.getElementById("editUserRights").getElementsByTagName("tbody")[0];
+    let permissionRows = permissionTBody.getElementsByTagName("tr");
+    while (permissionRows.length > 1) permissionRows[1].parentNode.removeChild(permissionRows[1]);
+
+    let ownData = getCookieParam("user");
+    if (ownData == "") logOut(null, true);
+    let ownPermissions = JSON.parse(getCookieParam("user")).permissions;
+
+    for (let permission in userPermissions) {
+        let permissionRow = permissionTBody.getElementsByTagName("tr")[0].cloneNode(true);
+        removeClass(permissionRow, "hideElm");
+
+        let permissionColumns = permissionRow.getElementsByTagName("td");
+        permissionColumns[0].appendChild(document.createTextNode(permission)); // Oversæt evt. senere
+        permissionColumns[1].appendChild(newPermissionCheckBox("userEditOwn_" + permission, ownPermissions[permission], true, false, false))
+        permissionColumns[2].appendChild(newPermissionCheckBox("userEditUser_" + permission, userPermissions[permission], true, false, !ownPermissions[permission]))
+        permissionColumns[3].appendChild(newPermissionCheckBox(permission, userPermissions[permission], !ownPermissions[permission], true, false))
+        permissionTBody.appendChild(permissionRow)
+    }
+}
+
+function newPermissionCheckBox(elmName, checked, disabled, toPermissionObj, hideDisabled) {
+    if (hideDisabled && disabled) return document.createTextNode("Hemmelig");
+    let checkbox = document.createElement("input");
+    checkbox.setAttribute("type", "checkbox");
+    checkbox.setAttribute("name", elmName);
+    if (checked) checkbox.setAttribute("checked", "checked");
+    if (disabled) checkbox.setAttribute("disabled", "disabled");
+    if (toPermissionObj) addClass(checkbox, "ToJsonObjectPermissions");
+    return checkbox;
+}
+
+function newPermissionCheckBox(elmName, checked, disabled, toPermissionObj, hideDisabled) {
+    if (hideDisabled && disabled) return document.createTextNode("Hemmelig");
+    let checkbox = document.createElement("input");
+    checkbox.setAttribute("type", "checkbox");
+    checkbox.setAttribute("name", elmName);
+    if (checked) checkbox.setAttribute("checked", "checked");
+    if (disabled) checkbox.setAttribute("disabled", "disabled");
+    if (toPermissionObj) addClass(checkbox, "ToJsonObjectPermissions");
+    return checkbox;
+}
+
+function performUserEdit(e, oldUser) {
+    e.preventDefault();
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", '/user/edit', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            alert(xhr.responseText);
+        }
+    }
+
+    let formData = getFormJsonData("userEditForm");
+    let userEditObject = { oldUser: oldUser, newUser: formData}
+    console.log(userEditObject);
+    xhr.send(JSON.stringify(userEditObject));
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -862,18 +986,21 @@ function showModal(e, elmId) {
     removeClass(modal, "hideElm");
 
     let modalContent = modal.getElementsByTagName("div")[0];
-    let modalMargin = 0;
 
-    modalMarginH = Math.round((modalContent.offsetHeight / window.innerHeight) * 100);
+    modalMarginH = ((100 - Math.round((modalContent.offsetHeight / window.innerHeight) * 100)) / 2);
     if (modalMarginH < 2) modalMarginH = 2;
-    modalContent.style.margin = ((100 - modalMarginH) / 2) + "vh auto";
+    modalContent.style.margin = modalMarginH + "vh auto";
 
     document.body.appendChild(modal);
 }
 
 
 function hideModal(e, elmId) {
-    e.preventDefault();
+    if (e != null) {
+        e.preventDefault();
+    }
     let modal = document.getElementById(elmId);
+    let forms = modal.getElementsByTagName("form");
+    for (var form of forms) form.reset();
     addClass(modal, "hideElm");
 }

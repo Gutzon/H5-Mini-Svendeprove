@@ -88,7 +88,7 @@ namespace RegnskabsSystem.Controllers
             var users = serverSideData.GetUsers(Credentials);
             return Ok(users);
         }
-
+        
         [HttpPost()]
         public ActionResult<UserCreatedModel> CreateUser([FromBody] TransferUser user)
         {
@@ -103,6 +103,13 @@ namespace RegnskabsSystem.Controllers
             var userCreatedModel = new UserCreatedModel(userCreated, errorType, newPassword);
 
             return Ok(userCreatedModel);
+        }
+
+        [HttpPost("edit")]
+        public ActionResult<bool> CreateUser([FromBody] EditAccountModel editedUser)
+        {
+            var userEditSuccess = serverSideData.EditUser(Credentials, editedUser.oldUser, editedUser.newUser);
+            return Ok(userEditSuccess);
         }
 
         private bool IsUserCreated(string creationMsg, out string errorType)

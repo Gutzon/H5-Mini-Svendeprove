@@ -3,10 +3,6 @@
 }
 <div class="gridContainer">
 
-    <a href="/user/creation">Tilføj bruger</a> &lt;- Mangler design<br>
-
-    <a href="user/add" onclick="showModal(event, 'userAddSchema')">Tilføj bruger - modal</a> - Mangler design<br>br>
-
     <table id="userTable" class="mainTable" CELLSPACING="0">
         <tr>
             <th class="tableHeaders">Brugernavn</th>
@@ -21,11 +17,78 @@
             <td class="tableData"></td>
             <td class="tableData"></td>
             <td class="tableData"></td>
-            <td class="tableData tdImg"><img src="Media\EditIcon.png" class="tableImgEdit"></td>
+            <td class="tableData tdImg"></td>
             <td class="tableData tdImg tableDataEnd"><img src="Media\DeleteIcon.png" class="tableImgDelete"></td>
         </tr>
     </table>
+    <div class="text-center"><input type="button" class="FormSubmit submit-smaller" onclick="showModal(event, 'userAddSchema')" value="Tilføj ny bruger"></div>
 </div>
+
+<div id="userEditSchema" class="modal-main hideElm">
+    <div class="modal-content">
+        <div class="modal-head">
+            <div>Rediger bruger</div>
+            <a href="/closeModal" onclick="hideModal(event, 'userEditSchema')"><img src="/Media/DeleteIcon.png"></a>
+        </div>
+        <form id="userEditForm">
+            <table class="mainTable">
+                <thead>
+                    <tr>
+                        <td class="tableHeaders">Info</td>
+                        <td class="tableHeaders">Nuværende</td>
+                        <td class="tableHeaders">Fremtidig</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tableData">Bruger navn</td>
+                        <td class="tableData"><input type="text" name="username" value="" readonly class="un-editable"></td>
+                        <td class="tableData tableDataEnd">(Kan ikke rettes)</td>
+                    </tr>
+                    <tr>
+                        <td class="tableData">Fornavn</td>
+                        <td class="tableData"><span id="userEdit_firstname"></span></td>
+                        <td class="tableData tableDataEnd"><input type="text"  name="firstname" value=""></td>
+                    </tr>
+                    <tr>
+                        <td class="tableData">Efternavn</td>
+                        <td class="tableData"><span id="userEdit_lastname"></span></td>
+                        <td class="tableData tableDataEnd"><input type="text" name="lastname" value=""></td>
+                    </tr>
+                    <tr>
+                        <td class="tableData">E-mail</td>
+                        <td class="tableData"><span id="userEdit_mail"></span></td>
+                        <td class="tableData tableDataEnd"><input type="text" name="mail" value=""></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table class="mainTable" id="editUserRights">
+                <thead>
+                    <tr>
+                        <td class="tableHeaders">Rettighed</td>
+                        <td class="tableHeaders">Kan tildeles</td>
+                        <td class="tableHeaders">Nuværende</td>
+                        <td class="tableHeaders">Fremtidig</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="hideElm">
+                        <td class="tableData"></td>
+                        <td class="tableData text-center"></td>
+                        <td class="tableData text-center"></td>
+                        <td class="tableData tableDataEnd text-center"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="text-center"><input type="button" class="FormSubmit submit-smaller" id="performEditButton" value="Ret bruger"></div>
+        </form>
+    </div>
+</div>
+
+
+
+
 
 <div id="userAddSchema" class="modal-main hideElm">
     <div class="modal-content">
