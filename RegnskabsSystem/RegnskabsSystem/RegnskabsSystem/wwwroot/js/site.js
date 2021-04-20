@@ -354,7 +354,7 @@ function CreateUserColumnElm(user, columnNumber) {
         case 4:
             return !getPermissions().editUser ? null : getEditUserElm(user);
         case 5:
-            return !getPermissions().deleteUser ? null : document.createTextNode("");
+            return !getPermissions().deleteUser ? null : getDeleteUserElm(user);
         default:
             return document.createTextNode("Undefined case");
     }
@@ -368,6 +368,18 @@ function getEditUserElm(user) {
     let elmImage = document.createElement("img");
     elmImage.setAttribute("src", "/Media/EditIcon.png");
     addClass(elmImage, "tableImgEdit");
+
+    elmHref.appendChild(elmImage);
+    return elmHref;
+}
+
+function getDeleteUserElm(user) {
+    let elmHref = document.createElement("a");
+    elmHref.setAttribute("href", "/user/delete");
+    elmHref.addEventListener("click", function () { deleteUser(event, user) });
+    let elmImage = document.createElement("img");
+    elmImage.setAttribute("src", "/Media/DeleteIcon.png");
+    addClass(elmImage, "tableImgDelete");
 
     elmHref.appendChild(elmImage);
     return elmHref;
@@ -997,6 +1009,49 @@ function addFinance(e) {
     formData.konti = document.getElementById("accountInjection").value;
     xhr.send(JSON.stringify(formData));
 }
+
+
+function deleteUser(e, user) {
+    e.preventDefault();
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", '/user/delete', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            try {
+                if (xhr.responseText == "true") {
+                    alert("Brugeren blev slettet");
+                }
+                else alert("Brugeren kunne ikke slettes");
+                populateUsers();
+            }
+            catch {
+                alert("En fejl opstod under oprettelse af postering");
+            }
+        }
+        else if (this.readyState === XMLHttpRequest.DONE && this.status === 500) {
+            alert("En kritisk fejl opstod da brugeren blev forsøgt slettet");
+        }
+    }
+
+    xhr.send(JSON.stringify(user));
+}
+
+
+function addRepeatFinance(e) {
+    e.preventDefault();
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

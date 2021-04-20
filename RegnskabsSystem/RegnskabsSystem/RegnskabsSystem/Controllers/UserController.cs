@@ -112,6 +112,13 @@ namespace RegnskabsSystem.Controllers
             return Ok(userEditSuccess);
         }
 
+        [HttpPost("delete")]
+        public ActionResult<bool> DeleteUser([FromBody] TransferUser user)
+        {
+            var userDeleteSuccess = serverSideData.DeleteUser(Credentials, user);
+            return Ok(userDeleteSuccess);
+        }
+
         private bool IsUserCreated(string creationMsg, out string errorType)
         {
             errorType = "";
