@@ -62,14 +62,12 @@ function placeElmValueInObject(formDataObject, elm) {
 function validateLogin() {
     let loggedIn = validateToken();
     let currentPage = document.location.pathname;
-    if (currentPage === "/") {
-        dashboardToggle();
-        return loggedIn;
-    }
+    if (currentPage === "/" && loggedIn) location.href = "/account";
+    else if(currentPage === "/") return loggedIn;
 
     // Redirect to frontpage/login on login restricted pages
     if (!loggedIn) {
-        let nonLoginRequiredPages = ["/Api/Privacy"];
+        let nonLoginRequiredPages = [];
         if (nonLoginRequiredPages.indexOf(currentPage) == -1) {
             alert("Denne side kræver login, log venligst ind igen.");
             document.location.href = "/";
@@ -171,22 +169,8 @@ function removeCookieParam(param) {
     document.cookie = param + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 }
 
-
-
-// Log-in/out functionality
-function dashboardToggle() {
-    let loggedIn = (getCookieParam("accessToken") !== "");
-    let activeView = document.getElementById(loggedIn ? "loggedIn" : "loggedOut");
-    if (activeView == null) {
-        return; // Not on main landing page (login/dashboard)
-    }
-    removeClass(activeView, "hideElm");
-    let inActiveView = document.getElementById(loggedIn ? "loggedOut" : "loggedIn");
-    addClass(inActiveView, "hideElm");
-    if (loggedIn) populateCorporationSelector();
-}
-
-function login() {
+function login(e) {
+    e.preventDefault();
     let loginForm = document.forms["loginForm"];
     if (loginForm == undefined) return;
 
@@ -218,8 +202,7 @@ function handleLogin(responseText) {
         setCookieParam("accessToken", jsonObject.tokken);
         setCookieParam("userName", loginForm.User.value);
         setCookieParam("user", escape(JSON.stringify(jsonObject.user)));
-        dashboardToggle();
-        showNavbar(true);
+        document.location.href = "/account";
     }
     catch {
         alert("En fejl skete under login, kontakt venligst en administrator.");
@@ -403,7 +386,8 @@ function cleanUserOverviewElements(userCloneRow) {
 }
 
 
-function userCreate() {
+function userCreate(e) {
+    e.preventDefault();
     let userCreateForm = document.forms["userCreateForm"];
     if (userCreateForm == undefined) return;
 
@@ -547,12 +531,14 @@ function cleanMemberOverviewElements(userCloneRow) {
 
 
 
-function memberCreate() {
+function memberCreate(e) {
+    e.preventDefault();
     console.log(getFormJsonData(memberCreateForm));
     alert("Not ready");
 }
 
-function memberEdit() {
+function memberEdit(e) {
+    e.preventDefault();
     console.log(getFormJsonData(memberEditForm));
     alert("Not ready");
 }
@@ -589,7 +575,8 @@ function changeAccount() {
 }
 
 
-function addAccount() {
+function addAccount(e) {
+    e.preventDefault();
     let addAccountForm = document.forms["addAccountForm"];
     if (addAccountForm == undefined) return;
 
@@ -795,7 +782,8 @@ function toFinanceNumber(value) {
 
 
 
-function addFinance() {
+function addFinance(e) {
+    e.preventDefault();
     let addFinanceForm = document.forms["addFinanceForm"];
     if (addFinanceForm == undefined) return;
 

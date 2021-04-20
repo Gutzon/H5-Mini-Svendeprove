@@ -1,29 +1,22 @@
 ﻿@{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Login";
 }
 
 <div id="bodyContainer">
     <center>
-        <div id="loggedOut">
-            <div class="modularLogin" id="LoginBox">
+        <div class="modularLogin" id="LoginBox">
 
-                <img class="loginImage" src="Media\LoginIcon.png">
+            <img class="loginImage" src="Media\LoginIcon.png">
 
-                <form id="loginForm" action="javascript:login();">
+            <form id="loginForm">
 
-                    <input type="text" class="LoginFormBox" name="User" placeholder="Brugernavn">
+                <input type="text" class="LoginFormBox" name="User" placeholder="Brugernavn">
 
-                    <input type="password" class="LoginFormBox" name="Password" placeholder="Kodeord">
+                <input type="password" class="LoginFormBox" name="Password" placeholder="Kodeord">
 
-                    <button class="FormSubmit" type="submit"> Log Ind </button>
+                <button class="FormSubmit" type="submit" onclick="login(event)"> Log Ind </button>
 
-                </form>
-            </div>
-        </div>
-        <div id="loggedIn" class="hideElm">
-            <br><br>
-            Til team overvejelse/design:
-            - Skal der være ikoner her til at komme ind på de enkelte sektioner eller en forside til den valgte forening/virksomhed... eller skal vi skifte direkte til et underpunkt som "Bruger oversigt", "Konti oversigt" eller andet...?
+            </form>
         </div>
     </center>
 </div>

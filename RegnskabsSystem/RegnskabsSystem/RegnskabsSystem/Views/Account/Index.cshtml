@@ -7,16 +7,15 @@
 
 <div class="drowdownsContainer">
     <div class="dropdownDiv">
-        <Select class="regnskabsDropdowns" id="accountInjection" onchange="changeAccount()">
-            <option>A</option>
-            <option>B</option>
-        </Select>
+        <select class="regnskabsDropdowns" id="accountInjection" onchange="changeAccount()">
+        </select>
     </div>
 
     <div class="dropdownDiv">
         <select class="regnskabsDropdowns" id="timeframe">
-            <option>Uge</option>
-            <option>Måned</option>
+            <option value="7">Seneste uge</option>
+            <option value="month">Seneste måned</option>
+            <option value="all">Alle posteringer</option>
         </select>
     </div>
 </div>
@@ -57,7 +56,7 @@
     <form id="addAccountForm">
         Ny konti:
         <input type="text" name="AccountName">
-        <button onclick="addAccount()">Tilføj konti</button>
+        <button onclick="addAccount(event)">Tilføj konti</button>
     </form>
 
 
@@ -82,7 +81,7 @@
             <tr id="addFinanceSchema">
                 <td class="tableData"><input type="text" name="comment" class="LoginFormBox"></td>
                 <td class="tableData"><input type="text" name="value" class="LoginFormBox"></td>
-                <td class="tableData tableDataEnd"><button type="button" class="FormSubmit" onclick="addFinance()">Tilføj</button></td>
+                <td class="tableData tableDataEnd"><button type="button" class="FormSubmit" onclick="addFinance(event)">Tilføj</button></td>
             </tr>
         </table>
     </form>
