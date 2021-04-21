@@ -1009,5 +1009,20 @@ namespace ServerSideData
             }
 
         }
+
+        public string CreateInven(Validation validate, Inventory item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string EditInven(Validation validate, Inventory olditem, Inventory newitem)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string DeleteInven(Validation validate, Inventory item)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
