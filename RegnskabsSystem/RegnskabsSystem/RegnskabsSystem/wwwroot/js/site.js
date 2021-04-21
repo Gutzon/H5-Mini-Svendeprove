@@ -404,6 +404,12 @@ function addUsersToOverview(userTableList, userList) {
     cleanUserOverviewElements(userCloneRow, hasDeleteRightsGeneral);
     removeClass(userCloneRow, "hideElm");
 
+    let hasAddRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.addUser);
+    let addUserButton = document.getElementById("addUserButton");
+    if (hasAddRightsGeneral) {
+        removeClass(addUserButton, "hideElm");
+    }
+    else addClass(addUserButton, "hideElm");
 
     for (var user of userList) {
         // Rights evaluation on user protection to avoid showing edit/delete where not applicable
@@ -724,22 +730,23 @@ function addMembersToOverview(memberTableList, memberList) {
     let trMembers = memberTableList.getElementsByTagName("tr");
     while (trMembers.length > 2) trMembers[2].parentNode.removeChild(trMembers[2]);
 
-    let memberCloneRow = memberTableList.getElementsByTagName("tr")[1].cloneNode(true);
-    cleanMemberOverviewElements(memberCloneRow);
-    removeClass(memberCloneRow, "hideElm");
-
     let ownData = getCookieParam("user");
     if (ownData == "") logOut(null, true);
     let ownDataObj = JSON.parse(ownData);
     let ownPermissions = ownDataObj.permissions;
-    let hasAddRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.addMember);
     let hasDeleteRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.deleteMember);
-    let hasEditRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.deleteMember);
+    let hasEditRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.editMember);
 
+    let hasAddRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.addMember);
     let addMemberButton = document.getElementById("addMemberButton");
     if (hasAddRightsGeneral) {
-
+        removeClass(addMemberButton, "hideElm");
     }
+    else addClass(addMemberButton, "hideElm");
+
+    let memberCloneRow = memberTableList.getElementsByTagName("tr")[1].cloneNode(true);
+    cleanMemberOverviewElements(memberCloneRow, hasEditRightsGeneral, hasDeleteRightsGeneral);
+    removeClass(memberCloneRow, "hideElm");
 
 
     for (var member of memberList) {
@@ -762,10 +769,17 @@ function addMembersToOverview(memberTableList, memberList) {
 }
 
 
-function cleanMemberOverviewElements(userCloneRow) {
+function cleanMemberOverviewElements(userCloneRow, hasEditRightsGeneral, hasDeleteRightsGeneral) {
+    let editHeader = document.getElementById("editMemberHeader");
+    if (editHeader == undefined) return;
+    if (!hasEditRightsGeneral) {
+        editHeader.parentNode.removeChild(editHeader);
+    }
+    else editHeader.style.display = "table-cell";
+
     let deleteHeader = document.getElementById("deleteMemberHeader");
     if (deleteHeader == undefined) return;
-    if (!getPermissions().deleteMember) {
+    if (!hasDeleteRightsGeneral) {
         deleteHeader.parentNode.removeChild(deleteHeader);
     }
     else deleteHeader.style.display = "table-cell";
@@ -1139,7 +1153,7 @@ function showPostings(postings) {
 }
 
 function to2digit(val) {
-    if (val.length < 2) val = 0 + val;
+    if (val.length < 2) val = "0" + val;
     return val;
 }
 
