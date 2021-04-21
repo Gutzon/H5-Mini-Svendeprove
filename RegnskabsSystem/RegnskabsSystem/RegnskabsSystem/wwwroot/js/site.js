@@ -1033,7 +1033,6 @@ function addAccount(e) {
                 var successMsg = xhr.responseText;
                 if (successMsg == "OK") {
                     alert("Den nye konti er nu oprettet");
-                    showFinances();
                     hideModal(null, "createAccountSchema");
                 }
                 switch (successMsg) {
