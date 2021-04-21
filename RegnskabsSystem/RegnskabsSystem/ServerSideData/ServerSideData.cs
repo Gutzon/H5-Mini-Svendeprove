@@ -765,7 +765,7 @@ namespace ServerSideData
                                 where kontis.CorporationID.Equals(ses.corporationId) && kontis.name.Equals(transferRepFinance.konti)
                                 select kontis;
                     transferRepFinance.intervalType = transferRepFinance.intervalType.Trim();
-                    if (query.Count() == 1 && transferRepFinance.intervalValue > 0 && transferRepFinance.value != 0 && transferRepFinance.nextExecDate >= DateTime.Now && transferRepFinance.intervalType != "")
+                    if (query.Count() == 1 && transferRepFinance.intervalValue > 0 && transferRepFinance.value != 0 && transferRepFinance.nextExecDate >= DateTime.Now.AddHours(1) && transferRepFinance.intervalType != "")
                     {
                         if (transferRepFinance.intervalType == "Year" || transferRepFinance.intervalType == "Month" || transferRepFinance.intervalType == "Week" || transferRepFinance.intervalType == "Hour")
                         {
