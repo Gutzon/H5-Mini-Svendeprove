@@ -32,7 +32,7 @@ namespace ServerSideData
                 db.Kontis.RemoveRange(db.Kontis.Where(o => o.ID >= 0));
                 db.Members.RemoveRange(db.Members.Where(o => o.ID >= 0));
                 db.Permissions.RemoveRange(db.Permissions.Where(o => o.ID >= 0));
-                db.UCP.RemoveRange(db.UCP.Where(o => o.ID >= 0));
+                db.RepFinanceEntries.RemoveRange(db.RepFinanceEntries.Where(o => o.ID >= 0));
                 User user1 = new()
                 {
                     username = "admin",
@@ -73,42 +73,22 @@ namespace ServerSideData
                 };
                 db.Corporations.Add(corporation2);
                 Permissions perm1 = new(true, true, true, true, true, true, true, true, true, true, true, true, true, true);
-                db.Permissions.Add(perm1);
                 Permissions perm2 = new(true, true, true, true, true, true, true, true, true, true, true, true, true, true);
-                db.Permissions.Add(perm2);
                 Permissions perm3 = new(false, true, true, true, true, true, true, true, true, true, true, true, true, true);
-                db.Permissions.Add(perm3);
                 Permissions perm4 = new(false, true, true, true, true, true, true, true, true, true, true, true, true, true);
-                db.Permissions.Add(perm4);
                 Commit();
-                User_Corp_Permission ucp = new()
-                {
-                    UserID = user1.Id,
-                    CorporationID = corporation1.ID,
-                    PermissionID = perm1.ID
-                };
-                db.UCP.Add(ucp);
-                ucp = new()
-                {
-                    UserID = user1.Id,
-                    CorporationID = corporation2.ID,
-                    PermissionID = perm2.ID
-                };
-                db.UCP.Add(ucp);
-                ucp = new()
-                {
-                    UserID = user2.Id,
-                    CorporationID = corporation1.ID,
-                    PermissionID = perm3.ID
-                };
-                db.UCP.Add(ucp);
-                ucp = new()
-                {
-                    UserID = user3.Id,
-                    CorporationID = corporation2.ID,
-                    PermissionID = perm4.ID
-                };
-                db.UCP.Add(ucp);
+                perm1.UserID = user1.Id;
+                perm1.CorporationID = corporation1.ID;
+                perm2.UserID = user1.Id;
+                perm2.CorporationID = corporation2.ID;
+                perm3.UserID = user2.Id;
+                perm3.CorporationID = corporation1.ID;
+                perm4.UserID = user3.Id;
+                perm4.CorporationID = corporation2.ID;
+                db.Permissions.Add(perm1);
+                db.Permissions.Add(perm2);
+                db.Permissions.Add(perm3);
+                db.Permissions.Add(perm4);
                 Commit();
                 Konti konti1 = new()
                 {
@@ -248,9 +228,10 @@ namespace ServerSideData
                             User newuser = new User(newusercheck.Item2);
                             Permissions perm = new(newusercheck.Item2.permissions);
                             db.Users.Add(newuser);
-                            db.Permissions.Add(perm);
                             Commit();
-                            db.UCP.Add(new User_Corp_Permission(newuser.Id, perm.ID, ses.corporationId));
+                            perm.UserID = newuser.Id;
+                            perm.CorporationID = ses.corporationId;
+                            db.Permissions.Add(perm);
                             Commit();
                             return "OK";
                         }
@@ -314,8 +295,8 @@ namespace ServerSideData
             {
                 UpdateRepFinList();
                 var corpQuery = from user in db.Users
-                                join ucp in db.UCP on user.Id equals ucp.UserID
-                                join corp in db.Corporations on ucp.CorporationID equals corp.ID
+                                join perm in db.Permissions on user.Id equals perm.UserID
+                                join corp in db.Corporations on perm.CorporationID equals corp.ID
                                 where user.username.Equals(query.First().username)
                                 orderby corp.name
                                 select corp ;
@@ -355,15 +336,14 @@ namespace ServerSideData
             if (ValidateTokken(validate))
             {
                 var corpQuery = from user in db.Users
-                                join ucp in db.UCP on user.Id equals ucp.UserID
-                                where user.username.Equals(validate.username) && ucp.CorporationID.Equals(ID)
-                                select ucp;
+                                join perm in db.Permissions on user.Id equals perm.UserID
+                                where user.username.Equals(validate.username) && perm.CorporationID.Equals(ID)
+                                select perm;
                 if (corpQuery.Count() == 1)
                 {
                     var Query = from user in db.Users
-                                join ucp in db.UCP on user.Id equals ucp.UserID
-                                join perm in db.Permissions on ucp.PermissionID equals perm.ID
-                                where user.username.Equals(validate.username) && ucp.CorporationID.Equals(ID)
+                                join perm in db.Permissions on user.Id equals perm.UserID
+                                where user.username.Equals(validate.username) && perm.CorporationID.Equals(ID)
                                 select perm;
                     sessions.Find(o => o.tokken.Equals(validate.tokken) && o.username.Equals(validate.username)).permissions = Query.First();
                     sessions.Find(o => o.tokken.Equals(validate.tokken) && o.username.Equals(validate.username)).corporationId = ID;
@@ -406,9 +386,8 @@ namespace ServerSideData
                 if ((CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "EditUser") || user.username.Equals(ses.username)) && user.username.Equals(newuser.username))
                 {
                     var query = from users in db.Users
-                                join ucp in db.UCP on users.Id equals ucp.UserID
-                                join perm in db.Permissions on ucp.PermissionID equals perm.ID
-                                where users.username.Equals(user.username) && ucp.CorporationID.Equals(ses.corporationId)
+                                join perm in db.Permissions on users.Id equals perm.UserID
+                                where users.username.Equals(user.username) && perm.CorporationID.Equals(ses.corporationId)
                                 select new {users, perm};
                     if ((query.Count() == 1 && !(query.First().perm.AddCorporation || query.First().perm.Admin)) || ses.username.Equals(query.First().users.username) || (ses.permissions.AddCorporation || ses.permissions.Admin))
                     {
@@ -437,23 +416,58 @@ namespace ServerSideData
 
         public string DeleteUser(Validation validate, TransferUser user)
         {
-            /*if (ValidateTokken(validate))
+            if (ValidateTokken(validate))
             {
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
-                if (CheckPermission(validate, ses, "DeleteMember") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddCorporation"))
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "DeleteUser"))
                 {
-                    if (member.firstname != "" && member.lastname != "")
+                    var query = from users in db.Users
+                                join perm in db.Permissions on users.Id equals perm.UserID
+                                where users.username.Equals(user.username) && perm.CorporationID.Equals(ses.corporationId)
+                                select new { users, perm };
+                    if ((query.Count() == 1 && !(query.First().perm.AddCorporation || query.First().perm.Admin)) || ses.username.Equals(query.First().users.username) || (ses.permissions.AddCorporation || ses.permissions.Admin))
                     {
-                        member.CorporationID = ses.corporationId;
-                        db.Members.Add(member);
-                        Commit();
-                        return "OK";
+                        bool permit = false;
+                        if (ses.username.Equals(user.username))
+                        {
+                            permit = false;
+                        }
+                        else if (ses.permissions.AddCorporation)
+                        {
+                            permit = true;
+                        }
+                        else if (ses.permissions.Admin && !query.First().perm.AddCorporation)
+                        {
+                            permit = true;
+                        }
+                        else if (ses.permissions.DeleteUser && !(query.First().perm.Admin || query.First().perm.AddCorporation))
+                        {
+                            permit = true;
+                        }
+                        if (permit)
+                        {
+                            var query2 = from users in db.Users
+                                         join perm in db.Permissions on users.Id equals perm.UserID
+                                         where users.Id.Equals(query.First().users.Id)
+                                         select perm;
+                            if (query2.Count() == 1)
+                            {
+                                db.Permissions.Remove(query2.First());
+                                db.Users.Remove(query.First().users);
+                            }
+                            else
+                            {
+                                db.Permissions.Remove(query2.Where(o => o.CorporationID.Equals(ses.corporationId)).First());
+                            }
+                            Commit();
+                            return "OK";
+                        }
+                        return "Not permitted";
                     }
-                    return "Name empty";
+                    return "Nor found";
                 }
-                return "Not permited";
-            }*/
-            return "No session";
+            }
+            return "Error";
         }
 
         public string CreateMember(Validation validate, Member member)
@@ -526,8 +540,8 @@ namespace ServerSideData
             {
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 var query = from users in db.Users
-                            join ucp in db.UCP on users.Id equals ucp.UserID
-                            where ucp.CorporationID.Equals(ses.corporationId) && users.username.Equals(ses.username)
+                            join perm in db.Permissions on users.Id equals perm.UserID
+                            where perm.CorporationID.Equals(ses.corporationId) && users.username.Equals(ses.username)
                             orderby users.firstname
                             select users;
                 userlist.Add(new TransferUser(query.ToArray()[0], ses.permissions));
@@ -546,8 +560,8 @@ namespace ServerSideData
                             break;
                     default:
                         query = from users in db.Users
-                                join ucp in db.UCP on users.Id equals ucp.UserID
-                                where ucp.CorporationID.Equals(ses.corporationId) && !users.username.Equals(ses.username)
+                                join perm in db.Permissions on users.Id equals perm.UserID
+                                where perm.CorporationID.Equals(ses.corporationId) && !users.username.Equals(ses.username)
                                 orderby users.firstname
                                 select users;
                         break;
@@ -557,8 +571,7 @@ namespace ServerSideData
                     {
                         user.hashPassword = "";
                         var permquery = from perm in db.Permissions
-                                        join ucp in db.UCP on perm.ID equals ucp.PermissionID
-                                        where ucp.UserID.Equals(user.Id) && ucp.CorporationID.Equals(ses.corporationId)
+                                        where perm.UserID.Equals(user.Id) && perm.CorporationID.Equals(ses.corporationId)
                                         select perm;
                         userlist.Add(new TransferUser(user, permquery.First()));
 
@@ -801,7 +814,6 @@ namespace ServerSideData
             }
             return kontiList;
         }
-
         public string AddRepFinance(Validation validate, TransferRepFinance transferRepFinance)
         {
             if (ValidateTokken(validate))
@@ -844,7 +856,6 @@ namespace ServerSideData
             }
             return "no session";
         }
-
         public string RemoveRepFinance(Validation validate, TransferRepFinance transferRepFinance)
         {
             if (ValidateTokken(validate))
@@ -869,7 +880,6 @@ namespace ServerSideData
             }
             return "no session";
         }
-
         public IEnumerable<TransferRepFinance> GetRepFinance(Validation validate, string konti = "")
         {
             List<TransferRepFinance> repFinacelist = new();
@@ -926,7 +936,8 @@ namespace ServerSideData
             var query = from repFin in db.RepFinanceEntries
                         select repFin;
             repFinList = query.ToList();
-            while (repFinList.Where(o => o.nextExecDate <= DateTime.Now).Any()){
+            while (repFinList.Where(o => o.nextExecDate <= DateTime.Now).Any())
+            {
                 foreach (RepFinanceEntry entry in repFinList.Where(o => o.nextExecDate <= DateTime.Now))
                 {
                     FinanceEntry newEntry = new()
@@ -994,6 +1005,7 @@ namespace ServerSideData
                     db.FinanceEntries.Add(newEntry);
                     Commit();
                 }
+
             }
 
         }

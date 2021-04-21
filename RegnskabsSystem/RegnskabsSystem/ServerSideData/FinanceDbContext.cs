@@ -16,7 +16,6 @@ namespace ServerSideData
 
         }
         public DbSet<User> Users { get; set; }
-        public DbSet<User_Corp_Permission> UCP { get; set; }
         public DbSet<Permissions> Permissions { get; set; }
         public DbSet<Member> Members { get; set; }
         public DbSet<Konti> Kontis { get; set; }

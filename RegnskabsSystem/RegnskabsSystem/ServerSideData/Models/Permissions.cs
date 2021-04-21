@@ -179,6 +179,8 @@ namespace ServerSideData.Models
         }
 
         public int ID { get; set; }
+        public int UserID { get; set; }
+        public int CorporationID { get; set; }
         public bool AddCorporation { get; set; }
         public bool Admin { get; set; }
         public bool AddUser { get; set; }
