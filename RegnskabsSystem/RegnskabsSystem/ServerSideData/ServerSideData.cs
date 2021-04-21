@@ -419,7 +419,7 @@ namespace ServerSideData
                         query.First().users.mail = resultuser.mail;
                         query.First().users.firstname = resultuser.firstname;
                         Permissions newPerm = query.First().perm;
-                        newPerm.Update(query.First().perm, newuser.permissions);
+                        newPerm.Update(newuser.permissions);
                         db.Users.Update(query.First().users);
                         db.Permissions.Update(newPerm);
                         Commit();
@@ -755,11 +755,13 @@ namespace ServerSideData
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance"))
                 {
+                    transferRepFinance.konti = transferRepFinance.konti.Trim();
+                    if (transferRepFinance.konti == "") { transferRepFinance.konti = "Main"; }
                     var query = from kontis in db.Kontis
                                 where kontis.CorporationID.Equals(ses.corporationId) && kontis.name.Equals(transferRepFinance.konti)
                                 select kontis;
                     transferRepFinance.intervalType = transferRepFinance.intervalType.Trim();
-                    if (query.Count() == 1 && transferRepFinance.intervalValue > 0  )
+                    if (query.Count() == 1 && transferRepFinance.intervalValue > 0 && transferRepFinance.value != 0 && transferRepFinance.nextExecDate >= DateTime.Now && transferRepFinance.intervalType != "")
                     {
 
                         Commit();
