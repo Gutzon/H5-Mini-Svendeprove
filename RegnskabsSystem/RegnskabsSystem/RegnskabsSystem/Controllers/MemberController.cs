@@ -25,12 +25,6 @@ namespace RegnskabsSystem.Controllers
 
         #region View pages (Raw HTML delivered)
         public ActionResult Index() => View();
-
-        [HttpGet("creation")]
-        public ActionResult Creation() => View();
-
-        [HttpGet("edit")]
-        public ActionResult Edit() => View();
         #endregion
 
         #region Api -> Serverside queries
@@ -38,6 +32,13 @@ namespace RegnskabsSystem.Controllers
         public ActionResult<IEnumerable<Member>> Overview()
         {
             return Ok(serverSideData.GetMembers(Credentials));
+        }
+
+        [HttpPost()]
+        public ActionResult<bool> CreateMember([FromBody] Member member)
+        {
+            var createMemberSuccess = serverSideData.CreateMember(Credentials, member);
+            return Ok(createMemberSuccess);
         }
 
         [HttpPost("edit")]

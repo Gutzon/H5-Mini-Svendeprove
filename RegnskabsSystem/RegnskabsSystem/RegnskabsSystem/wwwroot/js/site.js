@@ -748,11 +748,62 @@ function cleanMemberOverviewElements(userCloneRow) {
 
 function memberCreate(e) {
     e.preventDefault();
-    console.log(getFormJsonData(memberCreateForm));
-    alert("Not ready");
+
+    // Assign perform create function
+    let createButton = document.getElementById("performCreateButton");
+    let clonedButton = createButton.cloneNode(true);
+    clonedButton.addEventListener("click", function () { performMemberCreate(event) });
+    let createButtonParent = createButton.parentNode;
+    createButtonParent.removeChild(createButton);
+    createButtonParent.appendChild(clonedButton);
+
+    showModal(event, 'memberCreateSchema');
 }
 
 
+
+function performMemberCreate(e) {
+    e.preventDefault();
+    let userCreateForm = document.forms["memberCreateForm"];
+    if (userCreateForm == undefined) return;
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", '/member', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            try {
+                let memberCreatedSuccess = xhr.responseText;
+
+                if (memberCreatedSuccess == "OK") {
+                    alert("Medlemmet blev oprettet");
+                    hideModal(null, "memberCreateSchema");
+                    populateMembers();
+                }
+                else switch (jsonObject.error) {
+                        case "Name empty":
+                            alert("Fornavn og efternavn skal angives.");
+                            break;
+                        case "Not permited":
+                            alert("Du har ikke rettighederne til at tilføje medlemmer.");
+                            break;
+                        case "No session":
+                        alert("Du er blevet logget ud, log venligst på igen");
+                            logOut(null, false);
+                            break;
+                        default:
+                }
+            }
+            catch {
+                alert("En fejl opstod under bruger oprettelsen");
+            }
+        }
+    }
+
+    let formData = getFormJsonData("memberCreateForm");
+    xhr.send(JSON.stringify(formData));
+}
 
 
 
