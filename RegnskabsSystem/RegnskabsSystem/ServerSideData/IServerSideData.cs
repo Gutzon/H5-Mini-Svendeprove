@@ -16,10 +16,10 @@ namespace ServerSideData
         public bool Logout(Validation validate);
         public string CreateUser(Validation validate, TransferUser user);
         public bool EditUser(Validation validate, TransferUser user, TransferUser newuser);
-        public bool DeleteUser(Validation validate, TransferUser user);
+        public string DeleteUser(Validation validate, TransferUser user);
         public string CreateMember(Validation validate, Member member);
-        public bool EditMember(Validation validate, Member member, Member newmember);
-        public bool DeleteMember(Validation validate, Member member);
+        public string EditMember(Validation validate, Member member, Member newmember);
+        public string DeleteMember(Validation validate, Member member);
         public bool ValidateTokken(Validation validate);
         public IEnumerable<TransferUser> GetUsers(Validation validate, string searchvalue = "", string searchtype = "");
         public IEnumerable<Member> GetMembers(Validation validate, string searchvalue = "", string searchtype = "");

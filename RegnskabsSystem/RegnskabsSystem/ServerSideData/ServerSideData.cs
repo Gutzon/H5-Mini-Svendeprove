@@ -435,9 +435,25 @@ namespace ServerSideData
             return false;
         }
 
-        public bool DeleteUser(Validation validate, TransferUser user)
+        public string DeleteUser(Validation validate, TransferUser user)
         {
-            throw new NotImplementedException();
+            /*if (ValidateTokken(validate))
+            {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                if (CheckPermission(validate, ses, "DeleteMember") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddCorporation"))
+                {
+                    if (member.firstname != "" && member.lastname != "")
+                    {
+                        member.CorporationID = ses.corporationId;
+                        db.Members.Add(member);
+                        Commit();
+                        return "OK";
+                    }
+                    return "Name empty";
+                }
+                return "Not permited";
+            }*/
+            return "No session";
         }
 
         public string CreateMember(Validation validate, Member member)
@@ -445,7 +461,7 @@ namespace ServerSideData
             if (ValidateTokken(validate))
             {
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
-                if (CheckPermission(validate, ses, "AddMember"))
+                if (CheckPermission(validate, ses, "AddMember") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddCorporation"))
                 {
                     if (member.firstname != "" && member.lastname != "")
                     {
@@ -460,13 +476,48 @@ namespace ServerSideData
             }
             return "No session";
         }
-        public bool EditMember(Validation validate, Member member, Member newmember)
+        public string EditMember(Validation validate, Member member, Member newmember)
         {
-            throw new NotImplementedException();
+            if (ValidateTokken(validate))
+            {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                if (CheckPermission(validate, ses, "EditMember") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddCorporation"))
+                {
+                    if (db.Members.Where(o => o.ID.Equals(member.ID)).Where(o => o.CorporationID.Equals(ses.corporationId)).Any() && member.ID.Equals(newmember.ID))
+                    {
+                        member = db.Members.Find(member.ID);
+                        member.firstname = newmember.firstname;
+                        member.lastname = newmember.lastname;
+                        member.mail = newmember.mail;
+                        member.phoneNumber = newmember.phoneNumber;
+                        db.Members.Update(member);
+                        Commit();
+                        return "OK";
+                    }
+                    return "Not found";
+                }
+                return "Not permited";
+            }
+            return "No session";
         }
-        public bool DeleteMember(Validation validate, Member member)
+        public string DeleteMember(Validation validate, Member member)
         {
-            throw new NotImplementedException();
+            if (ValidateTokken(validate))
+            {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                if (CheckPermission(validate, ses, "DeleteMember") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddCorporation"))
+                {
+                    if (db.Members.Where(o => o.ID.Equals(member.ID)).Where(o => o.CorporationID.Equals(ses.corporationId)).Any())
+                    {
+                        db.Members.Remove(db.Members.Find(member.ID));
+                        Commit();
+                        return "OK";
+                    }
+                    return "Not found";
+                }
+                return "Not permited";
+            }
+            return "No session";
         }
         public IEnumerable<TransferUser> GetUsers(Validation validate, string searchvalue = "", string searchtype = "")
         {
