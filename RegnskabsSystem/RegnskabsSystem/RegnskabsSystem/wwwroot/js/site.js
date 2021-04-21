@@ -1102,8 +1102,6 @@ function insertAccounts(accounts, accountSelect) {
 
 
 
-showAddAccount
-
 function showAddAccount(e) {
     e.preventDefault();
     showModal(null, "createAccountSchema");
@@ -1275,6 +1273,13 @@ function toFinanceNumber(value) {
 
 
 
+
+function showAddFinance(e) {
+    e.preventDefault();
+    showModal(null, "createFinanceSchema");
+}
+
+
 function addFinance(e) {
     e.preventDefault();
     let addFinanceForm = document.forms["addFinanceForm"];
@@ -1289,6 +1294,7 @@ function addFinance(e) {
             try {
                 var successMsg = xhr.responseText;
                 if (successMsg == "ok") {
+                    hideModal(null, "createFinanceSchema");
                     getPostings();
                 }
                 else switch (successMsg) {
