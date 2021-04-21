@@ -394,15 +394,16 @@ function addUsersToOverview(userTableList, userList) {
     let trUsers = userTableList.getElementsByTagName("tr");
     while (trUsers.length > 2) trUsers[2].parentNode.removeChild(trUsers[2]);
 
-    let userCloneRow = userTableList.getElementsByTagName("tr")[1].cloneNode(true);
-    cleanUserOverviewElements(userCloneRow);
-    removeClass(userCloneRow, "hideElm");
-
     let ownData = getCookieParam("user");
     if (ownData == "") logOut(null, true);
     let ownDataObj = JSON.parse(ownData);
     let ownPermissions = ownDataObj.permissions;
-    let editPasswordElm = document.getElementById("editUserPassword");
+    let hasDeleteRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.deleteUser);
+
+    let userCloneRow = userTableList.getElementsByTagName("tr")[1].cloneNode(true);
+    cleanUserOverviewElements(userCloneRow, hasDeleteRightsGeneral);
+    removeClass(userCloneRow, "hideElm");
+
 
     for (var user of userList) {
         // Rights evaluation on user protection to avoid showing edit/delete where not applicable
@@ -411,7 +412,6 @@ function addUsersToOverview(userTableList, userList) {
             || ownPermissions.editUser && !user["permissions"]["admin"]
             || user["username"] == ownDataObj["username"]);
 
-        let hasDeleteRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.deleteUser);
         let hasDeleteRightsOfUser = user["username"] != ownDataObj["username"] && (ownPermissions.addCorporation
             || ownPermissions.admin && !user["permissions"]["addCorporation"]
             || ownPermissions.deleteUser && !user["permissions"]["admin"]);
@@ -435,15 +435,9 @@ function addUsersToOverview(userTableList, userList) {
 }
 
 
-function cleanUserOverviewElements(userCloneRow) {
-    let editHeader = document.getElementById("editUserHeader");
-    if (!getPermissions().editUser) {
-        editHeader.parentNode.removeChild(editHeader);
-    }
-    else editHeader.style.display = "table-cell";
-
+function cleanUserOverviewElements(userCloneRow, hasDeleteRightsGeneral) {
     let deleteHeader = document.getElementById("deleteUserHeader");
-    if (!getPermissions().deleteUser) {
+    if (!hasDeleteRightsGeneral) {
         deleteHeader.parentNode.removeChild(deleteHeader);
     }
     else deleteHeader.style.display = "table-cell";
@@ -510,6 +504,7 @@ function userEdit(e, user) {
     let editForm = document.getElementById("userEditForm");
 
     for (let userParam in user) {
+        
 
         if (userParam == "permissions") {
             showUserEditPermissions(user[userParam]);
@@ -541,24 +536,30 @@ function userEdit(e, user) {
 }
 
 
-function showUserEditPermissions(userPermissions) {
+function showUserEditPermissions(username, userPermissions) {
     let permissionTBody = document.getElementById("editUserRights").getElementsByTagName("tbody")[0];
     let permissionRows = permissionTBody.getElementsByTagName("tr");
     while (permissionRows.length > 1) permissionRows[1].parentNode.removeChild(permissionRows[1]);
 
     let ownData = getCookieParam("user");
     if (ownData == "") logOut(null, true);
-    let ownPermissions = JSON.parse(getCookieParam("user")).permissions;
+    let ownDataObj = JSON.parse(ownData);
+    let ownPermissions = ownDataObj.permissions;
 
     for (let permission in userPermissions) {
         let permissionRow = permissionTBody.getElementsByTagName("tr")[0].cloneNode(true);
         removeClass(permissionRow, "hideElm");
 
+        let hasRightToEditPermission = (ownPermissions.addCorporation
+            || ownPermissions.admin && permission != "addCorporation"
+            || ownPermissions[permission]
+            || username == ownDataObj["username"]);
+
         let permissionColumns = permissionRow.getElementsByTagName("td");
         permissionColumns[0].appendChild(document.createTextNode(permission)); // Oversæt evt. senere
-        permissionColumns[1].appendChild(newPermissionCheckBox("userEditOwn_" + permission, ownPermissions[permission], true, false, false))
-        permissionColumns[2].appendChild(newPermissionCheckBox("userEditUser_" + permission, userPermissions[permission], true, false, !ownPermissions[permission]))
-        permissionColumns[3].appendChild(newPermissionCheckBox(permission, userPermissions[permission], !ownPermissions[permission], true, false))
+        permissionColumns[1].appendChild(newPermissionCheckBox("userEditOwn_" + permission, hasRightToEditPermission, true, false, false))
+        permissionColumns[2].appendChild(newPermissionCheckBox("userEditUser_" + permission, userPermissions[permission], true, false, !hasRightToEditPermission))
+        permissionColumns[3].appendChild(newPermissionCheckBox(permission, userPermissions[permission], !hasRightToEditPermission, true, false))
         permissionTBody.appendChild(permissionRow)
     }
 }
@@ -1240,11 +1241,6 @@ function deleteUser(e, user) {
 }
 
 
-function addRepeatFinance(e) {
-    e.preventDefault();
-}
-
-
 
 
 
@@ -1458,18 +1454,14 @@ function performCreateRepFinance(e) {
             try {
                 let repPaymentCreatedSuccess = xhr.responseText;
 
-                if (memberCreatedSuccess == "OK") {
+                if (repPaymentCreatedSuccess == "OK") {
                     alert("Gentagende betaling blev oprettet");
                     hideModal(null, "createRepFinanceSchema");
                     getRepFinance(event);
-                }/*
-                else switch (jsonObject.error) {
-                    
-                    case "":
-                        alert(".");
-                        break;
+                }
+                else switch (repPaymentCreatedSuccess) {
                     default:
-                }*/
+                }
             }
             catch {
                 alert("En fejl opstod under oprettelse af gentagende betaling");

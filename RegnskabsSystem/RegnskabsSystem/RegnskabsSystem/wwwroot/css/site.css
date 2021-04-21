@@ -89,7 +89,7 @@ input.submit-smaller {
     margin: 2vh;
 }
 
-#editUserHeader, #deleteUserHeader {
+#deleteUserHeader {
     display: none;
 }
 
