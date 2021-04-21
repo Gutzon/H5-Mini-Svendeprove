@@ -763,10 +763,25 @@ namespace ServerSideData
                     transferRepFinance.intervalType = transferRepFinance.intervalType.Trim();
                     if (query.Count() == 1 && transferRepFinance.intervalValue > 0 && transferRepFinance.value != 0 && transferRepFinance.nextExecDate >= DateTime.Now && transferRepFinance.intervalType != "")
                     {
-
-                        Commit();
-                        return "ok";
-
+                        if (transferRepFinance.intervalType == "Year" || transferRepFinance.intervalType == "Month" || transferRepFinance.intervalType == "Week" || transferRepFinance.intervalType == "Hour")
+                        {
+                            transferRepFinance.nextExecDate = new DateTime(transferRepFinance.nextExecDate.Year, transferRepFinance.nextExecDate.Month, transferRepFinance.nextExecDate.Day, transferRepFinance.nextExecDate.Hour, 0, 0);
+                            db.RepFinanceEntries.Add(new RepFinanceEntry()
+                            {
+                                KontiID = query.First().ID,
+                                value = transferRepFinance.value,
+                                comment = transferRepFinance.comment,
+                                byWho = ses.username,
+                                intervalType = transferRepFinance.intervalType,
+                                intervalValue = transferRepFinance.intervalValue,
+                                firstExecDate = transferRepFinance.nextExecDate,
+                                nextExecDate = transferRepFinance.nextExecDate,
+                            });
+                            Commit();
+                            UpdateRepFinList();
+                            return "OK";
+                        }
+                        return "Wrong Type";
                     }
                     return "Wrong Konti name";
                 }
