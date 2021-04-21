@@ -99,7 +99,7 @@ namespace RegnskabsSystem.Controllers
         public ActionResult<IEnumerable<TransferRepFinance>> GetFinanceEntriesRepeated()
         {
             // Temp until ready from Kennie
-            var tempTransferRepFinance = new List<TransferRepFinance>()
+            /*var tempTransferRepFinance = new List<TransferRepFinance>()
             {
                 new TransferRepFinance()
                 {
@@ -135,10 +135,10 @@ namespace RegnskabsSystem.Controllers
                 }
             };
 
-            return Ok(tempTransferRepFinance);
+            return Ok(tempTransferRepFinance);*/
 
-            /*var repeatFinanceSuccess = serverSideData.GetRepFinance(Credentials);
-            return Ok(repeatFinanceSuccess);*/
+            var repeatFinanceSuccess = serverSideData.GetRepFinance(Credentials);
+            return Ok(repeatFinanceSuccess);
         }
         #endregion
     }

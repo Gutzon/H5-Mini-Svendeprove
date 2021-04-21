@@ -9,6 +9,8 @@ namespace ServerSideData
     public class ServerSideData : IServerSideData
     {
         private static List<Session> sessions = new List<Session>();
+        private static List<RepFinanceEntry> repFinList = new();
+
         private readonly FinanceDbContext db;
         public ServerSideData(FinanceDbContext db)
         {
@@ -201,6 +203,21 @@ namespace ServerSideData
             db.Members.Add(member5);
             Commit();
         }
+        private void GenerateRepTestData()
+        {
+            db.RepFinanceEntries.Add(new RepFinanceEntry()
+            {
+                KontiID = 5,
+                value = 20,
+                comment = "Test",
+                byWho = "Who Knows",
+                intervalType = "Hour",
+                intervalValue = 1,
+                firstExecDate = new DateTime(2021, 4, 20, 5, 0, 0),
+                nextExecDate = new DateTime(2021, 4, 20, 5, 0, 0),
+            });
+            Commit();
+        }
         private int Commit()
         {
             return db.SaveChanges();
@@ -292,6 +309,7 @@ namespace ServerSideData
             UserLogin userLogin = new();
             if (query.Count() == 1)
             {
+                UpdateRepFinList();
                 var corpQuery = from user in db.Users
                                 join ucp in db.UCP on user.Id equals ucp.UserID
                                 join corp in db.Corporations on ucp.CorporationID equals corp.ID
@@ -322,13 +340,12 @@ namespace ServerSideData
                 {
                     userLogin.status = "Select";
                 }
-                return userLogin;
             }
             else
             {
                 userLogin.status = "Error";
-                return userLogin;
             }
+                return userLogin;
         }
         public bool SelectCorporation(Validation validate, int ID)
         {
@@ -394,8 +411,14 @@ namespace ServerSideData
                     {
                         TransferUser resultuser = new(query.First().users, query.First().perm);
                         newuser = CheckUserPermissions(resultuser, newuser).Item2;
-                        db.Users.Update(new User(query.First().users, resultuser));
-                        db.Permissions.Update(new Permissions(query.First().perm, resultuser.permissions));
+                        query.First().users.firstname = resultuser.firstname;
+                        query.First().users.lastname = resultuser.lastname;
+                        query.First().users.mail = resultuser.mail;
+                        query.First().users.firstname = resultuser.firstname;
+                        Permissions newPerm = query.First().perm;
+                        newPerm.Update(query.First().perm, newuser.permissions);
+                        db.Users.Update(query.First().users);
+                        db.Permissions.Update(newPerm);
                         Commit();
                         return true;
                     }
@@ -527,6 +550,7 @@ namespace ServerSideData
         {
             if (ValidateTokken(validate))
             {
+                UpdateRepFinList();
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance"))
                 {
@@ -634,6 +658,7 @@ namespace ServerSideData
             {
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 konti = konti.Trim();
+                UpdateRepFinList();
                 if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinace") || CheckPermission(validate, ses, "LimitedViewFinance"))
                 {
                     var query = from finaces in db.FinanceEntries
@@ -723,6 +748,7 @@ namespace ServerSideData
         {
             if (ValidateTokken(validate))
             {
+                UpdateRepFinList();
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance"))
                 {
@@ -751,6 +777,7 @@ namespace ServerSideData
 
         public string RemoveRepFinance(Validation validate, TransferRepFinance transferRepFinance)
         {
+            UpdateRepFinList();
             throw new NotImplementedException();
         }
 
@@ -759,6 +786,7 @@ namespace ServerSideData
             List<TransferRepFinance> repFinacelist = new();
             if (ValidateTokken(validate))
             {
+                UpdateRepFinList();
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 konti = konti.Trim();
                 if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinace") || CheckPermission(validate, ses, "LimitedViewFinance"))
@@ -803,6 +831,82 @@ namespace ServerSideData
 
             }
             return repFinacelist;
+        }
+        private void UpdateRepFinList()
+        {
+            var query = from repFin in db.RepFinanceEntries
+                        select repFin;
+            repFinList = query.ToList();
+            while (repFinList.Where(o => o.nextExecDate <= DateTime.Now).Any()){
+                foreach (RepFinanceEntry entry in repFinList.Where(o => o.nextExecDate <= DateTime.Now))
+                {
+                    FinanceEntry newEntry = new()
+                    {
+                        value = entry.value,
+                        KontiID = entry.KontiID,
+                        comment = "\"Recurring\": " + entry.comment,
+                        byWho = entry.byWho,
+                        addDate = entry.nextExecDate,
+                        payDate = entry.nextExecDate,
+                    };
+                    var query2 = from entries in db.FinanceEntries
+                                 join kontis in db.Kontis on entries.KontiID equals kontis.ID
+                                 where kontis.CorporationID.Equals(db.Kontis.Find(entry.KontiID).CorporationID)
+                                 orderby entries.payDate
+                                 select entries;
+
+                    if (query2.Where(o => o.KontiID.Equals(entry.KontiID)).Any())
+                    {
+                        newEntry.newSaldoKonti = query2.Where(o => o.KontiID.Equals(entry.KontiID)).Last().newSaldoKonti + entry.value;
+                    }
+                    else
+                    {
+                        newEntry.newSaldoKonti = entry.value;
+                    }
+                    if (query2.Any())
+                    {
+                        newEntry.newSaldoMain = query2.Last().newSaldoMain + entry.value;
+                    }
+                    else
+                    {
+                        newEntry.newSaldoKonti = entry.value;
+                    }
+                    switch (entry.intervalType)
+                    {
+                        case "Year":
+                            entry.nextExecDate = entry.nextExecDate.AddYears(entry.intervalValue);
+                            break;
+                        case "Month":
+                            if (entry.firstExecDate.Day < 28)
+                            {
+                                entry.nextExecDate = entry.nextExecDate.AddMonths(entry.intervalValue);
+                            }
+                            else
+                            {
+                                DateTime newDate = new DateTime(entry.nextExecDate.Year, entry.nextExecDate.Month + entry.intervalValue, 27);
+                                while (newDate.AddDays(1).Month.Equals(newDate.Month) && newDate.Day < entry.firstExecDate.Day)
+                                {
+                                    newDate = newDate.AddDays(1);
+                                }
+                                entry.nextExecDate = newDate;
+                            }
+                            break;
+                        case "Week":
+                            entry.nextExecDate = entry.nextExecDate.AddDays(entry.intervalValue * 7);
+                            break;
+                        case "Day":
+                            entry.nextExecDate = entry.nextExecDate.AddDays(entry.intervalValue);
+                            break;
+                        case "Hour":
+                            entry.nextExecDate = entry.nextExecDate.AddHours(entry.intervalValue);
+                            break;
+                    }
+                    db.RepFinanceEntries.Update(entry);
+                    db.FinanceEntries.Add(newEntry);
+                    Commit();
+                }
+            }
+
         }
     }
 }
