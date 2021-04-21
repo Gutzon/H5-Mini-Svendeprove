@@ -2,12 +2,6 @@
     ViewData["Title"] = "Medlems oversigt";
 }
 <div class="gridContainer">
-
-    <br><br>Temp design of members based on copy of Jannik's user design...<br><br><br>
-
-    <a href="/member/creation">Opret medlem</a><br>
-    <a href="/member/edit">Rediger medlem</a><br>
-
     <table id="memberTable" class="mainTable" CELLSPACING="0">
         <tr>
             <th class="tableHeaders">Navn</th>
@@ -20,8 +14,55 @@
             <td class="tableData"></td>
             <td class="tableData"></td>
             <td class="tableData"></td>
-            <td class="tableData tdImg"><img src="Media\EditIcon.png" class="tableImgEdit"></td>
-            <td class="tableData tdImg tableDataEnd"><img src="Media\DeleteIcon.png" class="tableImgDelete"></td>
+            <td class="tableData tdImg"></td>
+            <td class="tableData tdImg tableDataEnd"></td>
         </tr>
     </table>
+    <br><a href="/member/creation">Opret medlem</a><br>
+    <!--<div class="text-center"><input type="button" class="FormSubmit submit-smaller" onclick="memberCreate(event)" value="Tilføj nyt medlem"></div>-->
 </div>
+
+<div id="memberEditSchema" class="modal-main hideElm">
+    <div class="modal-content">
+        <div class="modal-head">
+            <div>Rediger medlem</div>
+            <a href="/closeModal" onclick="hideModal(event, 'memberEditSchema')"><img src="/Media/DeleteIcon.png"></a>
+        </div>
+        <form id="memberEditForm">
+            <table class="mainTable">
+                <thead>
+                    <tr>
+                        <td class="tableHeaders">Info</td>
+                        <td class="tableHeaders">Nuværende</td>
+                        <td class="tableHeaders">Fremtidig</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tableData">Fornavn</td>
+                        <td class="tableData"><span id="memberEdit_firstname"></span></td>
+                        <td class="tableData tableDataEnd"><input type="text" name="firstname" value=""></td>
+                    </tr>
+                    <tr>
+                        <td class="tableData">Efternavn</td>
+                        <td class="tableData"><span id="memberEdit_lastname"></span></td>
+                        <td class="tableData tableDataEnd"><input type="text" name="lastname" value=""></td>
+                    </tr>
+                    <tr>
+                        <td class="tableData">E-mail</td>
+                        <td class="tableData"><span id="memberEdit_mail"></span></td>
+                        <td class="tableData tableDataEnd"><input type="text" name="mail" value=""></td>
+                    </tr>
+                    <tr>
+                        <td class="tableData">Telefon nr.</td>
+                        <td class="tableData"><span id="memberEdit_phoneNumber"></span></td>
+                        <td class="tableData tableDataEnd"><input type="text" name="phoneNumber" value=""></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="text-center"><input type="button" class="FormSubmit submit-smaller" id="performEditButton" value="Ret medlem"></div>
+        </form>
+    </div>
+</div>
+

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RegnskabsSystem.Models
 {
-    public class EditAccountModel
+    public class EditUserModel
     {
         public TransferUser oldUser { get; set; }
         public TransferUser newUser { get; set; }

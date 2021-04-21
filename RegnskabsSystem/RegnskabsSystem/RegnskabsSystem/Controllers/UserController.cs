@@ -29,16 +29,6 @@ namespace RegnskabsSystem.Controllers
 
         #region View pages (Raw HTML delivered)
         public ActionResult Index() => View();
-
-        [HttpGet("creation")]
-        public ActionResult Creation() => View();
-
-        [HttpGet("edit")]
-        public ActionResult Edit() => View();
-
-        [HttpGet("deletion")]
-        public ActionResult Deletion() => View();
-
         #endregion
 
         #region Api -> Serverside queries
@@ -106,7 +96,7 @@ namespace RegnskabsSystem.Controllers
         }
 
         [HttpPost("edit")]
-        public ActionResult<bool> CreateUser([FromBody] EditAccountModel editedUser)
+        public ActionResult<bool> CreateUser([FromBody] EditUserModel editedUser)
         {
             var userEditSuccess = serverSideData.EditUser(Credentials, editedUser.oldUser, editedUser.newUser);
             return Ok(userEditSuccess);

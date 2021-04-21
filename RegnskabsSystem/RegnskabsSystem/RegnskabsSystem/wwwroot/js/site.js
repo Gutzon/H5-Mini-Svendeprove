@@ -651,22 +651,52 @@ function populateMembers() {
     xhr.send();
 }
 
-function CreateMemberColumnElm(user, columnNumber) {
+function CreateMemberColumnElm(member, columnNumber) {
     switch (columnNumber) {
         case 0:
-            return document.createTextNode(user["firstname"] + " " + user["lastname"]);
+            return document.createTextNode(member["firstname"] + " " + member["lastname"]);
         case 1:
-            return document.createTextNode(user["mail"]);
+            return document.createTextNode(member["mail"]);
         case 2:
-            return document.createTextNode(user["phoneNumber"]);
+            return document.createTextNode(member["phoneNumber"]);
         case 3:
-            return !getPermissions().editMember ? null : document.createTextNode("");
+            return !getPermissions().editMember ? null : getEditMemberElm(member);
         case 4:
-            return !getPermissions().deleteMember ? null : document.createTextNode("");
+            return !getPermissions().deleteMember ? null : getDeleteMemberElm(member);
         default:
             return document.createTextNode("Undefined case");
     }
 }
+
+
+function getEditMemberElm(member) {
+    let elmHref = document.createElement("a");
+    elmHref.setAttribute("href", "/member/edit");
+    elmHref.addEventListener("click", function () { memberEdit(event, member) });
+
+    let elmImage = document.createElement("img");
+    elmImage.setAttribute("src", "/Media/EditIcon.png");
+    addClass(elmImage, "tableImgEdit");
+
+    elmHref.appendChild(elmImage);
+    return elmHref;
+}
+
+
+function getDeleteMemberElm(member) {
+    let elmHref = document.createElement("a");
+    elmHref.setAttribute("href", "/member/delete");
+    elmHref.addEventListener("click", function () { performMemberDelete(event, member) });
+
+    let elmImage = document.createElement("img");
+    elmImage.setAttribute("src", "/Media/DeleteIcon.png");
+    addClass(elmImage, "tableImgDelete");
+
+    elmHref.appendChild(elmImage);
+    return elmHref;
+}
+
+
 
 function addMembersToOverview(memberTableList, memberList) {
     let trMembers = memberTableList.getElementsByTagName("tr");
@@ -722,11 +752,104 @@ function memberCreate(e) {
     alert("Not ready");
 }
 
-function memberEdit(e) {
+
+
+
+
+
+function memberEdit(e, member) {
     e.preventDefault();
-    console.log(getFormJsonData(memberEditForm));
-    alert("Not ready");
+
+    let editForm = document.getElementById("memberEditForm");
+    for (let memberParam in member) {
+        let newMemberFormElm = editForm.elements[memberParam];
+        if (newMemberFormElm != undefined) {
+            newMemberFormElm.value = member[memberParam];
+        }
+
+        let oldMemberElm = document.getElementById("memberEdit_" + memberParam);
+        if (oldMemberElm == undefined) continue;
+        for (let child of oldMemberElm.childNodes) {
+            child.parentNode.removeChild(child);
+        }
+        oldMemberElm.appendChild(document.createTextNode(member[memberParam]));
+    }
+
+    // Assign perform edit function
+    let editButton = document.getElementById("performEditButton");
+    let clonedButton = editButton.cloneNode(true);
+    clonedButton.addEventListener("click", function () { performMemberEdit(event, member) });
+    let editButtonParent = editButton.parentNode;
+    editButtonParent.removeChild(editButton);
+    editButtonParent.appendChild(clonedButton);
+
+    showModal(event, 'memberEditSchema');
 }
+
+
+
+function performMemberEdit(e, member) {
+    e.preventDefault();
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", '/member/edit', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            if (xhr.responseText == "true") {
+                alert("Medlemmet blev redigeret");
+                hideModal(null, "memberEditSchema");
+                populateMembers();
+            }
+            else alert("Medlemmet blev ikke redigeret");
+        }
+        else if (this.readyState === XMLHttpRequest.DONE && this.status === 500) {
+            alert("Redigering af medlemmet blev ikke fuldført, en kritisk fejl opstod.")
+        }
+    }
+
+    let formData = getFormJsonData("memberEditForm");
+    let memberEditObject = { oldMember: member, newMember: formData }
+    xhr.send(JSON.stringify(memberEditObject));
+}
+
+
+function performMemberDelete(e, member) {
+    e.preventDefault();
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", '/member/delete', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            if (xhr.responseText == "true") {
+                alert("Medlemmet blev slettet");
+                hideModal(null, "memberEditSchema");
+                populateMembers();
+            }
+            else alert("Medlemmet blev ikke slettet");
+        }
+        else if (this.readyState === XMLHttpRequest.DONE && this.status === 500) {
+            alert("Sletning af medlemmet blev ikke fuldført, en kritisk fejl opstod.")
+        }
+    }
+
+    xhr.send(JSON.stringify(member));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // Navigation

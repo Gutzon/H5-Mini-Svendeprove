@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RegnskabsSystem.Helpers;
+using RegnskabsSystem.Models;
 using ServerSideData;
 using ServerSideData.Models;
 using System.Collections.Generic;
@@ -37,6 +38,20 @@ namespace RegnskabsSystem.Controllers
         public ActionResult<IEnumerable<Member>> Overview()
         {
             return Ok(serverSideData.GetMembers(Credentials));
+        }
+
+        [HttpPost("edit")]
+        public ActionResult<bool> EditMember([FromBody] EditMemberModel editedMember)
+        {
+            var editMemberSuccess = serverSideData.EditMember(Credentials, editedMember.oldMember, editedMember.oldMember);
+            return Ok(editMemberSuccess);
+        }
+
+        [HttpPost("delete")]
+        public ActionResult<bool> DeleteMember([FromBody] Member member)
+        {
+            var deleteMemberSuccess = serverSideData.DeleteMember(Credentials, member);
+            return Ok(deleteMemberSuccess);
         }
         #endregion
     }
