@@ -109,6 +109,10 @@ input.submit-smaller {
     display: inline-block;
 }
 
+.view-h2 {
+    margin-top: 2vh;
+}
+
 /* Temp modal design until final design is ready from Jannik */
 .modal-main {
     position: fixed;
