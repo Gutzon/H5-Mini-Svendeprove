@@ -437,6 +437,7 @@ function addUsersToOverview(userTableList, userList) {
 
 function cleanUserOverviewElements(userCloneRow, hasDeleteRightsGeneral) {
     let deleteHeader = document.getElementById("deleteUserHeader");
+    if (deleteHeader == undefined) return;
     if (!hasDeleteRightsGeneral) {
         deleteHeader.parentNode.removeChild(deleteHeader);
     }
@@ -507,7 +508,7 @@ function userEdit(e, user) {
         
 
         if (userParam == "permissions") {
-            showUserEditPermissions(user[userParam]);
+            showUserEditPermissions(user["username"], user[userParam]);
             continue;
         }
 
@@ -655,7 +656,6 @@ function newPermissionCheckBox(elmName, checked, disabled, toPermissionObj, hide
 
 
 // Member handling
-
 function populateMembers() {
     let memberTableList = document.getElementById("memberTable");
     if (memberTableList == null) return;
@@ -673,7 +673,7 @@ function populateMembers() {
     xhr.send();
 }
 
-function CreateMemberColumnElm(member, columnNumber) {
+function CreateMemberColumnElm(member, columnNumber, hasDeleteRightsGeneral, hasEditRightsGeneral) {
     switch (columnNumber) {
         case 0:
             return document.createTextNode(member["firstname"] + " " + member["lastname"]);
@@ -682,9 +682,9 @@ function CreateMemberColumnElm(member, columnNumber) {
         case 2:
             return document.createTextNode(member["phoneNumber"]);
         case 3:
-            return !getPermissions().editMember ? null : getEditMemberElm(member);
+            return !hasEditRightsGeneral ? null : getEditMemberElm(member);
         case 4:
-            return !getPermissions().deleteMember ? null : getDeleteMemberElm(member);
+            return !hasDeleteRightsGeneral ? null : getDeleteMemberElm(member);
         default:
             return document.createTextNode("Undefined case");
     }
@@ -728,13 +728,27 @@ function addMembersToOverview(memberTableList, memberList) {
     cleanMemberOverviewElements(memberCloneRow);
     removeClass(memberCloneRow, "hideElm");
 
-    for (var user of memberList) {
+    let ownData = getCookieParam("user");
+    if (ownData == "") logOut(null, true);
+    let ownDataObj = JSON.parse(ownData);
+    let ownPermissions = ownDataObj.permissions;
+    let hasAddRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.addMember);
+    let hasDeleteRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.deleteMember);
+    let hasEditRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.deleteMember);
+
+    let addMemberButton = document.getElementById("addMemberButton");
+    if (hasAddRightsGeneral) {
+
+    }
+
+
+    for (var member of memberList) {
         let rowCloned = memberCloneRow.cloneNode(true);
         let rowTds = rowCloned.getElementsByTagName("td");
 
         let removeTds = [];
         for (var i = 0; i < rowTds.length; i++) {
-            let objectToAppend = CreateMemberColumnElm(user, i);
+            let objectToAppend = CreateMemberColumnElm(member, i, hasDeleteRightsGeneral, hasEditRightsGeneral);
             if (objectToAppend != null) rowTds[i].appendChild(objectToAppend);
             else removeTds.push(rowTds[i]);
         }
@@ -749,13 +763,8 @@ function addMembersToOverview(memberTableList, memberList) {
 
 
 function cleanMemberOverviewElements(userCloneRow) {
-    let editHeader = document.getElementById("editMemberHeader");
-    if (!getPermissions().editMember) {
-        editHeader.parentNode.removeChild(editHeader);
-    }
-    else editHeader.style.display = "table-cell";
-
     let deleteHeader = document.getElementById("deleteMemberHeader");
+    if (deleteHeader == undefined) return;
     if (!getPermissions().deleteMember) {
         deleteHeader.parentNode.removeChild(deleteHeader);
     }
