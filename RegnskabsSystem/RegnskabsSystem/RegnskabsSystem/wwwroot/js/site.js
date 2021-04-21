@@ -510,6 +510,18 @@ function userEdit(e, user) {
 
     let editForm = document.getElementById("userEditForm");
 
+    let ownData = getCookieParam("user");
+    if (ownData == "") logOut(null, true);
+    let ownDataObj = JSON.parse(ownData);
+    let ownPermissions = ownDataObj.permissions;
+    let hasPasswordEditPermission = (ownPermissions.addCorporation || ownPermissions.admin ||
+        user["username"] == ownDataObj["username"]
+    );
+
+    let passwordEditBox = document.getElementById("editUserPassword");
+    if (hasPasswordEditPermission) removeClass(passwordEditBox, "hideElm");
+    else addClass(passwordEditBox, "hideElm");
+
     for (let userParam in user) {
         
 
@@ -579,7 +591,17 @@ function performUserEdit(e, oldUser) {
 
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+
+            let ownData = getCookieParam("user");
+            if (ownData == "") logOut(null, true);
+            let ownDataObj = JSON.parse(ownData);
+            let editedSelf = oldUser["username"] == ownDataObj["username"];
+
             if (xhr.responseText == "true") {
+                if (editedSelf) {
+                    alert("Din egen bruger blev redigeret, du logges nu af - log venligst på igen");
+                    logOut(null, false);
+                }
                 alert("Bruger blev redigeret");
                 hideModal(null, "userEditSchema");
                 populateUsers();
@@ -682,14 +704,16 @@ function populateMembers() {
 function CreateMemberColumnElm(member, columnNumber, hasDeleteRightsGeneral, hasEditRightsGeneral) {
     switch (columnNumber) {
         case 0:
-            return document.createTextNode(member["firstname"] + " " + member["lastname"]);
+            return document.createTextNode(member["id"]);
         case 1:
-            return document.createTextNode(member["mail"]);
+            return document.createTextNode(member["firstname"] + " " + member["lastname"]);
         case 2:
-            return document.createTextNode(member["phoneNumber"]);
+            return document.createTextNode(member["mail"]);
         case 3:
-            return !hasEditRightsGeneral ? null : getEditMemberElm(member);
+            return document.createTextNode(member["phoneNumber"]);
         case 4:
+            return !hasEditRightsGeneral ? null : getEditMemberElm(member);
+        case 5:
             return !hasDeleteRightsGeneral ? null : getDeleteMemberElm(member);
         default:
             return document.createTextNode("Undefined case");
@@ -892,12 +916,24 @@ function performMemberEdit(e, member) {
 
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            if (xhr.responseText == "true") {
+            if (xhr.responseText == "OK") {
                 alert("Medlemmet blev redigeret");
                 hideModal(null, "memberEditSchema");
                 populateMembers();
             }
-            else alert("Medlemmet blev ikke redigeret");
+            else switch (xhr.responseText) {
+                case "Not found":
+                    alert("Medlemmet eksisterede ikke. Det er muligt at den er slettet af en anden admin.");
+                    break;
+                case "Not permited":
+                    alert("Du har ikke rettighederne til at redigere et medlem.");
+                    break;
+                case "No session":
+                    alert("Dit login er udløbet, du logges af - log venligst på igen");
+                    logOut(null, false);
+                    break;
+                default:
+            }
         }
         else if (this.readyState === XMLHttpRequest.DONE && this.status === 500) {
             alert("Redigering af medlemmet blev ikke fuldført, en kritisk fejl opstod.")
@@ -918,12 +954,24 @@ function performMemberDelete(e, member) {
 
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            if (xhr.responseText == "true") {
+            if (xhr.responseText == "OK") {
                 alert("Medlemmet blev slettet");
                 hideModal(null, "memberEditSchema");
                 populateMembers();
             }
-            else alert("Medlemmet blev ikke slettet");
+            else switch (xhr.responseText) {
+                case "Not found":
+                    alert("Medlemmet eksisterede ikke. Det er muligt at den er slettet af en anden admin.");
+                    break;
+                case "Not permited":
+                    alert("Du har ikke rettighederne til at slette et medlem.");
+                    break;
+                case "No session":
+                    alert("Dit login er udløbet, du logges af - log venligst på igen");
+                    logOut(null, false);
+                    break;
+                default:
+            }
         }
         else if (this.readyState === XMLHttpRequest.DONE && this.status === 500) {
             alert("Sletning af medlemmet blev ikke fuldført, en kritisk fejl opstod.")
@@ -932,15 +980,6 @@ function performMemberDelete(e, member) {
 
     xhr.send(JSON.stringify(member));
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -992,7 +1031,21 @@ function addAccount(e) {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             try {
                 var successMsg = xhr.responseText;
-                alert(successMsg);
+                if (successMsg == "Ok") alert("Den nye konti er nu oprettet");
+                switch (successMsg) {
+                    case "Alredy exist":
+                        alert("Kontoen eksisterer i forvejen");
+                        break;
+                    case "Not permitted":
+                        alert("Du har ikke tilladelse til at oprette konti");
+                        break;
+                    case "No session":
+                        alert("Din session er udløbet, du logges af - log på igen");
+                        logOut(null, false);
+                        break;
+                    default:
+                }
+                showFinances();
             }
             catch {
                 alert("En fejl opstod under oprettelse af ny konti");
@@ -1153,7 +1206,7 @@ function showPostings(postings) {
 }
 
 function to2digit(val) {
-    if (val.length < 2) val = "0" + val;
+    if (val.toString().length < 2) val = "0" + val;
     return val;
 }
 
@@ -1321,7 +1374,7 @@ function hideModal(e, elmId) {
 
 /* Repeating finance entries */
 function getRepFinance(e) {
-    e.preventDefault();
+    if(e != null) e.preventDefault();
 
     let xhr = new XMLHttpRequest();
     xhr.open("GET", '/account/finance/repeated', true);
@@ -1431,7 +1484,7 @@ function deleteRepFinance(e, repFinance) {
                     alert("Gentagende betaling blev slettet");
                 }
                 else alert("Gentagende betaling kunne ikke slettes");
-                populateUsers();
+                getRepFinance(null);
             }
             catch {
                 alert("En fejl opstod under håndtering af gentagende betaling");

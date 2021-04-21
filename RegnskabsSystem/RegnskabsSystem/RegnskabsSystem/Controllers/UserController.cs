@@ -103,6 +103,7 @@ namespace RegnskabsSystem.Controllers
                 editedUser.newUser.hashPassword = SecurityHelper.GetHashCode(editedUser.newUser.username + editedUser.newUser.password);
                 editedUser.newUser.password = "";
             }
+            else editedUser.newUser.hashPassword = "";
 
             var userEditSuccess = serverSideData.EditUser(Credentials, editedUser.oldUser, editedUser.newUser);
             return Ok(userEditSuccess);

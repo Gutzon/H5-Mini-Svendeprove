@@ -4,6 +4,7 @@
 <div class="gridContainer">
     <table id="memberTable" class="mainTable" CELLSPACING="0">
         <tr>
+            <th class="tableHeaders">Id</th>
             <th class="tableHeaders">Navn</th>
             <th class="tableHeaders">E-Mail</th>
             <th class="tableHeaders">Telefon nummer</th>
@@ -11,6 +12,7 @@
             <th class="tableHeaders thImg tableHeaderEnd" id="deleteMemberHeader">Slet medlem</th>
         </tr>
         <tr id="memberSchema" class="hideElm">
+            <td class="tableData"></td>
             <td class="tableData"></td>
             <td class="tableData"></td>
             <td class="tableData"></td>
@@ -28,6 +30,8 @@
             <a href="/closeModal" onclick="hideModal(event, 'memberEditSchema')"><img src="/Media/DeleteIcon.png"></a>
         </div>
         <form id="memberEditForm">
+            <input class="hideElm" type="text" name="id" value="">
+            <input class="hideElm"s type="text" name="corporationID" value="">
             <table class="mainTable">
                 <thead>
                     <tr>
