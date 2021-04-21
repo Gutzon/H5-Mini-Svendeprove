@@ -755,10 +755,10 @@ namespace ServerSideData
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance"))
                 {
-                   /* var query = from kontis in db.Kontis
+                    var query = from kontis in db.Kontis
                                 where kontis.CorporationID.Equals(ses.corporationId) && kontis.name.Equals(transferRepFinance.konti)
                                 select kontis;
-                    if (query.Count() == 1)
+                    /*if (query.Count() == 1)
                     {
                         var query2 = from entries in db.FinanceEntries
                                      join kontis in db.Kontis on entries.KontiID equals kontis.ID
@@ -770,8 +770,8 @@ namespace ServerSideData
                         Commit();
                         return "ok";
 
-                    }
-                    return "Wrong Konti name";*/
+                    }*/
+                    return "Wrong Konti name";
                 }
                 return "not permitted";
             }
@@ -792,7 +792,7 @@ namespace ServerSideData
                 UpdateRepFinList();
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 konti = konti.Trim();
-                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinace") || CheckPermission(validate, ses, "LimitedViewFinance"))
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinance") || CheckPermission(validate, ses, "LimitedViewFinance"))
                 {
                     var query = from repFinaces in db.RepFinanceEntries
                                 join kontis in db.Kontis on repFinaces.KontiID equals kontis.ID
