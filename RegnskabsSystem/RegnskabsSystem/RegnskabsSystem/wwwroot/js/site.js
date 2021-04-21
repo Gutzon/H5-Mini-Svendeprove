@@ -1334,7 +1334,7 @@ function deleteUser(e, user) {
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             try {
-                if (xhr.responseText == "true") {
+                if (xhr.responseText != "OK") {
                     alert("Brugeren blev slettet");
                 }
                 else alert("Brugeren kunne ikke slettes");
