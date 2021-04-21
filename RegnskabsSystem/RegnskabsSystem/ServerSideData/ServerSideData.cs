@@ -792,8 +792,27 @@ namespace ServerSideData
 
         public string RemoveRepFinance(Validation validate, TransferRepFinance transferRepFinance)
         {
-            UpdateRepFinList();
-            throw new NotImplementedException();
+            if (ValidateTokken(validate))
+            {
+                UpdateRepFinList();
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance"))
+                {
+                    var query = from kontis in db.Kontis
+                                where kontis.CorporationID.Equals(ses.corporationId) && kontis.ID.Equals(db.RepFinanceEntries.Find(transferRepFinance.ID).KontiID)
+                                select kontis;
+                    if (query.Count() == 1)
+                    {
+                        db.RepFinanceEntries.Remove(db.RepFinanceEntries.Find(transferRepFinance.ID));
+                        Commit();
+                        UpdateRepFinList();
+                        return "OK";
+                    }
+                    return "Wrong Konti";
+                }
+                return "not permitted";
+            }
+            return "no session";
         }
 
         public IEnumerable<TransferRepFinance> GetRepFinance(Validation validate, string konti = "")
