@@ -404,10 +404,12 @@ namespace ServerSideData
             }
             return false;
         }
+
         public bool DeleteUser(Validation validate, TransferUser user)
         {
             throw new NotImplementedException();
         }
+
         public string CreateMember(Validation validate, Member member)
         {
             if (ValidateTokken(validate))

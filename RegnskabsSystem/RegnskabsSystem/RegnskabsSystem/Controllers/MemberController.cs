@@ -44,7 +44,7 @@ namespace RegnskabsSystem.Controllers
         [HttpPost("edit")]
         public ActionResult<bool> EditMember([FromBody] EditMemberModel editedMember)
         {
-            var editMemberSuccess = serverSideData.EditMember(Credentials, editedMember.oldMember, editedMember.oldMember);
+            var editMemberSuccess = serverSideData.EditMember(Credentials, editedMember.oldMember, editedMember.newMember);
             return Ok(editMemberSuccess);
         }
 

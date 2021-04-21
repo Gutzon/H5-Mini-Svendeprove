@@ -35,6 +35,9 @@ namespace ServerSideData.TransferModel
 
         public string username { get; set; }
         public string hashPassword { get; set; }
+
+        // Only temp needed for edit of user where new password is assigned
+        public string password { get; set; }
         public string firstname { get; set; }
         public string lastname { get; set; }
         public string mail { get; set; }

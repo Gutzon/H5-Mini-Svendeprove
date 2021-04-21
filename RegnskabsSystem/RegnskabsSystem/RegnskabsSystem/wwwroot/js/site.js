@@ -12,6 +12,11 @@
 // This is a team decision to learn more about datahandling in frontend.
 
 // Run start functions
+
+
+//import { sayHi } from './say.js';
+
+
 document.documentElement.addEventListener("load", startFunctions());
 function startFunctions() {
     let loggedIn = validateLogin();
@@ -488,6 +493,15 @@ function userEdit(e, user) {
     e.preventDefault();
 
     let editForm = document.getElementById("userEditForm");
+
+    let ownData = getCookieParam("user");
+    if (ownData == "") logOut(null, true);
+    let ownPermissions = JSON.parse(getCookieParam("user")).permissions;
+    let editPasswordElm = document.getElementById("editUserPassword");
+    if (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.editUser) {
+        removeClass(editPasswordElm, "hideElm");
+    } else addClass(editPasswordElm, "hideElm");
+
     for (let userParam in user) {
 
         if (userParam == "permissions") {

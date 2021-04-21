@@ -96,8 +96,15 @@ namespace RegnskabsSystem.Controllers
         }
 
         [HttpPost("edit")]
-        public ActionResult<bool> CreateUser([FromBody] EditUserModel editedUser)
+        public ActionResult<bool> EditUser([FromBody] EditUserModel editedUser)
         {
+            if (editedUser.newUser.password != "")
+            {
+                editedUser.newUser.hashPassword = SecurityHelper.GetHashCode(editedUser.newUser.username + editedUser.newUser.password);
+                editedUser.newUser.password = "";
+            }
+            else editedUser.newUser.hashPassword = editedUser.oldUser.hashPassword;
+
             var userEditSuccess = serverSideData.EditUser(Credentials, editedUser.oldUser, editedUser.newUser);
             return Ok(userEditSuccess);
         }
