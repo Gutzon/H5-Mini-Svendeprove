@@ -272,7 +272,7 @@ namespace ServerSideData
                 Dictionary<string, bool> sesuserperm = PermissionToDictionary(new TransferPermissions(ses.permissions));
 
 
-                if (olduserperm.Where(o => o.Key.Equals("AddCorporation")).First().Value)
+                if (sesuserperm.Where(o => o.Key.Equals("AddCorporation")).First().Value)
                 {
 
                 }
@@ -758,19 +758,14 @@ namespace ServerSideData
                     var query = from kontis in db.Kontis
                                 where kontis.CorporationID.Equals(ses.corporationId) && kontis.name.Equals(transferRepFinance.konti)
                                 select kontis;
-                    /*if (query.Count() == 1)
+                    transferRepFinance.intervalType = transferRepFinance.intervalType.Trim();
+                    if (query.Count() == 1 && transferRepFinance.intervalValue > 0  )
                     {
-                        var query2 = from entries in db.FinanceEntries
-                                     join kontis in db.Kontis on entries.KontiID equals kontis.ID
-                                     where kontis.CorporationID.Equals(ses.corporationId)
-                                     orderby entries.payDate
-                                     select new { entries, kontis };
 
-                        db.FinanceEntries.Add(newEntry);
                         Commit();
                         return "ok";
 
-                    }*/
+                    }
                     return "Wrong Konti name";
                 }
                 return "not permitted";
