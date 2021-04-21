@@ -1112,8 +1112,9 @@ function getFinanceChild(posting, columnId) {
     if (columnId == "payDate") {
         let parsedDate = (new Date());
         parsedDate.setTime(Date.parse(posting[columnId]));
-        let month = ((parsedDate.getMonth()+1).length > 1 ? "" : "0") + (parsedDate.getMonth()+1);
-        columnData = parsedDate.getDate() + "/" + month + "-" + parsedDate.getFullYear();
+        let month = ((parsedDate.getMonth() + 1).length > 1 ? "" : "0") + (parsedDate.getMonth() + 1);
+        columnData = parsedDate.getDate() + "/" + month + "-" + parsedDate.getFullYear()
+            + " " + parsedDate.getHours() + ":" + parsedDate.getMinutes();
     }
 
     if (columnId != "value") return document.createTextNode(columnData);
