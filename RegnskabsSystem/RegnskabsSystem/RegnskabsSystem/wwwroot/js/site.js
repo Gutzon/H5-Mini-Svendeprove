@@ -1461,6 +1461,7 @@ function performCreateRepFinance(e) {
                 }
                 else switch (repPaymentCreatedSuccess) {
                     default:
+                        alert("Error");
                 }
             }
             catch {
