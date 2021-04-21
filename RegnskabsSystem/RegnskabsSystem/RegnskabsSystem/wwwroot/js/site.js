@@ -14,8 +14,6 @@
 // Run start functions
 
 
-//import { sayHi } from './say.js';
-
 
 document.documentElement.addEventListener("load", startFunctions());
 function startFunctions() {
@@ -342,7 +340,7 @@ function getPermissions() {
     return JSON.parse(userData).permissions;
 }
 
-function CreateUserColumnElm(user, columnNumber) {
+function CreateUserColumnElm(user, columnNumber, hasEditRights, hasDeleteRightsOfUser, hasDeleteRightsGeneral) {
     switch (columnNumber) {
         case 0:
             return document.createTextNode(user["username"]);
@@ -357,9 +355,9 @@ function CreateUserColumnElm(user, columnNumber) {
             let lastSeen = parsedDate.toLocaleString() != "1.1.1 00.00.00" ? parsedDate.toLocaleString(): "Ikke logget på endnu";
             return document.createTextNode(lastSeen);
         case 4:
-            return !getPermissions().editUser ? null : getEditUserElm(user);
+            return !hasEditRights ? document.createTextNode("") : getEditUserElm(user);
         case 5:
-            return !getPermissions().deleteUser ? null : getDeleteUserElm(user);
+            return !hasDeleteRightsOfUser ? (hasDeleteRightsGeneral ? document.createTextNode("") : null) : getDeleteUserElm(user);
         default:
             return document.createTextNode("Undefined case");
     }
@@ -400,13 +398,30 @@ function addUsersToOverview(userTableList, userList) {
     cleanUserOverviewElements(userCloneRow);
     removeClass(userCloneRow, "hideElm");
 
+    let ownData = getCookieParam("user");
+    if (ownData == "") logOut(null, true);
+    let ownDataObj = JSON.parse(ownData);
+    let ownPermissions = ownDataObj.permissions;
+    let editPasswordElm = document.getElementById("editUserPassword");
+
     for (var user of userList) {
+        // Rights evaluation on user protection to avoid showing edit/delete where not applicable
+        let hasEditRights = (ownPermissions.addCorporation
+            || ownPermissions.admin && !user["permissions"]["addCorporation"]
+            || ownPermissions.editUser && !user["permissions"]["admin"]
+            || user["username"] == ownDataObj["username"]);
+
+        let hasDeleteRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.deleteUser);
+        let hasDeleteRightsOfUser = user["username"] != ownDataObj["username"] && (ownPermissions.addCorporation
+            || ownPermissions.admin && !user["permissions"]["addCorporation"]
+            || ownPermissions.deleteUser && !user["permissions"]["admin"]);
+
         let rowCloned = userCloneRow.cloneNode(true);
         let rowTds = rowCloned.getElementsByTagName("td");
 
         let removeTds = [];
         for (var i = 0; i < rowTds.length; i++) {
-            let objectToAppend = CreateUserColumnElm(user, i);
+            let objectToAppend = CreateUserColumnElm(user, i, hasEditRights, hasDeleteRightsOfUser, hasDeleteRightsGeneral);
             if (objectToAppend != null) rowTds[i].appendChild(objectToAppend);
             else removeTds.push(rowTds[i]);
         }
@@ -493,14 +508,6 @@ function userEdit(e, user) {
     e.preventDefault();
 
     let editForm = document.getElementById("userEditForm");
-
-    let ownData = getCookieParam("user");
-    if (ownData == "") logOut(null, true);
-    let ownPermissions = JSON.parse(getCookieParam("user")).permissions;
-    let editPasswordElm = document.getElementById("editUserPassword");
-    if (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.editUser) {
-        removeClass(editPasswordElm, "hideElm");
-    } else addClass(editPasswordElm, "hideElm");
 
     for (let userParam in user) {
 
