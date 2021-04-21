@@ -662,7 +662,7 @@ namespace ServerSideData
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 konti = konti.Trim();
                 UpdateRepFinList();
-                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinace") || CheckPermission(validate, ses, "LimitedViewFinance"))
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinance") || CheckPermission(validate, ses, "LimitedViewFinance"))
                 {
                     var query = from finaces in db.FinanceEntries
                                 join kontis in db.Kontis on finaces.KontiID equals kontis.ID
@@ -729,7 +729,7 @@ namespace ServerSideData
             if (ValidateTokken(validate))
             {
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
-                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinace") || CheckPermission(validate, ses, "LimitedViewFinance"))
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinance") || CheckPermission(validate, ses, "LimitedViewFinance"))
                 {
                     var query = from kontis in db.Kontis 
                                 where kontis.CorporationID.Equals(ses.corporationId)
