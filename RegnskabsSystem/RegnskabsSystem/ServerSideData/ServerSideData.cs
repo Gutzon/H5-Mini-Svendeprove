@@ -420,7 +420,7 @@ namespace ServerSideData
                         query.First().users.firstname = resultuser.firstname;
                         Permissions newPerm = query.First().perm;
                         newPerm.Update(newuser.permissions);
-                        if ((ses.permissions.AddCorporation || (ses.permissions.Admin && !newPerm.AddCorporation) || ses.username.Equals(query.First().users.username)) && newuser.hashPassword != "")
+                        if ((ses.permissions.AddCorporation || (ses.permissions.Admin && !newPerm.AddCorporation) || ses.username.Equals(query.First().users.username)) && newuser.hashPassword != "" && newuser.hashPassword != null)
                         {
                             query.First().users.hashPassword = newuser.hashPassword;
                         }
