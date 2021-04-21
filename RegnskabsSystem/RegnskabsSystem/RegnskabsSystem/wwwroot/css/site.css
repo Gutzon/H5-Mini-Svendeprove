@@ -117,6 +117,9 @@ input, button, select, .FormSubmit {
     outline: none!important;
 }
 
+select {
+    text-align-last: center;
+}
 
 /* Temp modal design until final design is ready from Jannik */
 .modal-main {
