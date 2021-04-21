@@ -1201,7 +1201,7 @@ function deleteUser(e, user) {
                 populateUsers();
             }
             catch {
-                alert("En fejl opstod under oprettelse af postering");
+                alert("En fejl opstod under håndtering af sletning");
             }
         }
         else if (this.readyState === XMLHttpRequest.DONE && this.status === 500) {
@@ -1267,4 +1267,189 @@ function hideModal(e, elmId) {
     let forms = modal.getElementsByTagName("form");
     for (var form of forms) form.reset();
     addClass(modal, "hideElm");
+}
+
+
+
+
+
+/* Repeating finance entries */
+function getRepFinance(e) {
+    e.preventDefault();
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", '/account/finance/repeated', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            try {
+                let repFinances = JSON.parse(xhr.responseText);
+                populateRepFinances(repFinances)
+            }
+            catch {
+                alert("En fejl opstod under håndtering af gentagende betalinger");
+            }
+        }
+        else if (this.readyState === XMLHttpRequest.DONE && this.status === 500) {
+            alert("En kritisk fejl opstod da gentagende betalinger blev hentet");
+        }
+    }
+
+    xhr.send();
+}
+
+
+function populateRepFinances(repFinances) {
+    let repFinanceHolder = document.getElementById("repFinanceSchema");
+    let repFinanceTBody = repFinanceHolder.getElementsByTagName("tbody")[0];
+    let repFinanceEntries = repFinanceTBody.getElementsByTagName("tr");
+    while (repFinanceEntries.length > 1) repFinanceTBody.removeChild(repFinanceEntries[1]);
+
+    for (let repFinance of repFinances) {
+        let clonedRepFinanceRow = repFinanceEntries[0].cloneNode(true);
+        removeClass(clonedRepFinanceRow, "hideElm");
+        let clonedTds = clonedRepFinanceRow.getElementsByTagName("td");
+
+        for (let i = 0; i < clonedTds.length; i++) {
+            let childTextElm = getRepFinanceColText(repFinance, i)
+            if (childTextElm == null) continue;
+            clonedTds[i].appendChild(childTextElm);
+        }
+
+        repFinanceTBody.appendChild(clonedRepFinanceRow);
+    }
+
+    showModal(null, "repFinanceSchema");
+}
+
+function getRepFinanceColText(repFinance, column) {
+    let text = "";
+    switch (column) {
+        case 0:
+            text = repFinance["value"];
+            break;
+        case 1:
+            text = repFinance["comment"];
+            break;
+        case 2:
+            text = repFinance["konti"];
+            break;
+        case 3:
+            text = repFinance["byWho"];
+            break;
+        case 4:
+            text = repFinance["intervalType"];
+            break;
+        case 5:
+            text = repFinance["intervalValue"];
+            break;
+        case 6:
+            text = repFinance["nextExecDate"];
+            break;
+        case 7:
+            return getDeleteRepFinanceElm(repFinance);
+            break;
+        default:
+            return null;
+    }
+    return document.createTextNode(text);
+}
+
+
+function getDeleteRepFinanceElm(repFinance) {
+    let elmHref = document.createElement("a");
+    elmHref.setAttribute("href", "/account/finance/repeated/delete");
+    elmHref.addEventListener("click", function () { deleteRepFinance(event, repFinance) });
+    let elmImage = document.createElement("img");
+    elmImage.setAttribute("src", "/Media/DeleteIcon.png");
+    addClass(elmImage, "tableImgDelete");
+
+    elmHref.appendChild(elmImage);
+    return elmHref;
+}
+
+
+
+
+function deleteRepFinance(e, repFinance) {
+    e.preventDefault();
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", '/account/finance/repeated/delete', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            try {
+                if (xhr.responseText == "OK") {
+                    alert("Gentagende betaling blev slettet");
+                }
+                else alert("Gentagende betaling kunne ikke slettes");
+                populateUsers();
+            }
+            catch {
+                alert("En fejl opstod under håndtering af gentagende betaling");
+            }
+        }
+        else if (this.readyState === XMLHttpRequest.DONE && this.status === 500) {
+            alert("En kritisk fejl opstod da gentagende betaling blev forsøgt slettet");
+        }
+    }
+
+    xhr.send(JSON.stringify(repFinance));
+}
+
+
+
+
+function createRepFinance(e) {
+    e.preventDefault();
+
+    // Assign perform create function
+    let editButton = document.getElementById("performCreateRepFinanceButton");
+    let clonedButton = editButton.cloneNode(true);
+    clonedButton.addEventListener("click", function () { performCreateRepFinance(event) });
+    let editButtonParent = editButton.parentNode;
+    editButtonParent.removeChild(editButton);
+    editButtonParent.appendChild(clonedButton);
+
+    showModal(event, 'createRepFinanceSchema');
+}
+
+function performCreateRepFinance(e) {
+    e.preventDefault();
+
+    let createRepFinanceForm = document.forms["createRepFinanceForm"];
+    if (createRepFinanceForm == undefined) return;
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", '/account/finance/repeated', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            try {
+                let repPaymentCreatedSuccess = xhr.responseText;
+
+                if (memberCreatedSuccess == "OK") {
+                    alert("Gentagende betaling blev oprettet");
+                    hideModal(null, "createRepFinanceSchema");
+                    getRepFinance(event);
+                }/*
+                else switch (jsonObject.error) {
+                    
+                    case "":
+                        alert(".");
+                        break;
+                    default:
+                }*/
+            }
+            catch {
+                alert("En fejl opstod under oprettelse af gentagende betaling");
+            }
+        }
+    }
+
+    let formData = getFormJsonData("createRepFinanceForm");
+    xhr.send(JSON.stringify(formData));
 }

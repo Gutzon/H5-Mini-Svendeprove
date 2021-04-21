@@ -5,6 +5,7 @@ using RegnskabsSystem.Models;
 using ServerSideData;
 using ServerSideData.Models;
 using ServerSideData.TransferModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -75,6 +76,69 @@ namespace RegnskabsSystem.Controllers
 
             if (accountChangeSuccess == "OK") return Ok(accountChangeSuccess);
             else return BadRequest(accountChangeSuccess);
+        }
+
+
+        [HttpPost("finance/repeated")]
+        public ActionResult<string> MakeFinanceEntryRepeated([FromBody] TransferRepFinance repeatFinance)
+        {
+            var repeatFinanceSuccess = serverSideData.AddRepFinance(Credentials, repeatFinance);
+            return Ok(repeatFinanceSuccess);
+        }
+
+
+        [HttpPost("finance/repeated/delete")]
+        public ActionResult<string> DeleteFinanceEntryRepeated([FromBody] TransferRepFinance repeatFinance)
+        {
+            var repeatFinanceSuccess = serverSideData.RemoveRepFinance(Credentials, repeatFinance);
+            return Ok(repeatFinanceSuccess);
+        }
+
+
+        [HttpGet("finance/repeated")]
+        public ActionResult<IEnumerable<TransferRepFinance>> GetFinanceEntriesRepeated()
+        {
+            // Temp until ready from Kennie
+            var tempTransferRepFinance = new List<TransferRepFinance>()
+            {
+                new TransferRepFinance()
+                {
+                    byWho = "admin",
+                    comment = "Medlemsskab Lone",
+                    intervalType = "daily",
+                    intervalValue = 2,
+                    konti = "Main",
+                    nextExecDate = DateTime.Now,
+                    value = 100
+                },
+
+                new TransferRepFinance()
+                {
+                    byWho = "admin",
+                    comment = "Forbundsstøtte Lotto",
+                    intervalType = "monthly",
+                    intervalValue = 2,
+                    konti = "Main",
+                    nextExecDate = DateTime.Now,
+                    value = 5000
+                },
+
+                new TransferRepFinance()
+                {
+                    byWho = "admin",
+                    comment = "Salg af pølser",
+                    intervalType = "hourly",
+                    intervalValue = 1,
+                    konti = "Main",
+                    nextExecDate = DateTime.Now,
+                    value = 10
+                }
+            };
+
+            return Ok(tempTransferRepFinance);
+
+            /*var repeatFinanceSuccess = serverSideData.GetRepFinance(Credentials);
+            return Ok(repeatFinanceSuccess);*/
         }
         #endregion
     }
