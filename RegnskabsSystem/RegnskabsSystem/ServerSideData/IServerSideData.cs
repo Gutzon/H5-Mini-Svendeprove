@@ -35,5 +35,6 @@ namespace ServerSideData
         public string CreateInven(Validation validate, Inventory item);
         public string EditInven(Validation validate, Inventory olditem, Inventory newitem);
         public string DeleteInven(Validation validate, Inventory item);
+        public string GetInven(Validation validate);
     }
 }

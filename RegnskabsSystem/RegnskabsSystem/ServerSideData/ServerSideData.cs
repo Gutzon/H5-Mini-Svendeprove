@@ -1024,5 +1024,10 @@ namespace ServerSideData
         {
             throw new NotImplementedException();
         }
+
+        public string GetInven(Validation validate)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
