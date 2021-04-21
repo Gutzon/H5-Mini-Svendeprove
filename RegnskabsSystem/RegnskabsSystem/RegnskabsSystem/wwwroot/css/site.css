@@ -113,6 +113,11 @@ input.submit-smaller {
     margin-top: 2vh;
 }
 
+input, button, select, .FormSubmit {
+    outline: none!important;
+}
+
+
 /* Temp modal design until final design is ready from Jannik */
 .modal-main {
     position: fixed;
