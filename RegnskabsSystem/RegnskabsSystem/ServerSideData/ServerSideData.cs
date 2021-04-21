@@ -569,7 +569,7 @@ namespace ServerSideData
                         var query2 = from entries in db.FinanceEntries
                                      join kontis in db.Kontis on entries.KontiID equals kontis.ID
                                      where kontis.CorporationID.Equals(ses.corporationId)
-                                     orderby entries.payDate
+                                     orderby entries.ID
                                      select new { entries, kontis };
                         FinanceEntry newEntry = new()
                         {
@@ -890,7 +890,7 @@ namespace ServerSideData
                     var query2 = from entries in db.FinanceEntries
                                  join kontis in db.Kontis on entries.KontiID equals kontis.ID
                                  where kontis.CorporationID.Equals(db.Kontis.Find(entry.KontiID).CorporationID)
-                                 orderby entries.payDate
+                                 orderby entries.ID
                                  select entries;
 
                     if (query2.Where(o => o.KontiID.Equals(entry.KontiID)).Any())
