@@ -33,7 +33,6 @@ namespace RegnskabsSystem.Controllers
         #region Api -> Serverside queries
         // TODO:
         /*
-        // GET: overview of inventory
         [HttpGet("overview")]
         public ActionResult<bool> Overview()
         {

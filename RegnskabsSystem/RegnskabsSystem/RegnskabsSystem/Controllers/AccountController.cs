@@ -70,7 +70,6 @@ namespace RegnskabsSystem.Controllers
         public ActionResult<string> Change([FromBody] NewAccountModel newAccountName)
         {
             if (newAccountName.AccountName == "Main") return BadRequest("ErrorMainAccount");
-            if (newAccountName.NewAccountName == "Main") return BadRequest("ErrorMainAccountDuplicate");
 
             var accountChangeSuccess = serverSideData.ChangeKontiName(Credentials, newAccountName.AccountName, newAccountName.NewAccountName);
 
@@ -98,45 +97,6 @@ namespace RegnskabsSystem.Controllers
         [HttpGet("finance/repeated")]
         public ActionResult<IEnumerable<TransferRepFinance>> GetFinanceEntriesRepeated()
         {
-            // Temp until ready from Kennie
-            /*var tempTransferRepFinance = new List<TransferRepFinance>()
-            {
-                new TransferRepFinance()
-                {
-                    byWho = "admin",
-                    comment = "Medlemsskab Lone",
-                    intervalType = "daily",
-                    intervalValue = 2,
-                    konti = "Main",
-                    nextExecDate = DateTime.Now,
-                    value = 100
-                },
-
-                new TransferRepFinance()
-                {
-                    byWho = "admin",
-                    comment = "Forbundsstøtte Lotto",
-                    intervalType = "monthly",
-                    intervalValue = 2,
-                    konti = "Main",
-                    nextExecDate = DateTime.Now,
-                    value = 5000
-                },
-
-                new TransferRepFinance()
-                {
-                    byWho = "admin",
-                    comment = "Salg af pølser",
-                    intervalType = "hourly",
-                    intervalValue = 1,
-                    konti = "Main",
-                    nextExecDate = DateTime.Now,
-                    value = 10
-                }
-            };
-
-            return Ok(tempTransferRepFinance);*/
-
             var repeatFinanceSuccess = serverSideData.GetRepFinance(Credentials);
             return Ok(repeatFinanceSuccess);
         }

@@ -105,6 +105,10 @@ input.submit-smaller {
     overflow: hidden;
 }
 
+.inline-block {
+    display: inline-block;
+}
+
 /* Temp modal design until final design is ready from Jannik */
 .modal-main {
     position: fixed;
@@ -331,21 +335,22 @@ body {
 
 /* ________________________________________Regnskabsside____________________________________________________ */
 
+/* Rettet */
 .dropdownDiv {
     display: inline-block;
-    width: 49%;
 }
 
+/* Rettet */
 .drowdownsContainer {
-    margin-top: 4vh;
-    width: 40vw;
-    margin-left: 35vw;
+    margin: 4vh auto 0 auto;
+    width: max-content;
 }
 
+/* Rettet */
 .regnskabsDropdowns {
     background-color: #0DAAD2;
     color: white;
-    width: 10vw;
+    width: max-content;
     height: 5vh;
     font-size: 18px;
     font-weight: bold;

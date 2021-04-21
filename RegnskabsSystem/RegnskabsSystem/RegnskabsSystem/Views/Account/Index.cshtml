@@ -2,13 +2,18 @@
     ViewData["Title"] = "Konti overblik";
 }
 
-
-
-
 <div class="drowdownsContainer">
     <div class="dropdownDiv">
         <select class="regnskabsDropdowns" id="accountInjection" onchange="changeAccount()">
         </select>
+    </div>
+
+    <div class="inline-block">
+        <input type="button" class="regnskabsDropdowns bg-secondary" onclick="showEditAccount(event)" value="Ret konti">
+    </div>
+
+    <div class="inline-block">
+        <input type="button" class="regnskabsDropdowns bg-secondary" onclick="showAddAccount(event)" value="Tilføj konti">
     </div>
 
     <div class="dropdownDiv">
@@ -44,7 +49,54 @@
 
 
 
+<div id="createAccountSchema" class="modal-main hideElm">
+    <div class="modal-content">
+        <div class="modal-head">
+            <div>Opret konti</div>
+            <a href="/closeModal" onclick="hideModal(event, 'createAccountSchema')"><img src="/Media/DeleteIcon.png"></a>
+        </div>
+        <form id="addAccountForm">
+            <table class="mainTable">
+                <tbody>
+                    <tr>
+                        <td class="tableData">Navn</td>
+                        <td class="tableData"><input type="text" name="AccountName" value=""></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="text-center"><input type="button" class="FormSubmit submit-smaller" onclick="addAccount(event)" value="Opret konti"></div>
+        </form>
+    </div>
+</div>
 
+
+<div id="editAccountSchema" class="modal-main hideElm">
+    <div class="modal-content">
+        <div class="modal-head">
+            <div>Ret kontinavn</div>
+            <a href="/closeModal" onclick="hideModal(event, 'editAccountSchema')"><img src="/Media/DeleteIcon.png"></a>
+        </div>
+        <form id="accountEditForm">
+            <table class="mainTable">
+                <thead>
+                    <tr>
+                        <td>Info</td>
+                        <td>Nuværende</td>
+                        <td>Fremtidig</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tableData">Navn</td>
+                        <td class="tableData"><input type="text" name="AccountName" value="" readonly class="un-editable"></td>
+                        <td class="tableData tableDataEnd"><input type="text" name="NewAccountName" value=""></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="text-center"><input type="button" class="FormSubmit submit-smaller" onclick="changeAccountName(event)" value="Ret konti navn"></div>
+        </form>
+    </div>
+</div>
 
 
 <div id="repFinanceSchema" class="modal-main hideElm">
@@ -82,13 +134,6 @@
         <div class="text-center"><input type="button" class="FormSubmit submit-smaller" onclick="createRepFinance(event)" value="Opret gentagende betaling"></div>
     </div>
 </div>
-
-
-
-
-
-
-
 
 
 <div id="createRepFinanceSchema" class="modal-main hideElm">
@@ -136,7 +181,7 @@
                     </tr>
                 </tbody>
             </table>
-            <div class="text-center"><input type="button" class="FormSubmit submit-smaller" onclick="createRepFinance(event)" id="performCreateRepFinanceButton"  value="Opret gentagende betaling"></div>
+            <div class="text-center"><input type="button" class="FormSubmit submit-smaller" onclick="createRepFinance(event)" id="performCreateRepFinanceButton" value="Opret gentagende betaling"></div>
         </form>
     </div>
 </div>
@@ -150,33 +195,6 @@
 
 
 
-
-
-
-
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
-<div class="gridContainer">
-
-    <br><br>
-    <form id="addAccountForm">
-        Ny konti:
-        <input type="text" name="AccountName">
-        <button onclick="addAccount(event)">Tilføj konti</button>
-    </form>
-
-
-    <br><br>
-    <form id="changeAccountForm">
-        Ret nuværende konti navn:
-        <input type="text" name="NewAccountName">
-        <button onclick="changeAccountName(event)">Skift konti navn</button>
-    </form>
 
 
 

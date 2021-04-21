@@ -1031,7 +1031,11 @@ function addAccount(e) {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             try {
                 var successMsg = xhr.responseText;
-                if (successMsg == "Ok") alert("Den nye konti er nu oprettet");
+                if (successMsg == "OK") {
+                    alert("Den nye konti er nu oprettet");
+                    showFinances();
+                    hideModal(null, "createAccountSchema");
+                }
                 switch (successMsg) {
                     case "Alredy exist":
                         alert("Kontoen eksisterer i forvejen");
@@ -1099,10 +1103,22 @@ function insertAccounts(accounts, accountSelect) {
 
 
 
+showAddAccount
+
+function showAddAccount(e) {
+    e.preventDefault();
+    showModal(null, "createAccountSchema");
+}
 
 
-
-
+function showEditAccount(e) {
+    e.preventDefault();
+    let editForm = document.getElementById("accountEditForm");
+    let accountChosen = getCookieParam("selectedAcc");
+    editForm.elements["AccountName"].value = accountChosen;
+    editForm.elements["NewAccountName"].value = accountChosen;
+    showModal(null, "editAccountSchema");
+}
 
 function changeAccountName(e) {
     e.preventDefault();
@@ -1112,17 +1128,32 @@ function changeAccountName(e) {
 
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            setCookieParam("selectedAcc", getFormJsonData("changeAccountForm").NewAccountName);
+            alert("Konti navnet blev rettet");
+            setCookieParam("selectedAcc", getFormJsonData("accountEditForm").NewAccountName);
+            hideModal(null, "editAccountSchema");
             showFinances();
-            alert("Ok");
         }
         else if (this.readyState === XMLHttpRequest.DONE && this.status === 400) {
-            alert("Error");
+            switch (xhr.responseText) {
+                case "ErrorMainAccount":
+                    alert("Du kan ikke rette navnet på hoved kontien");
+                    break;
+                case "Name problem":
+                    alert("Navnet på kontien der skulle rettes kunne ikke matches");
+                    break;
+                case "Not permitted":
+                    alert("Du har ikke tilladelsen til at rette kontien");
+                    break;
+                case "Name session":
+                    alert("Dit login er udløbet, log venligst på igen");
+                    logOut(null, false);
+                    break;
+                default:
+            }
         }
     }
 
-    let formData = getFormJsonData("changeAccountForm");
-    formData.AccountName = getCookieParam("selectedAcc");
+    let formData = getFormJsonData("accountEditForm");
     xhr.send(JSON.stringify(formData));
 }
 
