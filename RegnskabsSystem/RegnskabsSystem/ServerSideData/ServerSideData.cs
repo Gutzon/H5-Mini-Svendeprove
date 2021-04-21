@@ -280,7 +280,7 @@ namespace ServerSideData
                 {
                     foreach (var obj in newuserperm.Where(o => o.Value.Equals(true)))
                     {
-                        if (!sesuserperm.Where(o => o.Key.Equals(obj.Key)).First().Value || !((olduserperm.Where(o => o.Key.Equals(obj.Key)).First().Value || olduserperm.Where(o => o.Key.Equals("Admin")).First().Value) && obj.Key != "AddCorporation"))
+                        if (!(((olduserperm.Where(o => o.Key.Equals(obj.Key)).First().Value || olduserperm.Where(o => o.Key.Equals("Admin")).First().Value) && obj.Key != "AddCorporation") || sesuserperm.Where(o => o.Key.Equals(obj.Key)).First().Value || sesuserperm.Where(o => o.Key.Equals("Admin") || o.Key.Equals("AddCorporation")).Where(o => o.Value.Equals(true)).Any()))
                         {
                             newuserperm[obj.Key] = false;
                             typeof(TransferPermissions).GetProperty(obj.Key).SetValue(newuser.permissions, false);
