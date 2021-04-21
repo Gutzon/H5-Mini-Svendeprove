@@ -1107,14 +1107,19 @@ function showPostings(postings) {
     }
 }
 
+function to2digit(val) {
+    if (val.length < 2) val = 0 + val;
+    return val;
+}
+
 function getFinanceChild(posting, columnId) {
     let columnData = posting[columnId];
     if (columnId == "payDate") {
         let parsedDate = (new Date());
         parsedDate.setTime(Date.parse(posting[columnId]));
-        let month = ((parsedDate.getMonth() + 1).length > 1 ? "" : "0") + (parsedDate.getMonth() + 1);
+        let month = to2digit(parsedDate.getMonth() + 1) + (parsedDate.getMonth() + 1);
         columnData = parsedDate.getDate() + "/" + month + "-" + parsedDate.getFullYear()
-            + " " + parsedDate.getHours() + ":" + parsedDate.getMinutes();
+            + " " + to2digit(parsedDate.getHours()) + ":" + to2digit(parsedDate.getMinutes());
     }
 
     if (columnId != "value") return document.createTextNode(columnData);
