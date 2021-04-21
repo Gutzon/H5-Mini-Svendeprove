@@ -242,7 +242,7 @@ namespace ServerSideData
                 {
                     if (db.Users.Where(o => o.username.Equals(user.username)).Count() == 0 && user.username != "" && user.hashPassword != "")
                     {
-                        var newusercheck = CheckUserPermissions(new TransferUser(new User(ses), ses.permissions), user);
+                        var newusercheck = CheckUserPermissions(ses, new TransferUser(new User(ses), ses.permissions), user);
                         if (newusercheck.Item1)
                         {
                             User newuser = new User(newusercheck.Item2);
@@ -262,13 +262,16 @@ namespace ServerSideData
             }
             return "No session";
         }
-        private (bool, TransferUser) CheckUserPermissions(TransferUser olduser, TransferUser newuser)
+        private (bool, TransferUser) CheckUserPermissions(Session ses, TransferUser olduser, TransferUser newuser)
         {
             if ((olduser.permissions.AddCorporation || !olduser.permissions.AddCorporation) && (newuser.permissions.AddCorporation || !newuser.permissions.AddCorporation))
             {
 
                 Dictionary<string, bool> olduserperm = PermissionToDictionary(olduser.permissions);
                 Dictionary<string, bool> newuserperm = PermissionToDictionary(newuser.permissions);
+                Dictionary<string, bool> sesuserperm = PermissionToDictionary(new TransferPermissions(ses.permissions));
+
+
                 if (olduserperm.Where(o => o.Key.Equals("AddCorporation")).First().Value)
                 {
 
@@ -277,7 +280,7 @@ namespace ServerSideData
                 {
                     foreach (var obj in newuserperm.Where(o => o.Value.Equals(true)))
                     {
-                        if (!((olduserperm.Where(o => o.Key.Equals(obj.Key)).First().Value || olduserperm.Where(o => o.Key.Equals("Admin")).First().Value) && obj.Key != "AddCorporation"))
+                        if (!sesuserperm.Where(o => o.Key.Equals(obj.Key)).First().Value || !((olduserperm.Where(o => o.Key.Equals(obj.Key)).First().Value || olduserperm.Where(o => o.Key.Equals("Admin")).First().Value) && obj.Key != "AddCorporation"))
                         {
                             newuserperm[obj.Key] = false;
                             typeof(TransferPermissions).GetProperty(obj.Key).SetValue(newuser.permissions, false);
@@ -410,7 +413,7 @@ namespace ServerSideData
                     if ((query.Count() == 1 && !(query.First().perm.AddCorporation || query.First().perm.Admin)) || ses.username.Equals(query.First().users.username) || (ses.permissions.AddCorporation || ses.permissions.Admin))
                     {
                         TransferUser resultuser = new(query.First().users, query.First().perm);
-                        newuser = CheckUserPermissions(resultuser, newuser).Item2;
+                        newuser = CheckUserPermissions(ses, resultuser, newuser).Item2;
                         query.First().users.firstname = resultuser.firstname;
                         query.First().users.lastname = resultuser.lastname;
                         query.First().users.mail = resultuser.mail;
