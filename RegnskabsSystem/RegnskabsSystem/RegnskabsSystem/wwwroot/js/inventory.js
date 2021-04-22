@@ -9,11 +9,11 @@ function show() {
     if (rowSchema == null) return;
 
     helper.addInitButtonEvent("inventoryCreate", createInit);
-    helper.showButton("inventoryCreateButton", ["addInventory"]);
+    helper.showButton("inventoryCreateInitButton", ["addInventory"]);
 
-    helper.fetchData("GET", "/inventory/overview", "a")
+    helper.fetchData("GET", "/inventory/overview")
         .then((objData) => {
-            injectData(rowSchema, objData, tranformInventoryData, editInit, performDelete, ["addInventory"], ["editInventory"]);
+            dataPopulator.injectData("inventorySchema", objData, tranformInventoryData, editInit, performDelete, ["addInventory"], ["editInventory"]);
         })
         .catch((error) => {
             helper.errorNotify("hentning af inventar.", error);

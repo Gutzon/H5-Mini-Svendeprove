@@ -11,7 +11,7 @@ function show() {
     helper.addInitButtonEvent("memberCreate", createInit);
     helper.showButton("memberCreateInitButton", ["addMember"]);
 
-    helper.fetchData("GET", "/member/overview", "a")
+    helper.fetchData("GET", "/member/overview")
         .then((objData) => {
             dataPopulator.injectData("memberSchema", objData, tranformMemberData, editInit, performDelete, ["editMember"], ["deleteMember"]);
         })
