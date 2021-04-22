@@ -72,11 +72,11 @@ namespace ServerSideData
                     cvrNummer = "22 22 22 22"
                 };
                 db.Corporations.Add(corporation2);
+                Commit();
                 Permissions perm1 = new(true, true, true, true, true, true, true, true, true, true, true, true, true, true);
                 Permissions perm2 = new(true, true, true, true, true, true, true, true, true, true, true, true, true, true);
                 Permissions perm3 = new(false, true, true, true, true, true, true, true, true, true, true, true, true, true);
                 Permissions perm4 = new(false, true, true, true, true, true, true, true, true, true, true, true, true, true);
-                Commit();
                 perm1.UserID = user1.Id;
                 perm1.CorporationID = corporation1.ID;
                 perm2.UserID = user1.Id;
@@ -98,105 +98,232 @@ namespace ServerSideData
                 db.Kontis.Add(konti1);
                 Konti konti2 = new()
                 {
+                    CorporationID = corporation1.ID,
+                    name = "Indtægter"
+                };
+                db.Kontis.Add(konti2);
+                Konti konti3 = new()
+                {
+                    CorporationID = corporation1.ID,
+                    name = "Udgifter"
+                };
+                db.Kontis.Add(konti3);
+                Konti konti4 = new()
+                {
                     CorporationID = corporation2.ID,
                     name = "Main"
                 };
-                db.Kontis.Add(konti2);
+                db.Kontis.Add(konti4);
+                Konti konti5 = new()
+                {
+                    CorporationID = corporation2.ID,
+                    name = "Indtægter"
+                };
+                db.Kontis.Add(konti5);
+                Konti konti6 = new()
+                {
+                    CorporationID = corporation2.ID,
+                    name = "Udgifter"
+                };
+                db.Kontis.Add(konti6);
                 Commit();
                 FinanceEntry entry1 = new()
                 {
-                    KontiID = konti1.ID,
+                    KontiID = konti2.ID,
                     value = 10000,
-                    comment = "Start Value",
-                    byWho = "admin",
+                    comment = "Start Indskub",
+                    byWho = "Lillefnug",
                     newSaldoKonti = 10000,
                     newSaldoMain = 10000,
-                    addDate = DateTime.Now,
-                    payDate = DateTime.Now
+                    addDate = new DateTime(2021, 1, 2),
+                    payDate = new DateTime(2021, 1, 2)
                 };
                 db.FinanceEntries.Add(entry1);
                 FinanceEntry entry2 = new()
                 {
-                    KontiID = konti2.ID,
+                    KontiID = konti5.ID,
                     value = 9000,
-                    comment = "Start Value",
-                    byWho = "admin",
+                    comment = "Start Indskub",
+                    byWho = "FDF",
                     newSaldoKonti = 9000,
                     newSaldoMain = 9000,
-                    addDate = DateTime.Now,
-                    payDate = DateTime.Now
+                    addDate = new DateTime(2021, 1, 1),
+                    payDate = new DateTime(2021, 1, 1)
                 };
                 db.FinanceEntries.Add(entry2);
                 Commit();
+                var lilleFnugId = GetCorporations().FirstOrDefault(c => c.name == "Lillefnug").ID;
+                Member member1 = new Member()
+                {
+                    CorporationID = lilleFnugId,
+                    firstname = "Trine",
+                    lastname = "Jensen",
+                    mail = "Trine.Jensen@some-place-beyond.com",
+                    phoneNumber = "66221133"
+                };
+                db.Members.Add(member1);
+                Member member2 = new Member()
+                {
+                    CorporationID = lilleFnugId,
+                    firstname = "Peter",
+                    lastname = "Lease",
+                    mail = "Peter.Leasy@i-drive-a-yellow-truck.com",
+                    phoneNumber = "88888888"
+                };
+                db.Members.Add(member2);
+                Member member3 = new Member()
+                {
+                    CorporationID = lilleFnugId,
+                    firstname = "Lars",
+                    lastname = "Larsen",
+                    mail = "Lars.Larsen@sssh-jeg-sover.dk",
+                    phoneNumber = "87123456"
+                };
+                db.Members.Add(member3);
+                var fdfId = GetCorporations().FirstOrDefault(c => c.name == "FDF").ID;
+                Member member4 = new Member()
+                {
+                    CorporationID = fdfId,
+                    firstname = "Hans",
+                    lastname = "Poulsen",
+                    mail = "superspejderen@jeg-er-leet.dk",
+                    phoneNumber = "85012654"
+                };
+                db.Members.Add(member4);
+                Member member5 = new Member()
+                {
+                    CorporationID = fdfId,
+                    firstname = "Josefine-Petronella",
+                    lastname = "Birgensen-Birkefryd",
+                    mail = "Josefine.Petronella.Birgensen.Birkefryd@os-med-de-lange-navne.dk",
+                    phoneNumber = "80012654"
+                };
+                db.Members.Add(member5);
+                Commit();
+                RepFinanceEntry rep1 = new()
+                {
+                    KontiID = konti3.ID,
+                    value = -4000,
+                    comment = "Husleje",
+                    byWho = "Lillefnug",
+                    intervalType = "Month",
+                    intervalValue = 1,
+                    firstExecDate = new DateTime(2021, 1, 1, 5, 0, 0),
+                    nextExecDate = new DateTime(2021, 5, 1, 5, 0, 0),
+                };
+                db.RepFinanceEntries.Add(rep1);
+                RepFinanceEntry rep2 = new()
+                {
+                    KontiID = konti2.ID,
+                    value = 8000,
+                    comment = "Tilskud",
+                    byWho = "Lillefnug",
+                    intervalType = "Month",
+                    intervalValue = 1,
+                    firstExecDate = new DateTime(2021, 1, 31, 5, 0, 0),
+                    nextExecDate = new DateTime(2021, 4, 30, 5, 0, 0),
+                };
+                db.RepFinanceEntries.Add(rep2);
+                Commit();
+                db.FinanceEntries.Add(new FinanceEntry()
+                {
+                    KontiID = rep1.KontiID,
+                    value = rep1.value,
+                    comment = "\"Recurring\": " + rep1.comment,
+                    byWho = rep1.byWho,
+                    newSaldoKonti = -4000,
+                    newSaldoMain = 6000,
+                    addDate = new DateTime(2021, 1, 1, 6, 0, 0),
+                    payDate = new DateTime(2021, 1, 1, 6, 0, 0)
+                });
+                Commit();
+                db.FinanceEntries.Add(new FinanceEntry()
+                {
+                    KontiID = rep2.KontiID,
+                    value = rep2.value,
+                    comment = "\"Recurring\": " + rep2.comment,
+                    byWho = rep2.byWho,
+                    newSaldoKonti = 18000,
+                    newSaldoMain = 14000,
+                    addDate = new DateTime(2021, 1, 31, 6, 0, 0),
+                    payDate = new DateTime(2021, 1, 31, 6, 0, 0)
+                });
+                Commit();
+                db.FinanceEntries.Add(new FinanceEntry()
+                {
+                    KontiID = rep1.KontiID,
+                    value = rep1.value,
+                    comment = "\"Recurring\": " + rep1.comment,
+                    byWho = rep1.byWho,
+                    newSaldoKonti = -8000,
+                    newSaldoMain = 10000,
+                    addDate = new DateTime(2021, 2, 1, 6, 0, 0),
+                    payDate = new DateTime(2021, 2, 1, 6, 0, 0)
+                });
+                Commit();
+                db.FinanceEntries.Add(new FinanceEntry()
+                {
+                    KontiID = rep2.KontiID,
+                    value = rep2.value,
+                    comment = "\"Recurring\": " + rep2.comment,
+                    byWho = rep2.byWho,
+                    newSaldoKonti = 24000,
+                    newSaldoMain = 18000,
+                    addDate = new DateTime(2021, 2, 28, 6, 0, 0),
+                    payDate = new DateTime(2021, 2, 28, 6, 0, 0)
+                });
+                Commit();
+                db.FinanceEntries.Add(new FinanceEntry()
+                {
+                    KontiID = rep1.KontiID,
+                    value = rep1.value,
+                    comment = "\"Recurring\": " + rep1.comment,
+                    byWho = rep1.byWho,
+                    newSaldoKonti = -12000,
+                    newSaldoMain = 14000,
+                    addDate = new DateTime(2021, 3, 1, 6, 0, 0),
+                    payDate = new DateTime(2021, 3, 1, 6, 0, 0)
+                });
+                Commit();
+                db.FinanceEntries.Add(new FinanceEntry()
+                {
+                    KontiID = konti1.ID,
+                    value = -15000,
+                    comment = "Ny inventar",
+                    byWho = rep1.byWho,
+                    newSaldoKonti = -1000,
+                    newSaldoMain = -1000,
+                    addDate = new DateTime(2021, 3, 15, 10, 30, 0),
+                    payDate = new DateTime(2021, 3, 15, 10, 30, 0)
+                });
+                Commit();
+                db.FinanceEntries.Add(new FinanceEntry()
+                {
+                    KontiID = rep2.KontiID,
+                    value = rep2.value,
+                    comment = "\"Recurring\": " + rep2.comment,
+                    byWho = rep2.byWho,
+                    newSaldoKonti = 32000,
+                    newSaldoMain = 7000,
+                    addDate = new DateTime(2021, 3, 31, 6, 0, 0),
+                    payDate = new DateTime(2021, 3, 31, 6, 0, 0)
+                });
+                Commit();
+                db.FinanceEntries.Add(new FinanceEntry()
+                {
+                    KontiID = rep1.KontiID,
+                    value = rep1.value,
+                    comment = "\"Recurring\": " + rep1.comment,
+                    byWho = rep1.byWho,
+                    newSaldoKonti = -16000,
+                    newSaldoMain = 3000,
+                    addDate = new DateTime(2021, 4, 1, 6, 0, 0),
+                    payDate = new DateTime(2021, 4, 1, 6, 0, 0)
+                });
+                Commit();
 
-                AddMembers();
+
             }
-        }
-        private void AddMembers()
-        {
-            var lilleFnugId = GetCorporations().FirstOrDefault(c => c.name == "Lillefnug").ID;
-            Member member1 = new Member()
-            {
-                CorporationID = lilleFnugId,
-                firstname = "Trine",
-                lastname = "Jensen",
-                mail = "Trine.Jensen@some-place-beyond.com",
-                phoneNumber = "66221133"
-            };
-            db.Members.Add(member1);
-            Member member2 = new Member()
-            {
-                CorporationID = lilleFnugId,
-                firstname = "Peter",
-                lastname = "Lease",
-                mail = "Peter.Leasy@i-drive-a-yellow-truck.com",
-                phoneNumber = "88888888"
-            };
-            db.Members.Add(member2);
-            Member member3 = new Member()
-            {
-                CorporationID = lilleFnugId,
-                firstname = "Lars",
-                lastname = "Larsen",
-                mail = "Lars.Larsen@sssh-jeg-sover.dk",
-                phoneNumber = "87123456"
-            };
-            db.Members.Add(member3);
-            var fdfId = GetCorporations().FirstOrDefault(c => c.name == "FDF").ID;
-            Member member4 = new Member()
-            {
-                CorporationID = fdfId,
-                firstname = "Hans",
-                lastname = "Poulsen",
-                mail = "superspejderen@jeg-er-leet.dk",
-                phoneNumber = "85012654"
-            };
-            db.Members.Add(member4);
-            Member member5 = new Member()
-            {
-                CorporationID = fdfId,
-                firstname = "Josefine-Petronella",
-                lastname = "Birgensen-Birkefryd",
-                mail = "Josefine.Petronella.Birgensen.Birkefryd@os-med-de-lange-navne.dk",
-                phoneNumber = "80012654"
-            };
-            db.Members.Add(member5);
-            Commit();
-        }
-        private void GenerateRepTestData()
-        {
-            db.RepFinanceEntries.Add(new RepFinanceEntry()
-            {
-                KontiID = 5,
-                value = 20,
-                comment = "Test",
-                byWho = "Who Knows",
-                intervalType = "Hour",
-                intervalValue = 1,
-                firstExecDate = new DateTime(2021, 4, 20, 5, 0, 0),
-                nextExecDate = new DateTime(2021, 4, 20, 5, 0, 0),
-            });
-            Commit();
         }
         private int Commit()
         {
@@ -398,7 +525,10 @@ namespace ServerSideData
                         query.First().users.mail = resultuser.mail;
                         query.First().users.firstname = resultuser.firstname;
                         Permissions newPerm = query.First().perm;
-                        newPerm.Update(newuser.permissions);
+                        if (!query.First().users.username.Equals(ses.username))
+                        {
+                            newPerm.Update(newuser.permissions);
+                        }
                         if ((ses.permissions.AddCorporation || (ses.permissions.Admin && !newPerm.AddCorporation) || ses.username.Equals(query.First().users.username)) && newuser.hashPassword != "" && newuser.hashPassword != null)
                         {
                             query.First().users.hashPassword = newuser.hashPassword;
