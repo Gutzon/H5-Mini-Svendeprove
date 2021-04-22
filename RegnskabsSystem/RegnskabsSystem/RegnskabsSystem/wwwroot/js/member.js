@@ -111,7 +111,7 @@ function performEdit(e, data) {
 
     helper.fetchDataTxt("POST", "/member/edit", JSON.stringify(transferObject))
         .then((objData) => {
-            if (objData == "OK") alert("Inventaret er rettet");
+            if (objData == "OK") alert("Medlemmet er rettet");
             modal.hide(null, "memberEditModal");
             show();
         })

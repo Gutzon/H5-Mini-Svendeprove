@@ -115,7 +115,7 @@ function injectData(rowSchemaId, objData, dataTransformer, editInitMethod, perfo
         // Append edit button if allowed
         if (column < tdElements.length && editInitMethod !== undefined) {
             if (hasEditPermission) {
-                let editElm = dataPopulator.getImgTriggerElm(editInitMethod, data, false);
+                let editElm = dataPopulator.getImgTriggerElm(editInitMethod, objData[data], false);
                 tdElements[column++].appendChild(editElm);
             }
             else tdElements.parentNode.removeChild(tdElements[column]);
@@ -124,7 +124,7 @@ function injectData(rowSchemaId, objData, dataTransformer, editInitMethod, perfo
         // Append delete button if allowed
         if (column < tdElements.length && performDeleteMethod !== undefined) {
             if (hasDeletePermission) {
-                let deleteElm = dataPopulator.getImgTriggerElm(performDeleteMethod, data, true);
+                let deleteElm = dataPopulator.getImgTriggerElm(performDeleteMethod, objData[data], true);
                 tdElements[column].appendChild(deleteElm);
             }
             else {
