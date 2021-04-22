@@ -244,7 +244,7 @@ function showButton(elmId, givesRights) {
  * Defines whether a user matches permission
  * @param {any} giverRights Rights that gives access, admin addCorporation is checked by default
  */
-function hasPermission(giverRights) {
+function hasPermission(givesRights) {
     let ownPermissions = getPermissions();
     let hasRights = (ownPermissions.addCorporation || ownPermissions.admin || hasAMatchingRight(givesRights));
     return hasRights;
