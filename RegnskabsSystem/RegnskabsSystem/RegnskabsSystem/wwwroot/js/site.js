@@ -1,22 +1,9 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
-// Rephrase below for report
-// Note: Individual functions should later be moved to files indicating usage.
-// - As we try to use HTML as frontend, we are putting most of the
-// communication with the API directly in JS instead of using the backend C# to fetch data.
-// If we later move to Blazor or ASP pages or decide to facilitate the API which the pages are
-// served using directly, we can avoid some of the JS files.
-// This is a team decision to learn more about datahandling in frontend.
-
-// Run start functions
-
-/* Imports help split script by functionality */
-import { helper } from './helper.js';
+﻿import { helper } from './helper.js';
 import { modal } from './modal.js';
 import { inventory } from './inventory.js';
+import { member } from './member.js';
 import { dataPopulator } from './data-populator.js';
-
+import { cookie } from './cookie.js';
 
 
 
@@ -25,7 +12,6 @@ function startFunctions() {
     let loggedIn = validateLogin();
     if (loggedIn) {
         populateUsers();
-        populateMembers();
         highlightMenu();
         showNavbar(true);
         populateCorporationSelector();
@@ -34,6 +20,7 @@ function startFunctions() {
         attachElmEvents();
 
         /* Refactored */
+        member.show();
         inventory.show();
     }
 }
@@ -98,7 +85,7 @@ function validateLogin() {
 }
 
 function validateToken() {
-    let isLoggedIn = (getCookieParam("accessToken") !== "");
+    let isLoggedIn = (cookie.get("accessToken") !== "");
     if (isLoggedIn) {
         let xhr = new XMLHttpRequest();
         xhr.open("GET", '/user/login/validate', true);
@@ -121,32 +108,6 @@ function validateToken() {
 
 
 
-
-// Cookie functions
-function setCookieParam(param, value) {
-    // Currently no expiration implemented for cookie params set
-    document.cookie = param + "=" + value;
-}
-
-function getCookieParam(param) {
-    let paramIdentifier = param + "=";
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let cookieParts = decodedCookie.split(';');
-    for (let i = 0; i < cookieParts.length; i++) {
-        let cookieParamText = cookieParts[i];
-        while (cookieParamText.charAt(0) == ' ') {
-            cookieParamText = cookieParamText.substring(1);
-        }
-        if (cookieParamText.indexOf(paramIdentifier) == 0) {
-            return cookieParamText.substring(paramIdentifier.length, cookieParamText.length);
-        }
-    }
-    return "";
-}
-
-function removeCookieParam(param) {
-    document.cookie = param + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-}
 
 function login(e) {
     if (e != undefined) e.preventDefault();
@@ -176,11 +137,11 @@ function handleLogin(responseText) {
     let jsonObject;
     try {
         jsonObject = JSON.parse(responseText);
-        setCookieParam("selectedCorp", jsonObject.corporations[0].id);
-        setCookieParam("corporations", escape(JSON.stringify(jsonObject.corporations)));
-        setCookieParam("accessToken", jsonObject.tokken);
-        setCookieParam("userName", loginForm.User.value);
-        setCookieParam("user", escape(JSON.stringify(jsonObject.user)));
+        cookie.set("selectedCorp", jsonObject.corporations[0].id);
+        cookie.set("corporations", escape(JSON.stringify(jsonObject.corporations)));
+        cookie.set("accessToken", jsonObject.tokken);
+        cookie.set("userName", loginForm.User.value);
+        cookie.set("user", escape(JSON.stringify(jsonObject.user)));
         document.location.href = "/account";
     }
     catch {
@@ -196,8 +157,8 @@ function populateCorporationSelector() {
     while (corporationSelector.childNodes.length > 0) {
         corporationSelector.removeChild(corporationSelector.childNodes[0]);
     }
-    let corporations = JSON.parse(getCookieParam("corporations"));
-    let selectedCorp = getCookieParam("selectedCorp");
+    let corporations = JSON.parse(cookie.get("corporations"));
+    let selectedCorp = cookie.get("selectedCorp");
     if (corporations.length == 1) {
         corporationSelector.appendChild(document.createTextNode(corporations[0].name));
     }
@@ -229,14 +190,15 @@ function changeCorporation() {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             let corporationChanged = JSON.parse(xhr.responseText);
             if (corporationChanged.changeSuccess) {
-                setCookieParam("selectedCorp", corporationSelector.value);
+                cookie.set("selectedCorp", corporationSelector.value);
                 setPermissions(corporationChanged.permissions);
                 populateUsers();
-                populateMembers();
                 changeAccount();
 
-                removeCookieParam("selectedAcc");
+                cookie.remove("selectedAcc");
                 showFinances();
+
+                member.show();
                 inventory.show();
             }
         }
@@ -266,15 +228,15 @@ function populateUsers() {
 }
 
 function setPermissions(permission) {
-    let userData = getCookieParam("user");
+    let userData = cookie.get("user");
     if (userData == "") return null;
     let userObject = JSON.parse(userData);
     userObject.permissions = permission;
-    setCookieParam("user", JSON.stringify(userObject));
+    cookie.set("user", JSON.stringify(userObject));
 }
 
 function getPermissions() {
-    let userData = unescape(getCookieParam("user"));
+    let userData = unescape(cookie.get("user"));
     if (userData == "") return null;
     return JSON.parse(userData).permissions;
 }
@@ -333,7 +295,7 @@ function addUsersToOverview(userTableList, userList) {
     let trUsers = userTableList.getElementsByTagName("tr");
     while (trUsers.length > 2) trUsers[2].parentNode.removeChild(trUsers[2]);
 
-    let ownData = getCookieParam("user");
+    let ownData = cookie.get("user");
     if (ownData == "") helper.logOut(null, true);
     let ownDataObj = JSON.parse(ownData);
     let ownPermissions = ownDataObj.permissions;
@@ -449,7 +411,7 @@ function userEdit(e, user) {
 
     let editForm = document.getElementById("userEditForm");
 
-    let ownData = getCookieParam("user");
+    let ownData = cookie.get("user");
     if (ownData == "") helper.logOut(null, true);
     let ownDataObj = JSON.parse(ownData);
     let ownPermissions = ownDataObj.permissions;
@@ -499,7 +461,7 @@ function showUserEditPermissions(username, userPermissions) {
     let permissionRows = permissionTBody.getElementsByTagName("tr");
     while (permissionRows.length > 1) permissionRows[1].parentNode.removeChild(permissionRows[1]);
 
-    let ownData = getCookieParam("user");
+    let ownData = cookie.get("user");
     if (ownData == "") helper.logOut(null, true);
     let ownDataObj = JSON.parse(ownData);
     let ownPermissions = ownDataObj.permissions;
@@ -531,7 +493,7 @@ function performUserEdit(e, oldUser) {
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
 
-            let ownData = getCookieParam("user");
+            let ownData = cookie.get("user");
             if (ownData == "") helper.logOut(null, true);
             let ownDataObj = JSON.parse(ownData);
             let editedSelf = oldUser["username"] == ownDataObj["username"];
@@ -581,9 +543,9 @@ function showUserCreatePermissions() {
     let permissionRows = permissionTBody.getElementsByTagName("tr");
     while (permissionRows.length > 1) permissionRows[1].parentNode.removeChild(permissionRows[1]);
 
-    let ownData = getCookieParam("user");
+    let ownData = cookie.get("user");
     if (ownData == "") helper.logOut(null, true);
-    let ownPermissions = JSON.parse(getCookieParam("user")).permissions;
+    let ownPermissions = JSON.parse(cookie.get("user")).permissions;
 
     for (let permission in ownPermissions) {
         let permissionRow = permissionTBody.getElementsByTagName("tr")[0].cloneNode(true);
@@ -622,309 +584,6 @@ function newPermissionCheckBox(elmName, checked, disabled, toPermissionObj, hide
 
 
 
-// Member handling
-function populateMembers() {
-    let memberTableList = document.getElementById("memberTable");
-    if (memberTableList == null) return;
-
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", '/member/overview', true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-
-    xhr.onreadystatechange = function () {
-        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            let jsonObject = JSON.parse(xhr.responseText);
-            addMembersToOverview(memberTableList, jsonObject);
-        }
-    }
-    xhr.send();
-}
-
-function CreateMemberColumnElm(member, columnNumber, hasDeleteRightsGeneral, hasEditRightsGeneral) {
-    switch (columnNumber) {
-        case 0:
-            return document.createTextNode(member["id"]);
-        case 1:
-            return document.createTextNode(member["firstname"] + " " + member["lastname"]);
-        case 2:
-            return document.createTextNode(member["mail"]);
-        case 3:
-            return document.createTextNode(member["phoneNumber"]);
-        case 4:
-            return !hasEditRightsGeneral ? null : getEditMemberElm(member);
-        case 5:
-            return !hasDeleteRightsGeneral ? null : getDeleteMemberElm(member);
-        default:
-            return document.createTextNode("Undefined case");
-    }
-}
-
-
-function getEditMemberElm(member) {
-    let elmHref = document.createElement("a");
-    elmHref.setAttribute("href", "/member/edit");
-    elmHref.addEventListener("click", function () { memberEdit(event, member) });
-
-    let elmImage = document.createElement("img");
-    elmImage.setAttribute("src", "/Media/EditIcon.png");
-    helper.addClass(elmImage, "tableImgEdit");
-
-    elmHref.appendChild(elmImage);
-    return elmHref;
-}
-
-
-function getDeleteMemberElm(member) {
-    let elmHref = document.createElement("a");
-    elmHref.setAttribute("href", "/member/delete");
-    elmHref.addEventListener("click", function () { performMemberDelete(event, member) });
-
-    let elmImage = document.createElement("img");
-    elmImage.setAttribute("src", "/Media/DeleteIcon.png");
-    helper.addClass(elmImage, "tableImgDelete");
-
-    elmHref.appendChild(elmImage);
-    return elmHref;
-}
-
-
-
-function addMembersToOverview(memberTableList, memberList) {
-    let trMembers = memberTableList.getElementsByTagName("tr");
-    while (trMembers.length > 2) trMembers[2].parentNode.removeChild(trMembers[2]);
-
-    let ownData = getCookieParam("user");
-    if (ownData == "") helper.logOut(null, true);
-    let ownDataObj = JSON.parse(ownData);
-    let ownPermissions = ownDataObj.permissions;
-    let hasDeleteRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.deleteMember);
-    let hasEditRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.editMember);
-
-    let hasAddRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.addMember);
-    let addMemberButton = document.getElementById("addMemberButton");
-    if (hasAddRightsGeneral) {
-        helper.removeClass(addMemberButton, "hideElm");
-    }
-    else helper.addClass(addMemberButton, "hideElm");
-
-    let memberCloneRow = memberTableList.getElementsByTagName("tr")[1].cloneNode(true);
-    cleanMemberOverviewElements(memberCloneRow, hasEditRightsGeneral, hasDeleteRightsGeneral);
-    helper.removeClass(memberCloneRow, "hideElm");
-
-
-    for (var member of memberList) {
-        let rowCloned = memberCloneRow.cloneNode(true);
-        let rowTds = rowCloned.getElementsByTagName("td");
-
-        let removeTds = [];
-        for (var i = 0; i < rowTds.length; i++) {
-            let objectToAppend = CreateMemberColumnElm(member, i, hasDeleteRightsGeneral, hasEditRightsGeneral);
-            if (objectToAppend != null) rowTds[i].appendChild(objectToAppend);
-            else removeTds.push(rowTds[i]);
-        }
-
-        while (removeTds.length > 0) {
-            let td = removeTds.pop();
-            td.parentNode.removeChild(td);
-        }
-        memberTableList.appendChild(rowCloned);
-    }
-}
-
-
-function cleanMemberOverviewElements(userCloneRow, hasEditRightsGeneral, hasDeleteRightsGeneral) {
-    let editHeader = document.getElementById("editMemberHeader");
-    if (editHeader == undefined) return;
-    if (!hasEditRightsGeneral) {
-        editHeader.parentNode.removeChild(editHeader);
-    }
-    else editHeader.style.display = "table-cell";
-
-    let deleteHeader = document.getElementById("deleteMemberHeader");
-    if (deleteHeader == undefined) return;
-    if (!hasDeleteRightsGeneral) {
-        deleteHeader.parentNode.removeChild(deleteHeader);
-    }
-    else deleteHeader.style.display = "table-cell";
-}
-
-
-
-
-
-
-
-function memberCreate(e) {
-    if (e != undefined) e.preventDefault();
-
-    // Assign perform create function
-    let createButton = document.getElementById("performCreateButton");
-    let clonedButton = createButton.cloneNode(true);
-    clonedButton.addEventListener("click", function () { performMemberCreate(event) });
-    let createButtonParent = createButton.parentNode;
-    createButtonParent.removeChild(createButton);
-    createButtonParent.appendChild(clonedButton);
-
-    modal.show(event, 'memberCreateSchema');
-}
-
-
-
-function performMemberCreate(e) {
-    if (e != undefined) e.preventDefault();
-    let userCreateForm = document.forms["memberCreateForm"];
-    if (userCreateForm == undefined) return;
-
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", '/member', true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-
-    xhr.onreadystatechange = function () {
-        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            try {
-                let memberCreatedSuccess = xhr.responseText;
-
-                if (memberCreatedSuccess == "OK") {
-                    alert("Medlemmet blev oprettet");
-                    modal.hide(null, "memberCreateSchema");
-                    populateMembers();
-                }
-                else switch (jsonObject.error) {
-                    case "Name empty":
-                        alert("Fornavn og efternavn skal angives.");
-                        break;
-                    case "Not permited":
-                        alert("Du har ikke rettighederne til at tilføje medlemmer.");
-                        break;
-                    case "No session":
-                        alert("Du er blevet logget ud, log venligst på igen");
-                        helper.logOut(null, false);
-                        break;
-                    default:
-                }
-            }
-            catch {
-                alert("En fejl opstod under bruger oprettelsen");
-            }
-        }
-    }
-
-    let formData = helper.getFormJsonData("memberCreateForm");
-    xhr.send(JSON.stringify(formData));
-}
-
-
-
-
-function memberEdit(e, member) {
-    if (e != undefined) e.preventDefault();
-
-    let editForm = document.getElementById("memberEditForm");
-    for (let memberParam in member) {
-        let newMemberFormElm = editForm.elements[memberParam];
-        if (newMemberFormElm != undefined) {
-            newMemberFormElm.value = member[memberParam];
-        }
-
-        let oldMemberElm = document.getElementById("memberEdit_" + memberParam);
-        if (oldMemberElm == undefined) continue;
-        for (let child of oldMemberElm.childNodes) {
-            child.parentNode.removeChild(child);
-        }
-        oldMemberElm.appendChild(document.createTextNode(member[memberParam]));
-    }
-
-    // Assign perform edit function
-    let editButton = document.getElementById("performEditButton");
-    let clonedButton = editButton.cloneNode(true);
-    clonedButton.addEventListener("click", function () { performMemberEdit(event, member) });
-    let editButtonParent = editButton.parentNode;
-    editButtonParent.removeChild(editButton);
-    editButtonParent.appendChild(clonedButton);
-
-    modal.show(event, 'memberEditSchema');
-}
-
-
-
-function performMemberEdit(e, member) {
-    if (e != undefined) e.preventDefault();
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", '/member/edit', true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-
-    xhr.onreadystatechange = function () {
-        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            if (xhr.responseText == "OK") {
-                alert("Medlemmet blev redigeret");
-                modal.hide(null, "memberEditSchema");
-                populateMembers();
-            }
-            else switch (xhr.responseText) {
-                case "Not found":
-                    alert("Medlemmet eksisterede ikke. Det er muligt at den er slettet af en anden admin.");
-                    break;
-                case "Not permited":
-                    alert("Du har ikke rettighederne til at redigere et medlem.");
-                    break;
-                case "No session":
-                    alert("Dit login er udløbet, du logges af - log venligst på igen");
-                    helper.logOut(null, false);
-                    break;
-                default:
-            }
-        }
-        else if (this.readyState === XMLHttpRequest.DONE && this.status === 500) {
-            alert("Redigering af medlemmet blev ikke fuldført, en kritisk fejl opstod.")
-        }
-    }
-
-    let formData = helper.getFormJsonData("memberEditForm");
-    let memberEditObject = { oldMember: member, newMember: formData }
-    xhr.send(JSON.stringify(memberEditObject));
-}
-
-
-function performMemberDelete(e, member) {
-    if (e != undefined) e.preventDefault();
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", '/member/delete', true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-
-    xhr.onreadystatechange = function () {
-        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            if (xhr.responseText == "OK") {
-                alert("Medlemmet blev slettet");
-                modal.hide(null, "memberEditSchema");
-                populateMembers();
-            }
-            else switch (xhr.responseText) {
-                case "Not found":
-                    alert("Medlemmet eksisterede ikke. Det er muligt at den er slettet af en anden admin.");
-                    break;
-                case "Not permited":
-                    alert("Du har ikke rettighederne til at slette et medlem.");
-                    break;
-                case "No session":
-                    alert("Dit login er udløbet, du logges af - log venligst på igen");
-                    helper.logOut(null, false);
-                    break;
-                default:
-            }
-        }
-        else if (this.readyState === XMLHttpRequest.DONE && this.status === 500) {
-            alert("Sletning af medlemmet blev ikke fuldført, en kritisk fejl opstod.")
-        }
-    }
-
-    xhr.send(JSON.stringify(member));
-}
-
-
-
-
-
-
 
 // Navigation
 function showNavbar(show) {
@@ -953,11 +612,11 @@ function showFinances() {
 function changeAccount() {
     let accountElm = document.getElementById("accountInjection");
     if (accountElm == undefined) {
-        removeCookieParam("selectedAcc");
+        cookie.remove("selectedAcc");
         return;
     }
     let accountSelected = accountElm.value;
-    setCookieParam("selectedAcc", accountSelected);
+    cookie.set("selectedAcc", accountSelected);
     getPostings();
 }
 
@@ -1032,7 +691,7 @@ function injectAccounts() {
 
 
 function insertAccounts(accounts, accountSelect) {
-    let selectedAcc = getCookieParam("selectedAcc");
+    let selectedAcc = cookie.get("selectedAcc");
     for (let account of accounts) {
         let option = document.createElement("option")
         option.appendChild(document.createTextNode(account));
@@ -1040,7 +699,7 @@ function insertAccounts(accounts, accountSelect) {
         accountSelect.appendChild(option);
     }
     if (selectedAcc == "") {
-        setCookieParam("selectedAcc", accountSelect.value);
+        cookie.set("selectedAcc", accountSelect.value);
     }
 }
 
@@ -1055,7 +714,7 @@ function showAddAccount(e) {
 function showEditAccount(e) {
     if (e != undefined) e.preventDefault();
     let editForm = document.getElementById("accountEditForm");
-    let accountChosen = getCookieParam("selectedAcc");
+    let accountChosen = cookie.get("selectedAcc");
     editForm.elements["AccountName"].value = accountChosen;
     editForm.elements["NewAccountName"].value = accountChosen;
     modal.show(null, "editAccountSchema");
@@ -1070,7 +729,7 @@ function changeAccountName(e) {
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             alert("Konti navnet blev rettet");
-            setCookieParam("selectedAcc", helper.getFormJsonData("accountEditForm").NewAccountName);
+            cookie.set("selectedAcc", helper.getFormJsonData("accountEditForm").NewAccountName);
             modal.hide(null, "editAccountSchema");
             showFinances();
         }
@@ -1123,7 +782,7 @@ function getPostings() {
         }
     }
     let accountSelect = {
-        "AccountName": getCookieParam("selectedAcc")
+        "AccountName": cookie.get("selectedAcc")
     };
     xhr.send(JSON.stringify(accountSelect));
 }
@@ -1495,13 +1154,16 @@ window.login = login;
 window.showEditAccount = showEditAccount;
 window.showAddAccount = showAddAccount;
 window.changeAccount = changeAccount;
+window.addAccount = addAccount;
+
 window.showAddFinance = showAddFinance;
 window.getRepFinance = getRepFinance;
-window.addAccount = addAccount;
-window.hide = modal.hide;
+
 window.changeAccountName = changeAccountName;
 window.createRepFinance = createRepFinance;
 window.addFinance = addFinance;
-window.logOut = helper.logOut;
-window.memberCreate = memberCreate;
+
 window.userCreate = userCreate;
+
+window.hide = modal.hide;
+window.logOut = helper.logOut;

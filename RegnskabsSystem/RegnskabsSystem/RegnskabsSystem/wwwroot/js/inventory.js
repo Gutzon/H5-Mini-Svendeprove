@@ -5,14 +5,15 @@ import { dataPopulator } from './data-populator.js';
 
 
 function show() {
-    let inventoryRowSchema = document.getElementById("inventorySchema");
-    if (inventoryRowSchema == null) return;
+    let rowSchema = document.getElementById("inventorySchema");
+    if (rowSchema == null) return;
 
     helper.addInitButtonEvent("inventoryCreate", createInit);
+    helper.showButton("inventoryCreateButton", ["addInventory"]);
 
     helper.fetchData("GET", "/inventory/overview", "a")
         .then((objData) => {
-            injectInventoryData(inventoryRowSchema, objData, tranformInventoryData, editInit, performDelete);
+            injectData(rowSchema, objData, tranformInventoryData, editInit, performDelete, ["addInventory"], ["editInventory"]);
         })
         .catch((error) => {
             helper.errorNotify("hentning af inventar.", error);
@@ -53,7 +54,7 @@ function performCreate(e) {
         })
         .catch((error) => {
             if ("Name empty") alert("Navn skal angives ved tilføjelse af inventar");
-            else if ("Name empty") alert("Du har ikke tilladelse til at tilføje til inventar");
+            else if ("Name permited") alert("Du har ikke tilladelse til at tilføje til inventar");
             else if ("No session") {
                 alert("Dit login var udløbet, log venligst på igen.");
                 helper.logOut();
@@ -97,7 +98,7 @@ function performEdit(e, data) {
     let formData = helper.getFormJsonData("inventoryEditForm");
     let validationErrors = validateCreate(formData);
     if (validationErrors.length > 0) {
-        alert("Der opstod en fejl ved tilføjelse af inventar.\n\nFejl:\n" + validationErrors.join("\n"));
+        alert("Der opstod en fejl ved rettelse af inventar.\n\nFejl:\n" + validationErrors.join("\n"));
         return;
     }
     let transferObject = { oldInventory: data, newInventory: formData };
@@ -143,43 +144,6 @@ function performDelete(e, data) {
             else helper.errorNotify("sletning af inventar.", error);
         });
 }
-
-
-
-/* Possible candidate for generic - START */
-function injectInventoryData(rowSchema, objData, dataTransformer, editInitMethod, performDeleteMethod) {
-    let parentElm = rowSchema.parentNode;
-
-    // Empty form for fresh injection
-    let schemaRows = parentElm.getElementsByTagName("tr");
-    while (schemaRows.length > 1) parentElm.removeChild(schemaRows[1]);
-
-    for (let data of objData) {
-        let clonedRow = rowSchema.cloneNode(true);
-        let tdElements = clonedRow.getElementsByTagName("td");
-
-        let column = 0;
-        for (let param in data) {
-            let tdChildElm = dataTransformer(param, data);
-            if (tdChildElm == null) continue;
-            tdElements[column++].appendChild(tdChildElm);
-        }
-
-        if (column < tdElements.length && editInitMethod !== undefined) {
-            let editElm = dataPopulator.getImgTriggerElm(editInitMethod, data, false);
-            tdElements[column++].appendChild(editElm);
-        }
-
-        if (column < tdElements.length && performDeleteMethod !== undefined) {
-            let editElm = dataPopulator.getImgTriggerElm(performDeleteMethod, data, true);
-            tdElements[column++].appendChild(editElm);
-        }
-
-        helper.removeClass(clonedRow, "hideElm");
-        parentElm.appendChild(clonedRow);
-    }
-}
-/* Possible candidates for generic - END */
 
 
 

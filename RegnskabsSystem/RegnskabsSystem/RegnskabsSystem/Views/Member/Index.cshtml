@@ -1,37 +1,85 @@
 ﻿@{
     ViewData["Title"] = "Medlems oversigt";
 }
+
+
+
 <div class="gridContainer">
     <table id="memberTable" class="mainTable" CELLSPACING="0">
-        <tr>
-            <th class="tableHeaders">Id</th>
-            <th class="tableHeaders">Navn</th>
-            <th class="tableHeaders">E-Mail</th>
-            <th class="tableHeaders">Telefon nummer</th>
-            <th class="tableHeaders thImg" id="editMemberHeader">Ret medlem</th>
-            <th class="tableHeaders thImg tableHeaderEnd" id="deleteMemberHeader">Slet medlem</th>
-        </tr>
-        <tr id="memberSchema" class="hideElm">
-            <td class="tableData"></td>
-            <td class="tableData"></td>
-            <td class="tableData"></td>
-            <td class="tableData"></td>
-            <td class="tableData tdImg"></td>
-            <td class="tableData tdImg tableDataEnd"></td>
-        </tr>
+        <thead>
+            <tr id="memberSchemaHeader">
+                <th class="tableHeaders">Id</th>
+                <th class="tableHeaders">Navn</th>
+                <th class="tableHeaders">E-Mail</th>
+                <th class="tableHeaders">Telefon nummer</th>
+                <th class="tableHeaders thImg" id="memberSchemaEdit">Ret medlem</th>
+                <th class="tableHeaders thImg tableHeaderEnd" id="memberSchemaDelete">Slet medlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr id="memberSchema" class="hideElm">
+                <td class="tableData"></td>
+                <td class="tableData"></td>
+                <td class="tableData"></td>
+                <td class="tableData"></td>
+                <td class="tableData tdImg"></td>
+                <td class="tableData tdImg tableDataEnd"></td>
+            </tr>
+        </tbody>
     </table>
-    <div class="text-center view-h2"><input type="button" class="FormSubmit submit-smaller hideElm" id="addMemberButton" onclick="memberCreate(event)" value="Tilføj nyt medlem"></div>
+    <div class="text-center view-h2"><input type="button" class="FormSubmit submit-smaller hideElm" id="memberCreateInitButton" value="Tilføj nyt medlem"></div>
 </div>
 
-<div id="memberEditSchema" class="modal-main hideElm">
+
+
+<div id="memberCreateModal" class="modal-main hideElm">
     <div class="modal-content">
-        <div class="modal-head">
+        <div class="modal-head" id="memberCreateModalHead">
+            <div>Opret medlem</div>
+        </div>
+        <form id="memberCreateForm">
+            <table class="mainTable">
+                <thead>
+                    <tr>
+                        <td class="tableHeaders">Info</td>
+                        <td class="tableHeaders">Værdi</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tableData">Fornavn</td>
+                        <td class="tableData tableDataEnd"><input type="text" name="firstname" value=""></td>
+                    </tr>
+                    <tr>
+                        <td class="tableData">Efternavn</td>
+                        <td class="tableData tableDataEnd"><input type="text" name="lastname" value=""></td>
+                    </tr>
+                    <tr>
+                        <td class="tableData">E-mail</td>
+                        <td class="tableData tableDataEnd"><input type="text" name="mail" value=""></td>
+                    </tr>
+                    <tr>
+                        <td class="tableData">Telefon</td>
+                        <td class="tableData tableDataEnd"><input type="text" name="phoneNumber" value=""></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="text-center"><input type="button" class="FormSubmit submit-smaller" id="memberCreateButton" value="Opret medlem"></div>
+        </form>
+    </div>
+</div>
+
+
+
+<div id="memberEditModal" class="modal-main hideElm">
+    <div class="modal-content">
+        <div class="modal-head" id="memberEditModalHead">
             <div>Rediger medlem</div>
-            <a href="/closeModal" onclick="hideModal(event, 'memberEditSchema')"><img src="/Media/DeleteIcon.png"></a>
         </div>
         <form id="memberEditForm">
             <input class="hideElm" type="text" name="id" value="">
-            <input class="hideElm"s type="text" name="corporationID" value="">
+            <input class="hideElm" s type="text" name="corporationID" value="">
             <table class="mainTable">
                 <thead>
                     <tr>
@@ -64,49 +112,7 @@
                 </tbody>
             </table>
 
-            <div class="text-center"><input type="button" class="FormSubmit submit-smaller" id="performEditButton" value="Ret medlem"></div>
+            <div class="text-center"><input type="button" class="FormSubmit submit-smaller" id="memberEditButton" value="Ret medlem"></div>
         </form>
     </div>
 </div>
-
-
-
-<div id="memberCreateSchema" class="modal-main hideElm">
-    <div class="modal-content">
-        <div class="modal-head">
-            <div>Opret medlem</div>
-            <a href="/closeModal" onclick="hideModal(event, 'memberCreateSchema')"><img src="/Media/DeleteIcon.png"></a>
-        </div>
-        <form id="memberCreateForm">
-            <table class="mainTable">
-                <thead>
-                    <tr>
-                        <td class="tableHeaders">Info</td>
-                        <td class="tableHeaders">Værdi</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="tableData">Fornavn</td>
-                        <td class="tableData tableDataEnd"><input type="text" name="firstname" value=""></td>
-                    </tr>
-                    <tr>
-                        <td class="tableData">Efternavn</td>
-                        <td class="tableData tableDataEnd"><input type="text" name="lastname" value=""></td>
-                    </tr>
-                    <tr>
-                        <td class="tableData">E-mail</td>
-                        <td class="tableData tableDataEnd"><input type="text" name="mail" value=""></td>
-                    </tr>
-                    <tr>
-                        <td class="tableData">Telefon</td>
-                        <td class="tableData tableDataEnd"><input type="text" name="phoneNumber" value=""></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="text-center"><input type="button" class="FormSubmit submit-smaller" id="performCreateButton" value="Opret medlem"></div>
-        </form>
-    </div>
-</div>
-

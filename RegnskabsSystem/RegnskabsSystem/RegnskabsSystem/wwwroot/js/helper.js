@@ -1,4 +1,6 @@
-﻿/**
+﻿import { cookie } from './cookie.js';
+
+/**
  * Fetches data using ajax
  * @param {any} method - Define POST/GET
  * @param {any} path - Define path for the request
@@ -177,15 +179,15 @@ function getJsonObjectForValue(elm) {
  */
 function logOut(e, confirmLogout) {
     if (e != undefined || e != null) e.preventDefault();
-    let tokenSet = getCookieParam("accessToken");
+    let tokenSet = cookie.get("accessToken");
     if (tokenSet !== "") {
         helper.fetchDataTxt("POST", "/user/logout")
             .then((objData) => {
-                removeCookieParam("corporations");
-                removeCookieParam("selectedCorp");
-                removeCookieParam("accessToken");
-                removeCookieParam("userName");
-                removeCookieParam("user");
+                cookie.remove("corporations");
+                cookie.remove("selectedCorp");
+                cookie.remove("accessToken");
+                cookie.remove("userName");
+                cookie.remove("user");
                 if (confirmLogout) alert("Du er blevet logget ud.")
                 document.location.href = "/";
             })
@@ -198,6 +200,50 @@ function logOut(e, confirmLogout) {
 
 
 
+function getPermissions() {
+    let ownData = cookie.get("user");
+    if (ownData == "") {
+        helper.logOut(null, true);
+        return null;
+    }
+    let ownDataObj = JSON.parse(ownData);
+    return ownDataObj.permissions;
+}
+
+
+
+/**
+ * Shows a button depending on user rights
+ * @param {any} elmId Element id of button
+ * @param {any} givesRights Rights that gives access, admin addCorporation is checked by default
+ */
+function showButton(elmId, givesRights) {
+    let button = document.getElementById(elmId);
+    if (hasPermission(givesRights)) helper.removeClass(button, "hideElm");
+    else helper.addClass(button, "hideElm");
+}
+
+/**
+ * Defines whether a user matches permission
+ * @param {any} giverRights Rights that gives access, admin addCorporation is checked by default
+ */
+function hasPermission(giverRights) {
+    let ownPermissions = getPermissions();
+    let hasRights = (ownPermissions.addCorporation || ownPermissions.admin || hasAMatchingRight(givesRights));
+    return hasRights;
+}
+
+
+
+function hasAMatchingRight(ownRights, givesRights) {
+    for (let right of givesRights) {
+        if (ownRights[right]) return true;
+    }
+    return false;
+}
+
+
+
 export let helper = {
     errorNotify: errorNotify,
     fetchData: fetchData,
@@ -206,5 +252,8 @@ export let helper = {
     removeClass: removeClass,
     addInitButtonEvent: addInitButtonEvent,
     getFormJsonData: getFormJsonData,
-    logOut: logOut
+    logOut: logOut,
+    showButton: showButton,
+    getPermissions: getPermissions,
+    hasPermission: hasPermission
 };

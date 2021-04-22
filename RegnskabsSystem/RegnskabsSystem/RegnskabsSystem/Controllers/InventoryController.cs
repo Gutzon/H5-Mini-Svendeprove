@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RegnskabsSystem.Helpers;
 using RegnskabsSystem.Models;
 using ServerSideData;
 using ServerSideData.Models;
-using ServerSideData.TransferModel;
-using System;
 using System.Collections.Generic;
 
 namespace RegnskabsSystem.Controllers
@@ -15,13 +12,11 @@ namespace RegnskabsSystem.Controllers
     public class InventoryController : Controller
     {
         #region Attributes and constructors
-        private readonly ILogger<InventoryController> _logger;
         private readonly IServerSideData serverSideData;
         private Validation Credentials => CookieHelper.GetValidation(Request);
 
-        public InventoryController(IServerSideData serverSideData, ILogger<InventoryController> logger)
+        public InventoryController(IServerSideData serverSideData)
         {
-            _logger = logger;
             this.serverSideData = serverSideData;
         }
 
@@ -46,13 +41,6 @@ namespace RegnskabsSystem.Controllers
             return Ok(inventoryAddSuccess);
         }
 
-        [HttpPost("delete")]
-        public ActionResult<string> DeleteInventory([FromBody] Inventory inventory)
-        {
-            var inventoryAddSuccess = serverSideData.DeleteInven(Credentials, inventory);
-            return Ok(inventoryAddSuccess);
-        }
-
         [HttpPost("edit")]
         public ActionResult<string> EditInventory([FromBody] EditInventoryModel inventory)
         {
@@ -61,6 +49,12 @@ namespace RegnskabsSystem.Controllers
             return Ok(inventoryAddSuccess);
         }
 
+        [HttpPost("delete")]
+        public ActionResult<string> DeleteInventory([FromBody] Inventory inventory)
+        {
+            var inventoryAddSuccess = serverSideData.DeleteInven(Credentials, inventory);
+            return Ok(inventoryAddSuccess);
+        }
         #endregion
     }
 }

@@ -12,13 +12,11 @@ namespace RegnskabsSystem.Controllers
     public class MemberController : Controller
     {
         #region Attributes and constructors
-        private readonly ILogger<MemberController> _logger;
         private readonly IServerSideData serverSideData;
         private Validation Credentials => CookieHelper.GetValidation(Request);
 
-        public MemberController(IServerSideData serverSideData, ILogger<MemberController> logger)
+        public MemberController(IServerSideData serverSideData)
         {
-            _logger = logger;
             this.serverSideData = serverSideData;
         }
         #endregion
@@ -44,6 +42,7 @@ namespace RegnskabsSystem.Controllers
         [HttpPost("edit")]
         public ActionResult<bool> EditMember([FromBody] EditMemberModel editedMember)
         {
+            editedMember.newMember.ID = editedMember.oldMember.ID;
             var editMemberSuccess = serverSideData.EditMember(Credentials, editedMember.oldMember, editedMember.newMember);
             return Ok(editMemberSuccess);
         }

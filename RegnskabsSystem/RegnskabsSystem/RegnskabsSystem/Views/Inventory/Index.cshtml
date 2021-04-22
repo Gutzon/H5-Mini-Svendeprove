@@ -7,12 +7,12 @@
 <div class="gridContainer">
     <table id="inventoryTable" class="mainTable" CELLSPACING="0">
         <thead>
-            <tr>
+            <tr id="inventorySchemaHeader">
                 <th class="tableHeaders">Id</th>
                 <th class="tableHeaders">Beskrivelse</th>
                 <th class="tableHeaders">Værdi</th>
-                <th class="tableHeaders">Ret</th>
-                <th class="tableHeaders">Slet</th>
+                <th class="tableHeaders thImg hideElm" id="memberSchemaEdit">Ret</th>
+                <th class="tableHeaders thImg tableHeaderEnd hideElm" id="memberSchemaDelete">Slet</th>
             </tr>
         </thead>
         <tbody>
@@ -93,4 +93,3 @@
         </form>
     </div>
 </div>
-
