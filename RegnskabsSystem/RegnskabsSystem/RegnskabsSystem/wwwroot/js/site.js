@@ -21,6 +21,14 @@ function startFunctions() {
         member.show();
         inventory.show();
         user.show();
+
+        let accountPermissions = helper.hasPermission(["AddFinance", "viewFinance"]);
+        let accountMenuButton = document.getElementById("accountMenuButton");
+        let accountMenuDisabledButton = document.getElementById("accountMenuDisabledButton");
+        if (!accountPermissions) {
+            helper.addClass(accountMenuButton, "hideElm");
+            helper.removeClass(accountMenuDisabledButton, "hideElm");
+        }
     }
 }
 
@@ -197,6 +205,17 @@ function showNavbar(show) {
 function showFinances() {
     let financeOverview = document.getElementById("financeOverview");
     if (financeOverview == null) return;
+
+
+    if (!helper.hasPermission(["AddFinance", "viewFinance"])) {
+        document.location.href = "/user";
+    }
+    helper.showButton("addFinancePostButton", ["addFinance"]);
+    helper.showButton("addRepFinancePostButton", ["addFinance"]);
+    helper.showButton("editAccountNameButton", ["addFinance"]);
+    helper.showButton("addAccountButton", ["addFinance"]);
+    helper.showButton("accountInjection", ["addFinance"]);
+
     injectAccounts();
 }
 

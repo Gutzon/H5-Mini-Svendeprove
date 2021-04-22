@@ -9,11 +9,11 @@
     </div>
 
     <div class="inline-block">
-        <input type="button" class="regnskabsDropdowns bg-secondary" onclick="showEditAccount(event)" value="Ret konti">
+        <input type="button" class="regnskabsDropdowns bg-secondary" onclick="showEditAccount(event)" id="editAccountNameButton" value="Ret konti">
     </div>
 
     <div class="inline-block">
-        <input type="button" class="regnskabsDropdowns bg-secondary" onclick="showAddAccount(event)" value="Tilføj konti">
+        <input type="button" class="regnskabsDropdowns bg-secondary" onclick="showAddAccount(event)" id="addAccountButton" value="Tilføj konti">
     </div>
 </div>
 
@@ -37,8 +37,8 @@
         </tr>
     </table>
     <div class="text-center view-h2">
-        <div class="inline-block"><input type="button" class="FormSubmit submit-smaller" onclick="showAddFinance(event)" value="Opret postering"></div>
-        <div class="inline-block"><input type="button" class="FormSubmit submit-smaller" onclick="getRepFinance(event)" value="Vis gentagende betalinger"></div>
+        <div class="inline-block"><input type="button" class="FormSubmit submit-smaller" id="addFinancePostButton" onclick="showAddFinance(event)" value="Opret postering"></div>
+        <div class="inline-block"><input type="button" class="FormSubmit submit-smaller" id="addRepFinancePostButton" onclick="getRepFinance(event)" value="Vis gentagende betalinger"></div>
     </div>
 </div>
 
