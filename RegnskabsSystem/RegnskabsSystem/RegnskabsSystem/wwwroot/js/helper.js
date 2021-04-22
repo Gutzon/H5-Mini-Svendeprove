@@ -200,6 +200,23 @@ function logOut(e, confirmLogout) {
 
 
 
+/**
+ * Sets the permissions of the user
+ * @param {any} permission The permissions
+ */
+function setPermissions(permission) {
+    let userData = cookie.get("user");
+    if (userData == "") return null;
+    let userObject = JSON.parse(userData);
+    userObject.permissions = permission;
+    cookie.set("user", JSON.stringify(userObject));
+}
+
+
+
+/**
+ * Gets the permissions of the user
+ */
 function getPermissions() {
     let ownData = cookie.get("user");
     if (ownData == "") {
@@ -255,5 +272,6 @@ export let helper = {
     logOut: logOut,
     showButton: showButton,
     getPermissions: getPermissions,
+    setPermissions: setPermissions,
     hasPermission: hasPermission
 };

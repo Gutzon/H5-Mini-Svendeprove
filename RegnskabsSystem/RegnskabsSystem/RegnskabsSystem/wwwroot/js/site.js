@@ -4,6 +4,7 @@ import { inventory } from './inventory.js';
 import { member } from './member.js';
 import { dataPopulator } from './data-populator.js';
 import { cookie } from './cookie.js';
+import { user } from './user.js';
 
 
 
@@ -11,43 +12,16 @@ document.documentElement.addEventListener("load", startFunctions());
 function startFunctions() {
     let loggedIn = validateLogin();
     if (loggedIn) {
-        populateUsers();
         highlightMenu();
         showNavbar(true);
         populateCorporationSelector();
         showFinances();
 
-        attachElmEvents();
-
         /* Refactored */
         member.show();
         inventory.show();
+        user.show();
     }
-}
-
-function attachElmEvents() {
-
-    /* use add event listener for some these - move others to methods
-     * window.login = login;
-window.showEditAccount = showEditAccount;
-window.showAddAccount = showAddAccount;
-window.changeAccount = changeAccount;
-window.showAddFinance = showAddFinance;
-window.getRepFinance = getRepFinance;
-window.addAccount = addAccount;
-window.hide = modal.hide;
-window.changeAccountName = changeAccountName;
-window.createRepFinance = createRepFinance;
-window.addFinance = addFinance;
-window.helper.logOut = helper.logOut;
-window.memberCreate = memberCreate;
-window.userCreate = userCreate;*/
-
-    /*
-    let elm = document.getElementById("inventoryCreateInitButton");
-    if (elm != null) {
-        elm.addEventListener("click", function (e) { inventory.create(e) });
-    }*/
 }
 
 
@@ -191,8 +165,8 @@ function changeCorporation() {
             let corporationChanged = JSON.parse(xhr.responseText);
             if (corporationChanged.changeSuccess) {
                 cookie.set("selectedCorp", corporationSelector.value);
-                setPermissions(corporationChanged.permissions);
-                populateUsers();
+                helper.setPermissions(corporationChanged.permissions);
+                user.show();
                 changeAccount();
 
                 cookie.remove("selectedAcc");
@@ -209,382 +183,6 @@ function changeCorporation() {
 
 
 
-// User handling
-function populateUsers() {
-    let userTableList = document.getElementById("userTable");
-    if (userTableList == null) return;
-
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", '/user/overview', true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-
-    xhr.onreadystatechange = function () {
-        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            let jsonObject = JSON.parse(xhr.responseText);
-            addUsersToOverview(userTableList, jsonObject);
-        }
-    }
-    xhr.send();
-}
-
-function setPermissions(permission) {
-    let userData = cookie.get("user");
-    if (userData == "") return null;
-    let userObject = JSON.parse(userData);
-    userObject.permissions = permission;
-    cookie.set("user", JSON.stringify(userObject));
-}
-
-function getPermissions() {
-    let userData = unescape(cookie.get("user"));
-    if (userData == "") return null;
-    return JSON.parse(userData).permissions;
-}
-
-function CreateUserColumnElm(user, columnNumber, hasEditRights, hasDeleteRightsOfUser, hasDeleteRightsGeneral) {
-    switch (columnNumber) {
-        case 0:
-            return document.createTextNode(user["username"]);
-        case 1:
-            return document.createTextNode(user["mail"]);
-        case 2:
-            return document.createTextNode(user["firstname"] + " " + user["lastname"]);
-        case 3:
-            let lastSeenTime = Date.parse(user["lastSeen"]);
-            let parsedDate = (new Date());
-            parsedDate.setTime(lastSeenTime);
-            let lastSeen = parsedDate.toLocaleString() != "1.1.1 00.00.00" ? parsedDate.toLocaleString() : "Ikke logget på endnu";
-            return document.createTextNode(lastSeen);
-        case 4:
-            return !hasEditRights ? document.createTextNode("") : getEditUserElm(user);
-        case 5:
-            return !hasDeleteRightsOfUser ? (hasDeleteRightsGeneral ? document.createTextNode("") : null) : getDeleteUserElm(user);
-        default:
-            return document.createTextNode("Undefined case");
-    }
-}
-
-function getEditUserElm(user) {
-    let elmHref = document.createElement("a");
-    elmHref.setAttribute("href", "/user/edit");
-    elmHref.addEventListener("click", function () { userEdit(event, user) });
-
-    let elmImage = document.createElement("img");
-    elmImage.setAttribute("src", "/Media/EditIcon.png");
-    helper.addClass(elmImage, "tableImgEdit");
-
-    elmHref.appendChild(elmImage);
-    return elmHref;
-}
-
-function getDeleteUserElm(user) {
-    let elmHref = document.createElement("a");
-    elmHref.setAttribute("href", "/user/delete");
-    elmHref.addEventListener("click", function () { deleteUser(event, user) });
-    let elmImage = document.createElement("img");
-    elmImage.setAttribute("src", "/Media/DeleteIcon.png");
-    helper.addClass(elmImage, "tableImgDelete");
-
-    elmHref.appendChild(elmImage);
-    return elmHref;
-}
-
-
-
-function addUsersToOverview(userTableList, userList) {
-    let trUsers = userTableList.getElementsByTagName("tr");
-    while (trUsers.length > 2) trUsers[2].parentNode.removeChild(trUsers[2]);
-
-    let ownData = cookie.get("user");
-    if (ownData == "") helper.logOut(null, true);
-    let ownDataObj = JSON.parse(ownData);
-    let ownPermissions = ownDataObj.permissions;
-    let hasDeleteRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.deleteUser);
-
-    let userCloneRow = userTableList.getElementsByTagName("tr")[1].cloneNode(true);
-    cleanUserOverviewElements(userCloneRow, hasDeleteRightsGeneral);
-    helper.removeClass(userCloneRow, "hideElm");
-
-    let hasAddRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.addUser);
-    let addUserButton = document.getElementById("addUserButton");
-    if (hasAddRightsGeneral) {
-        helper.removeClass(addUserButton, "hideElm");
-    }
-    else helper.addClass(addUserButton, "hideElm");
-
-    for (var user of userList) {
-        // Rights evaluation on user protection to avoid showing edit/delete where not applicable
-        let hasEditRights = (ownPermissions.addCorporation
-            || ownPermissions.admin && !user["permissions"]["addCorporation"]
-            || ownPermissions.editUser && !user["permissions"]["admin"]
-            || user["username"] == ownDataObj["username"]);
-
-        let hasDeleteRightsOfUser = user["username"] != ownDataObj["username"] && (ownPermissions.addCorporation
-            || ownPermissions.admin && !user["permissions"]["addCorporation"]
-            || ownPermissions.deleteUser && !user["permissions"]["admin"]);
-
-        let rowCloned = userCloneRow.cloneNode(true);
-        let rowTds = rowCloned.getElementsByTagName("td");
-
-        let removeTds = [];
-        for (var i = 0; i < rowTds.length; i++) {
-            let objectToAppend = CreateUserColumnElm(user, i, hasEditRights, hasDeleteRightsOfUser, hasDeleteRightsGeneral);
-            if (objectToAppend != null) rowTds[i].appendChild(objectToAppend);
-            else removeTds.push(rowTds[i]);
-        }
-
-        while (removeTds.length > 0) {
-            let td = removeTds.pop();
-            td.parentNode.removeChild(td);
-        }
-        userTableList.appendChild(rowCloned);
-    }
-}
-
-
-function cleanUserOverviewElements(userCloneRow, hasDeleteRightsGeneral) {
-    let deleteHeader = document.getElementById("deleteUserHeader");
-    if (deleteHeader == undefined) return;
-    if (!hasDeleteRightsGeneral) {
-        deleteHeader.parentNode.removeChild(deleteHeader);
-    }
-    else deleteHeader.style.display = "table-cell";
-}
-
-
-function performUserCreate(e) {
-    if (e != undefined) e.preventDefault();
-    let userCreateForm = document.forms["userCreateForm"];
-    if (userCreateForm == undefined) return;
-
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", '/user', true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-
-    xhr.onreadystatechange = function () {
-        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            try {
-                let jsonObject = JSON.parse(xhr.responseText);
-
-                if (jsonObject.userCreated) {
-                    alert("Brugeren blev oprettet");
-                    console.log("Midlertidig levering af kodeord, da vi ikke har webhotel på app'en:");
-                    console.log(jsonObject.userPassword);
-                    modal.hide(null, "userCreateSchema");
-                    populateUsers();
-                }
-                else if (jsonObject.error !== "") {
-                    switch (jsonObject.error) {
-                        case "FailSession":
-                            alert("Dit login er udløbet, du logges ud. Log venligst på igen.");
-                            helper.logOut();
-                            break;
-                        case "FailPermission":
-                            alert("Du kan ikke tildele de valgte rettigheder.");
-                            break;
-                        case "FailUserAddRights":
-                            alert("Din konto har ikke tilladelse til at tilføje brugere.");
-                            break;
-                        case "FailUserExists":
-                            alert("Brugernavnet er allerede reserveret til en bruger");
-                            break;
-                        default:
-                    }
-                }
-            }
-            catch {
-                alert("En fejl opstod under bruger oprettelsen");
-            }
-        }
-    }
-
-    let formData = helper.getFormJsonData("userCreateForm");
-    xhr.send(JSON.stringify(formData));
-}
-
-
-
-
-
-function userEdit(e, user) {
-    if (e != undefined) e.preventDefault();
-
-    let editForm = document.getElementById("userEditForm");
-
-    let ownData = cookie.get("user");
-    if (ownData == "") helper.logOut(null, true);
-    let ownDataObj = JSON.parse(ownData);
-    let ownPermissions = ownDataObj.permissions;
-    let hasPasswordEditPermission = (ownPermissions.addCorporation || ownPermissions.admin ||
-        user["username"] == ownDataObj["username"]
-    );
-
-    let passwordEditBox = document.getElementById("editUserPassword");
-    if (hasPasswordEditPermission) helper.removeClass(passwordEditBox, "hideElm");
-    else helper.addClass(passwordEditBox, "hideElm");
-
-    for (let userParam in user) {
-
-
-        if (userParam == "permissions") {
-            showUserEditPermissions(user["username"], user[userParam]);
-            continue;
-        }
-
-        let newUserFormElm = editForm.elements[userParam];
-        if (newUserFormElm != undefined) {
-            newUserFormElm.value = user[userParam];
-        }
-
-        let oldUserElm = document.getElementById("userEdit_" + userParam);
-        if (oldUserElm == undefined) continue;
-        for (let child of oldUserElm.childNodes) {
-            child.parentNode.removeChild(child);
-        }
-        oldUserElm.appendChild(document.createTextNode(user[userParam]));
-    }
-
-    // Assign perform edit function
-    let editButton = document.getElementById("performEditButton");
-    let clonedButton = editButton.cloneNode(true);
-    clonedButton.addEventListener("click", function () { performUserEdit(event, user) });
-    let editButtonParent = editButton.parentNode;
-    editButtonParent.removeChild(editButton);
-    editButtonParent.appendChild(clonedButton);
-
-    modal.show(event, 'userEditSchema');
-}
-
-
-function showUserEditPermissions(username, userPermissions) {
-    let permissionTBody = document.getElementById("editUserRights").getElementsByTagName("tbody")[0];
-    let permissionRows = permissionTBody.getElementsByTagName("tr");
-    while (permissionRows.length > 1) permissionRows[1].parentNode.removeChild(permissionRows[1]);
-
-    let ownData = cookie.get("user");
-    if (ownData == "") helper.logOut(null, true);
-    let ownDataObj = JSON.parse(ownData);
-    let ownPermissions = ownDataObj.permissions;
-
-    for (let permission in userPermissions) {
-        let permissionRow = permissionTBody.getElementsByTagName("tr")[0].cloneNode(true);
-        helper.removeClass(permissionRow, "hideElm");
-
-        let hasRightToEditPermission = (ownPermissions.addCorporation
-            || ownPermissions.admin && permission != "addCorporation"
-            || ownPermissions[permission]
-            || username == ownDataObj["username"]);
-
-        let permissionColumns = permissionRow.getElementsByTagName("td");
-        permissionColumns[0].appendChild(document.createTextNode(permission)); // Oversæt evt. senere
-        permissionColumns[1].appendChild(newPermissionCheckBox("userEditOwn_" + permission, hasRightToEditPermission, true, false, false))
-        permissionColumns[2].appendChild(newPermissionCheckBox("userEditUser_" + permission, userPermissions[permission], true, false, !hasRightToEditPermission))
-        permissionColumns[3].appendChild(newPermissionCheckBox(permission, userPermissions[permission], !hasRightToEditPermission, true, false))
-        permissionTBody.appendChild(permissionRow)
-    }
-}
-
-function performUserEdit(e, oldUser) {
-    if (e != undefined) e.preventDefault();
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", '/user/edit', true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-
-    xhr.onreadystatechange = function () {
-        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-
-            let ownData = cookie.get("user");
-            if (ownData == "") helper.logOut(null, true);
-            let ownDataObj = JSON.parse(ownData);
-            let editedSelf = oldUser["username"] == ownDataObj["username"];
-
-            if (xhr.responseText == "true") {
-                if (editedSelf) {
-                    alert("Din egen bruger blev redigeret, du logges nu af - log venligst på igen");
-                    helper.logOut(null, false);
-                }
-                alert("Bruger blev redigeret");
-                modal.hide(null, "userEditSchema");
-                populateUsers();
-            }
-            else alert("Bruger blev ikke redigeret");
-        }
-        else if (this.readyState === XMLHttpRequest.DONE && this.status === 500) {
-            alert("Redigering af brugeren blev ikke fuldført, en kritisk fejl opstod.")
-        }
-    }
-
-    let formData = helper.getFormJsonData("userEditForm");
-    let userEditObject = { oldUser: oldUser, newUser: formData }
-    xhr.send(JSON.stringify(userEditObject));
-}
-
-
-
-
-function userCreate(e) {
-    if (e != undefined) e.preventDefault();
-    showUserCreatePermissions();
-
-    // Assign perform create function
-    let createButton = document.getElementById("performCreateButton");
-    let clonedButton = createButton.cloneNode(true);
-    clonedButton.addEventListener("click", function () { performUserCreate(event) });
-    let createButtonParent = createButton.parentNode;
-    createButtonParent.removeChild(createButton);
-    createButtonParent.appendChild(clonedButton);
-
-    modal.show(event, 'userCreateSchema');
-}
-
-
-function showUserCreatePermissions() {
-    let permissionTBody = document.getElementById("createUserRights").getElementsByTagName("tbody")[0];
-    let permissionRows = permissionTBody.getElementsByTagName("tr");
-    while (permissionRows.length > 1) permissionRows[1].parentNode.removeChild(permissionRows[1]);
-
-    let ownData = cookie.get("user");
-    if (ownData == "") helper.logOut(null, true);
-    let ownPermissions = JSON.parse(cookie.get("user")).permissions;
-
-    for (let permission in ownPermissions) {
-        let permissionRow = permissionTBody.getElementsByTagName("tr")[0].cloneNode(true);
-        helper.removeClass(permissionRow, "hideElm");
-
-        let permissionColumns = permissionRow.getElementsByTagName("td");
-        permissionColumns[0].appendChild(document.createTextNode(permission)); // Oversæt evt. senere
-        permissionColumns[1].appendChild(newPermissionCheckBox("userCreateOwn_" + permission, ownPermissions[permission], true, false, false))
-        permissionColumns[2].appendChild(newPermissionCheckBox(permission, false, !ownPermissions[permission], true, false))
-        permissionTBody.appendChild(permissionRow)
-    }
-}
-
-
-
-
-
-
-
-function newPermissionCheckBox(elmName, checked, disabled, toPermissionObj, hideDisabled) {
-    if (hideDisabled && disabled) return document.createTextNode("Hemmelig");
-    let checkbox = document.createElement("input");
-    checkbox.setAttribute("type", "checkbox");
-    checkbox.setAttribute("name", elmName);
-    if (checked) checkbox.setAttribute("checked", "checked");
-    if (disabled) checkbox.setAttribute("disabled", "disabled");
-    if (toPermissionObj) helper.addClass(checkbox, "ToJsonObjectPermissions");
-    return checkbox;
-}
-
-
-
-
-
-
-
-
-
-
 // Navigation
 function showNavbar(show) {
     let navbar = document.getElementById("headerArea").getElementsByTagName("navbar")[0];
@@ -595,19 +193,12 @@ function showNavbar(show) {
 
 
 
-
-
-
-
-
 // Finances
 function showFinances() {
     let financeOverview = document.getElementById("financeOverview");
     if (financeOverview == null) return;
     injectAccounts();
 }
-
-
 
 function changeAccount() {
     let accountElm = document.getElementById("accountInjection");
@@ -756,15 +347,6 @@ function changeAccountName(e) {
     let formData = helper.getFormJsonData("accountEditForm");
     xhr.send(JSON.stringify(formData));
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -941,7 +523,7 @@ function deleteUser(e, user) {
                     alert("Brugeren blev slettet");
                 }
                 else alert("Brugeren kunne ikke slettes");
-                populateUsers();
+                user.show();
             }
             catch {
                 alert("En fejl opstod under håndtering af sletning");
@@ -1162,8 +744,6 @@ window.getRepFinance = getRepFinance;
 window.changeAccountName = changeAccountName;
 window.createRepFinance = createRepFinance;
 window.addFinance = addFinance;
-
-window.userCreate = userCreate;
 
 window.hide = modal.hide;
 window.logOut = helper.logOut;
