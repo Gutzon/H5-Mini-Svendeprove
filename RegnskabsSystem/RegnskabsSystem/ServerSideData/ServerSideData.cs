@@ -520,10 +520,10 @@ namespace ServerSideData
                     {
                         TransferUser resultuser = new(query.First().users, query.First().perm);
                         newuser = CheckUserPermissions(ses, resultuser, newuser).Item2;
-                        query.First().users.firstname = resultuser.firstname;
-                        query.First().users.lastname = resultuser.lastname;
-                        query.First().users.mail = resultuser.mail;
-                        query.First().users.firstname = resultuser.firstname;
+                        query.First().users.firstname = newuser.firstname;
+                        query.First().users.lastname = newuser.lastname;
+                        query.First().users.mail = newuser.mail;
+                        query.First().users.firstname = newuser.firstname;
                         Permissions newPerm = query.First().perm;
                         if (!query.First().users.username.Equals(ses.username))
                         {
