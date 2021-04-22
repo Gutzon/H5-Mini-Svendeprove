@@ -246,7 +246,7 @@ function showButton(elmId, givesRights) {
  */
 function hasPermission(givesRights) {
     let ownPermissions = getPermissions();
-    let hasRights = (ownPermissions.addCorporation || ownPermissions.admin || hasAMatchingRight(givesRights));
+    let hasRights = (ownPermissions.addCorporation || ownPermissions.admin || hasAMatchingRight(ownPermissions, ownPermissionsgivesRights));
     return hasRights;
 }
 
