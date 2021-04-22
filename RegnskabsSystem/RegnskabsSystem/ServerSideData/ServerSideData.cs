@@ -299,7 +299,7 @@ namespace ServerSideData
                                 join corp in db.Corporations on perm.CorporationID equals corp.ID
                                 where user.username.Equals(query.First().username)
                                 orderby corp.name
-                                select corp ;
+                                select corp;
 
                 userLogin = new()
                 {
@@ -329,7 +329,7 @@ namespace ServerSideData
             {
                 userLogin.status = "Error";
             }
-                return userLogin;
+            return userLogin;
         }
         public bool SelectCorporation(Validation validate, int ID)
         {
@@ -388,7 +388,7 @@ namespace ServerSideData
                     var query = from users in db.Users
                                 join perm in db.Permissions on users.Id equals perm.UserID
                                 where users.username.Equals(user.username) && perm.CorporationID.Equals(ses.corporationId)
-                                select new {users, perm};
+                                select new { users, perm };
                     if ((query.Count() == 1 && !(query.First().perm.AddCorporation || query.First().perm.Admin)) || ses.username.Equals(query.First().users.username) || (ses.permissions.AddCorporation || ses.permissions.Admin))
                     {
                         TransferUser resultuser = new(query.First().users, query.First().perm);
@@ -548,24 +548,24 @@ namespace ServerSideData
                 if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "EditUser") || CheckPermission(validate, ses, "DeleteUser") || CheckPermission(validate, ses, "AddUser"))
                 {
 
-                
-                switch (searchtype)
-                {
+
+                    switch (searchtype)
+                    {
                         case "Test":
 
-                        
-                        break;
+
+                            break;
                         case "Self":
 
                             break;
-                    default:
-                        query = from users in db.Users
-                                join perm in db.Permissions on users.Id equals perm.UserID
-                                where perm.CorporationID.Equals(ses.corporationId) && !users.username.Equals(ses.username)
-                                orderby users.firstname
-                                select users;
-                        break;
-                }
+                        default:
+                            query = from users in db.Users
+                                    join perm in db.Permissions on users.Id equals perm.UserID
+                                    where perm.CorporationID.Equals(ses.corporationId) && !users.username.Equals(ses.username)
+                                    orderby users.firstname
+                                    select users;
+                            break;
+                    }
                     IEnumerable<User> userresult = query.ToArray();
                     foreach (User user in userresult)
                     {
@@ -578,7 +578,7 @@ namespace ServerSideData
                     }
 
                 }
-                
+
             }
             return userlist;
         }
@@ -686,7 +686,7 @@ namespace ServerSideData
                                 select kontis;
                     if (!query.Any())
                     {
-                        db.Kontis.Add(new Konti() {name = name, CorporationID = ses.corporationId });
+                        db.Kontis.Add(new Konti() { name = name, CorporationID = ses.corporationId });
                         Commit();
                         return "OK";
                     }
@@ -735,7 +735,7 @@ namespace ServerSideData
                     var query = from finaces in db.FinanceEntries
                                 join kontis in db.Kontis on finaces.KontiID equals kontis.ID
                                 where finaces.ID.Equals(0)
-                                select new {finaces, kontis};
+                                select new { finaces, kontis };
                     bool kontifiltered = true;
                     if (konti == "" || konti == "Main")
                     {
@@ -744,7 +744,7 @@ namespace ServerSideData
                                 join kontis in db.Kontis on finaces.KontiID equals kontis.ID
                                 where kontis.CorporationID.Equals(ses.corporationId)
                                 orderby finaces.ID
-                                select new {finaces, kontis};
+                                select new { finaces, kontis };
                     }
                     else
                     {
@@ -752,7 +752,7 @@ namespace ServerSideData
                                 join kontis in db.Kontis on finaces.KontiID equals kontis.ID
                                 where kontis.CorporationID.Equals(ses.corporationId) && kontis.name.Equals(konti)
                                 orderby finaces.ID
-                                select new {finaces, kontis};
+                                select new { finaces, kontis };
                     }
 
                     switch (searchtype)
@@ -778,7 +778,7 @@ namespace ServerSideData
                             finacelist.Add(new TransferFinance(q.finaces, q.kontis, "Limited", kontifiltered));
                         }
                     }
-                    
+
                 }
 
             }
@@ -799,16 +799,16 @@ namespace ServerSideData
                 Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
                 if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddFinance") || CheckPermission(validate, ses, "ViewFinance") || CheckPermission(validate, ses, "LimitedViewFinance"))
                 {
-                    var query = from kontis in db.Kontis 
+                    var query = from kontis in db.Kontis
                                 where kontis.CorporationID.Equals(ses.corporationId)
                                 orderby kontis.name
                                 select kontis;
-                    
-                        foreach (var q in query)
-                        {
+
+                    foreach (var q in query)
+                    {
                         kontiList.Add(q.name);
-                        }
-                    
+                    }
+
                 }
 
             }
@@ -1009,25 +1009,99 @@ namespace ServerSideData
             }
 
         }
-
         public string CreateInven(Validation validate, Inventory item)
         {
-            throw new NotImplementedException();
+            if (ValidateTokken(validate))
+            {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                if (CheckPermission(validate, ses, "AddInventory") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddCorporation"))
+                {
+                    if (item.itemName != "" && item.value >= 0 && item.itemName != null)
+                    {
+                        if (db.Inventories.Where(o => o.CorporationID.Equals(ses.corporationId) && o.itemName.Equals(item.itemName)).Any())
+                        {
+                            Inventory old = db.Inventories.Where(o => o.CorporationID.Equals(ses.corporationId) && o.itemName.Equals(item.itemName)).First();
+                            old.value = old.value + item.value;
+                            db.Inventories.Update(old);
+                        }
+                        else
+                        {
+                            item.CorporationID = ses.corporationId;
+                            db.Inventories.Add(item);
+                        }
+                        Commit();
+                        return "OK";
+                    }
+                    return "Name empty";
+                }
+                return "Not permited";
+            }
+            return "No session";
         }
 
         public string EditInven(Validation validate, Inventory olditem, Inventory newitem)
         {
-            throw new NotImplementedException();
+            if (ValidateTokken(validate))
+            {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                if (CheckPermission(validate, ses, "EditInventory") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddCorporation"))
+                {
+                    if (db.Inventories.Where(o => o.ID.Equals(olditem.ID)).Where(o => o.CorporationID.Equals(ses.corporationId)).Any() && olditem.ID.Equals(newitem.ID))
+                    {
+                        if (newitem.itemName != "" && newitem.value >= 0 && newitem.itemName != null)
+                        {
+                            olditem = db.Inventories.Find(olditem.ID);
+                            olditem.itemName = newitem.itemName;
+                            olditem.value = newitem.value;
+                            db.Inventories.Update(olditem);
+                            Commit();
+                            return "OK";
+                        }
+                        return "Name empty";
+                    }
+                    return "Not found";
+                }
+                return "Not permited";
+            }
+            return "No session";
         }
-
         public string DeleteInven(Validation validate, Inventory item)
         {
-            throw new NotImplementedException();
+            if (ValidateTokken(validate))
+            {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                if (CheckPermission(validate, ses, "DeleteInventory") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "AddCorporation"))
+                {
+                    if (db.Inventories.Where(o => o.ID.Equals(item.ID)).Where(o => o.CorporationID.Equals(ses.corporationId)).Any())
+                    {
+                        db.Inventories.Remove(db.Inventories.Find(item.ID));
+                        Commit();
+                        return "OK";
+                    }
+                    return "Not found";
+                }
+                return "Not permited";
+            }
+            return "No session";
         }
-
-        public string GetInven(Validation validate)
+        public IEnumerable<Inventory> GetInven(Validation validate)
         {
-            throw new NotImplementedException();
+            List<Inventory> invenlist = new();
+            if (ValidateTokken(validate))
+            {
+                Session ses = sessions.Find(o => o.tokken.Equals(validate.tokken));
+                if (CheckPermission(validate, ses, "AddCorporation") || CheckPermission(validate, ses, "Admin") || CheckPermission(validate, ses, "EditInventory") || CheckPermission(validate, ses, "DeleteInventory") || CheckPermission(validate, ses, "AddInventory"))
+                {
+                    var query = from inven in db.Inventories
+                                where inven.CorporationID.Equals(ses.corporationId)
+                                orderby inven.itemName
+                                select inven;
+
+                    invenlist.AddRange(query.ToList());
+                }
+
+            }
+            return invenlist;
         }
     }
 }
