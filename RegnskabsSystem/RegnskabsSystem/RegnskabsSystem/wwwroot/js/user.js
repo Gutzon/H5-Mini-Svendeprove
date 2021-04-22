@@ -16,7 +16,7 @@ function show() {
             dataPopulator.injectData("userSchema", objData, tranformUserData, editInit, performDelete, ["editUser"], ["deleteUser"]);
         })
         .catch((error) => {
-            helper.errorNotify("hentning af medlem.", error);
+            helper.errorNotify("hentning af bruger.", error);
         });
 }
 
@@ -63,7 +63,7 @@ function performCreate(e) {
     let formData = helper.getFormJsonData("userCreateForm");
     let validationErrors = validateCreate(formData);
     if (validationErrors.length > 0) {
-        alert("Der opstod en fejl ved tilføjelse af medlem.\n\nFejl:\n" + validationErrors.join("\n"));
+        alert("Der opstod en fejl ved tilføjelse af bruger.\n\nFejl:\n" + validationErrors.join("\n"));
         return;
     }
 
@@ -76,7 +76,6 @@ function performCreate(e) {
                 modal.hide(null, "userCreateModal");
                 console.log("Midlertidig levering af kodeord, da vi ikke har webhotel på app'en:");
                 console.log(jsonObject.userPassword);
-                modal.hide(null, "userCreateSchema");
                 show();
             }
             else if (jsonObject.error !== "") {
@@ -99,13 +98,13 @@ function performCreate(e) {
             }
         })
         .catch((error) => {
-            if ("Name empty") alert("Navn skal angives ved tilføjelse af medlem");
-            else if ("Name permited") alert("Du har ikke tilladelse til at tilføje til medlemslisten");
+            if ("Name empty") alert("Navn skal angives ved tilføjelse af bruger");
+            else if ("Name permited") alert("Du har ikke tilladelse til at tilføje til brugere");
             else if ("No session") {
                 alert("Dit login var udløbet, log venligst på igen.");
                 helper.logOut();
             }
-            else helper.errorNotify("tilføjelse af medlem.", error);
+            else helper.errorNotify("tilføjelse af bruger.", error);
         });
 }
 
@@ -141,27 +140,38 @@ function performEdit(e, data) {
     let formData = helper.getFormJsonData("userEditForm");
     let validationErrors = validateCreate(formData);
     if (validationErrors.length > 0) {
-        alert("Der opstod en fejl ved rettelse af medlem.\n\nFejl:\n" + validationErrors.join("\n"));
+        alert("Der opstod en fejl ved rettelse af bruger.\n\nFejl:\n" + validationErrors.join("\n"));
         return;
     }
     let transferObject = { oldUser: data, newUser: formData };
 
     helper.fetchDataTxt("POST", "/user/edit", JSON.stringify(transferObject))
         .then((objData) => {
-            if (objData == "OK") alert("Inventaret er rettet");
-            modal.hide(null, "userEditModal");
-            show();
-        })
-        .catch((error) => {
-
-            if ("Name empty") alert("Navn skal angives ved rettelse af medlem");
-            else if ("Not permited") alert("Du har ikke tilladelse til at rette medlem");
-            else if ("Not found") alert("Eksisterende medlem kunne ikke findes");
+            if (objData == "true") {
+                alert("Brugeren er rettet");
+                modal.hide(null, "userEditModal");
+                show();
+            }
+            else if ("Name empty") alert("Navn skal angives ved rettelse af bruger");
+            else if ("Not permited") alert("Du har ikke tilladelse til at rette bruger");
+            else if ("Not found") alert("Eksisterende bruger kunne ikke findes");
             else if ("No session") {
                 alert("Dit login var udløbet, log venligst på igen.");
                 helper.logOut();
             }
-            else helper.errorNotify("rettelse af medlem.", error);
+            else helper.errorNotify("rettelse af bruger.", error);
+
+        })
+        .catch((error) => {
+
+            if (error == "Name empty") alert("Navn skal angives ved rettelse af bruger");
+            else if (error == "Not permited") alert("Du har ikke tilladelse til at rette bruger");
+            else if (error == "Not found") alert("Eksisterende bruger kunne ikke findes");
+            else if (error == "No session") {
+                alert("Dit login var udløbet, log venligst på igen.");
+                helper.logOut();
+            }
+            else helper.errorNotify("rettelse af bruger.", error);
         });
 }
 
@@ -172,19 +182,19 @@ function performDelete(e, data) {
 
     helper.fetchDataTxt("POST", "/user/delete", JSON.stringify(data))
         .then((objData) => {
-            if (objData == "OK") alert("Medlem er slettet");
+            if (objData == "OK") alert("Bruger er slettet");
             show();
         })
         .catch((error) => {
 
-            if ("Name empty") alert("Navn skal angives ved sletning af medlem");
-            else if ("Not permited") alert("Du har ikke tilladelse til at slette medlemmer");
-            else if ("Not found") alert("Eksisterende medlem kunne ikke findes");
+            if ("Name empty") alert("Navn skal angives ved sletning af bruger");
+            else if ("Not permited") alert("Du har ikke tilladelse til at slette brugere");
+            else if ("Not found") alert("Eksisterende bruger kunne ikke findes");
             else if ("No session") {
                 alert("Dit login var udløbet, log venligst på igen.");
                 helper.logOut();
             }
-            else helper.errorNotify("sletning af medlem.", error);
+            else helper.errorNotify("sletning af bruger.", error);
         });
 }
 

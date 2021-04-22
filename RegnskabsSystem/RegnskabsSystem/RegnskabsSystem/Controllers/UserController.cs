@@ -104,6 +104,7 @@ namespace RegnskabsSystem.Controllers
                 editedUser.newUser.password = "";
             }
             else editedUser.newUser.hashPassword = "";
+            editedUser.oldUser.hashPassword = "";
 
             var userEditSuccess = serverSideData.EditUser(Credentials, editedUser.oldUser, editedUser.newUser);
             return Ok(userEditSuccess);

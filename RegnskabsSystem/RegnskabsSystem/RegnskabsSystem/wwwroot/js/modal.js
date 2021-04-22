@@ -46,7 +46,7 @@ function show(e, elmId) {
  * @param {any} elmId Id of modal to hide
  */
 function hide(e, elmId) {
-    if (e != undefined) {
+    if (e != undefined && e != null) {
         e.preventDefault();
     }
     let modal = document.getElementById(elmId);
