@@ -1,5 +1,6 @@
 ﻿import { modal } from './modal.js';
 import { helper } from './helper.js';
+import { cookie } from './cookie.js';
 
 /**
  * Inserts data into modals
@@ -69,6 +70,9 @@ function injectData(rowSchemaId, objData, dataTransformer, editInitMethod, perfo
     let rowSchema = document.getElementById(rowSchemaId);
     let parentElm = rowSchema.parentNode;
 
+    let ownData = cookie.get("user");
+    if (ownData == "") helper.logOut(null, true);
+    let ownDataObj = JSON.parse(ownData);
 
     // Empty form for fresh injection
     let schemaRows = parentElm.getElementsByTagName("tr");
@@ -76,7 +80,6 @@ function injectData(rowSchemaId, objData, dataTransformer, editInitMethod, perfo
 
     // Hide headers for edit delete as needed
     let hasEditPermission = helper.hasPermission(editPermissions);
-    let editTh = document.getElementById(rowSchemaId + "Edit");
     let hasDeletePermission = helper.hasPermission(deletePermissions);
     let deleteTh = document.getElementById(rowSchemaId + "Delete");
 
@@ -87,12 +90,6 @@ function injectData(rowSchemaId, objData, dataTransformer, editInitMethod, perfo
     // Ensure only one end class when modal reused
     helper.removeClass(thElements[lastThElm - 1], "tableDataEnd");
     helper.removeClass(thElements[lastThElm - 2], "tableDataEnd");
-
-    if (!hasEditPermission) {
-        helper.addClass(editTh, "hideElm");
-        lastThElm--;
-    }
-    else helper.removeClass(editTh, "hideElm");
 
     if (!hasDeletePermission) helper.addClass(deleteTh, "hideElm");
     else {
@@ -114,22 +111,21 @@ function injectData(rowSchemaId, objData, dataTransformer, editInitMethod, perfo
 
         // Append edit button if allowed
         if (column < tdElements.length && editInitMethod !== undefined) {
-            if (hasEditPermission) {
+            if (hasEditPermission || ownDataObj["username"] == objData[data]["username"]) {
                 let editElm = dataPopulator.getImgTriggerElm(editInitMethod, objData[data], false);
                 tdElements[column++].appendChild(editElm);
             }
-            else tdElements[0].parentNode.removeChild(tdElements[column]);
+            else column++;
         }
 
         // Append delete button if allowed
         if (column < tdElements.length && performDeleteMethod !== undefined) {
-            if (hasDeletePermission) {
+            if (hasDeletePermission && ownDataObj["username"] != objData[data]["username"]) {
                 let deleteElm = dataPopulator.getImgTriggerElm(performDeleteMethod, objData[data], true);
                 tdElements[column].appendChild(deleteElm);
             }
             else {
-                tdElements[0].parentNode.removeChild(tdElements[column]);
-                helper.addClass(tdElements[tdElements.length - 1], "tableDataEnd");
+                column++;
             }
         }
 

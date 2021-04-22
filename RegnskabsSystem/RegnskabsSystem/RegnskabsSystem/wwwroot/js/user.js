@@ -1,5 +1,6 @@
 ﻿import { helper } from './helper.js';
 import { modal } from './modal.js';
+import { cookie } from './cookie.js';
 import { dataPopulator } from './data-populator.js';
 
 
@@ -129,6 +130,16 @@ function editInit(e, data) {
     editButtonParent.appendChild(editClone);
     showUserEditPermissions(data["username"], data["permissions"]);
 
+    let ownData = cookie.get("user");
+    if (ownData == "") helper.logOut(null, true);
+    let ownDataObj = JSON.parse(ownData);
+    let ownPermissions = helper.getPermissions();
+
+    let hasPasswordPermissions = helper.hasPermission([]) || data["username"] == ownDataObj["username"];
+    let passwordEditBox = document.getElementById("editUserPassword");
+    if (hasPasswordPermissions) helper.removeClass(passwordEditBox, "hideElm");
+    else helper.addClass(passwordEditBox, "hideElm");
+
     editClone.addEventListener("click", function (e) { performEdit(e, data) });
 }
 
@@ -205,6 +216,9 @@ function showUserEditPermissions(username, userPermissions) {
     let permissionRows = permissionTBody.getElementsByTagName("tr");
     while (permissionRows.length > 1) permissionRows[1].parentNode.removeChild(permissionRows[1]);
 
+    let ownData = cookie.get("user");
+    if (ownData == "") helper.logOut(null, true);
+    let ownDataObj = JSON.parse(ownData);
     let ownPermissions = helper.getPermissions();
 
     for (let permission in userPermissions) {
