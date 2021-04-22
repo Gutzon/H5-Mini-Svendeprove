@@ -1,8 +1,6 @@
 ﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 // for details on configuring this project to bundle and minify static web assets.
 
-// Write your JavaScript code.
-
 // Rephrase below for report
 // Note: Individual functions should later be moved to files indicating usage.
 // - As we try to use HTML as frontend, we are putting most of the
@@ -13,6 +11,8 @@
 
 // Run start functions
 
+
+import { helper } from './helper.js';
 
 
 document.documentElement.addEventListener("load", startFunctions());
@@ -25,6 +25,8 @@ function startFunctions() {
         showNavbar(true);
         populateCorporationSelector();
         showFinances();
+
+        showInventory();
     }
 }
 
@@ -78,7 +80,7 @@ function validateLogin() {
     let loggedIn = validateToken();
     let currentPage = document.location.pathname;
     if (currentPage === "/" && loggedIn) location.href = "/account";
-    else if(currentPage === "/") return loggedIn;
+    else if (currentPage === "/") return loggedIn;
 
     // Redirect to frontpage/login on login restricted pages
     if (!loggedIn) {
@@ -225,7 +227,7 @@ function handleLogin(responseText) {
 }
 
 function logOut(e, confirmLogout) {
-    if(e != null) e.preventDefault();
+    if (e != null) e.preventDefault();
     let tokenSet = getCookieParam("accessToken");
     if (tokenSet !== "") {
         let xhr = new XMLHttpRequest();
@@ -245,8 +247,6 @@ function logOut(e, confirmLogout) {
         }
         xhr.send();
     }
-    // Toggle view if for it allowed logout button, though logout had occured (cache/timeout)
-    dashboardToggle();
     showNavbar(false);
 }
 
@@ -296,7 +296,7 @@ function changeCorporation() {
                 populateUsers();
                 populateMembers();
                 changeAccount();
-                    
+
                 removeCookieParam("selectedAcc");
                 showFinances();
             }
@@ -319,7 +319,7 @@ function populateUsers() {
 
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            jsonObject = JSON.parse(xhr.responseText);
+            let jsonObject = JSON.parse(xhr.responseText);
             addUsersToOverview(userTableList, jsonObject);
         }
     }
@@ -352,7 +352,7 @@ function CreateUserColumnElm(user, columnNumber, hasEditRights, hasDeleteRightsO
             let lastSeenTime = Date.parse(user["lastSeen"]);
             let parsedDate = (new Date());
             parsedDate.setTime(lastSeenTime);
-            let lastSeen = parsedDate.toLocaleString() != "1.1.1 00.00.00" ? parsedDate.toLocaleString(): "Ikke logget på endnu";
+            let lastSeen = parsedDate.toLocaleString() != "1.1.1 00.00.00" ? parsedDate.toLocaleString() : "Ikke logget på endnu";
             return document.createTextNode(lastSeen);
         case 4:
             return !hasEditRights ? document.createTextNode("") : getEditUserElm(user);
@@ -463,7 +463,7 @@ function performUserCreate(e) {
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             try {
-                jsonObject = JSON.parse(xhr.responseText);
+                let jsonObject = JSON.parse(xhr.responseText);
 
                 if (jsonObject.userCreated) {
                     alert("Brugeren blev oprettet");
@@ -523,7 +523,7 @@ function userEdit(e, user) {
     else addClass(passwordEditBox, "hideElm");
 
     for (let userParam in user) {
-        
+
 
         if (userParam == "permissions") {
             showUserEditPermissions(user["username"], user[userParam]);
@@ -614,7 +614,7 @@ function performUserEdit(e, oldUser) {
     }
 
     let formData = getFormJsonData("userEditForm");
-    let userEditObject = { oldUser: oldUser, newUser: formData}
+    let userEditObject = { oldUser: oldUser, newUser: formData }
     xhr.send(JSON.stringify(userEditObject));
 }
 
@@ -694,7 +694,7 @@ function populateMembers() {
 
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            jsonObject = JSON.parse(xhr.responseText);
+            let jsonObject = JSON.parse(xhr.responseText);
             addMembersToOverview(memberTableList, jsonObject);
         }
     }
@@ -851,17 +851,17 @@ function performMemberCreate(e) {
                     populateMembers();
                 }
                 else switch (jsonObject.error) {
-                        case "Name empty":
-                            alert("Fornavn og efternavn skal angives.");
-                            break;
-                        case "Not permited":
-                            alert("Du har ikke rettighederne til at tilføje medlemmer.");
-                            break;
-                        case "No session":
+                    case "Name empty":
+                        alert("Fornavn og efternavn skal angives.");
+                        break;
+                    case "Not permited":
+                        alert("Du har ikke rettighederne til at tilføje medlemmer.");
+                        break;
+                    case "No session":
                         alert("Du er blevet logget ud, log venligst på igen");
-                            logOut(null, false);
-                            break;
-                        default:
+                        logOut(null, false);
+                        break;
+                    default:
                 }
             }
             catch {
@@ -1012,7 +1012,12 @@ function showFinances() {
 
 
 function changeAccount() {
-    let accountSelected = document.getElementById("accountInjection").value;
+    let accountElm = document.getElementById("accountInjection");
+    if (accountElm == undefined) {
+        removeCookieParam("selectedAcc");
+        return;
+    }
+    let accountSelected = accountElm.value;
     setCookieParam("selectedAcc", accountSelected);
     getPostings();
 }
@@ -1075,7 +1080,7 @@ function injectAccounts() {
 
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            jsonObject = JSON.parse(xhr.responseText);
+            let jsonObject = JSON.parse(xhr.responseText);
             insertAccounts(jsonObject, accountSelect);
             getPostings();
         }
@@ -1174,7 +1179,7 @@ function getPostings() {
 
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            jsonObject = JSON.parse(xhr.responseText);
+            let jsonObject = JSON.parse(xhr.responseText);
             showPostings(jsonObject);
         }
     }
@@ -1300,16 +1305,16 @@ function addFinance(e) {
                 else switch (successMsg) {
                     case "Wrong Konti name":
                         alert("Der skete en teknisk fejl i forhold til at oprette postering under kontien.");
-                            logOut();
-                            break;
-                        case "not permitted":
-                            alert("Du kan ikke tilføje en postering.");
-                            break;
-                        case "no session":
-                            alert("Dit login er udløbet, du logges ud. Log venligst på igen.");
-                            logOut();
-                            break;
-                        default:
+                        logOut();
+                        break;
+                    case "not permitted":
+                        alert("Du kan ikke tilføje en postering.");
+                        break;
+                    case "no session":
+                        alert("Dit login er udløbet, du logges ud. Log venligst på igen.");
+                        logOut();
+                        break;
+                    default:
                 }
             }
             catch {
@@ -1386,7 +1391,7 @@ function showModal(e, elmId) {
 
     let modalContent = modal.getElementsByTagName("div")[0];
 
-    modalMarginH = ((100 - Math.round((modalContent.offsetHeight / window.innerHeight) * 100)) / 2);
+    let modalMarginH = ((100 - Math.round((modalContent.offsetHeight / window.innerHeight) * 100)) / 2);
     if (modalMarginH < 2) modalMarginH = 2;
     modalContent.style.margin = modalMarginH + "vh auto";
 
@@ -1410,7 +1415,7 @@ function hideModal(e, elmId) {
 
 /* Repeating finance entries */
 function getRepFinance(e) {
-    if(e != null) e.preventDefault();
+    if (e != null) e.preventDefault();
 
     let xhr = new XMLHttpRequest();
     xhr.open("GET", '/account/finance/repeated', true);
@@ -1585,3 +1590,122 @@ function performCreateRepFinance(e) {
     let formData = getFormJsonData("createRepFinanceForm");
     xhr.send(JSON.stringify(formData));
 }
+
+
+
+
+
+
+
+
+
+
+/* Inventory */
+function showInventory() {
+    let inventoryRowSchema = document.getElementById("inventorySchema");
+    if (inventoryRowSchema == null) return;
+
+    helper.fetchData("GET", "/inventory/overview", "a")
+        .then((objData) => {
+            injectInventoryData(inventoryRowSchema, objData, tranformInventoryData, editInventory, deleteInventory);
+        })
+        .catch((error) => {
+            helper.errorNotify("hentning af inventar.", error);
+        });
+}
+
+function tranformInventoryData(param, data) {
+    if (param.toUpperCase() == "CORPORATIONID") return null;
+    else return document.createTextNode(data[param]);
+}
+
+function editInventory() {
+    alert("Edit inventory");
+}
+
+function deleteInventory() {
+    alert("Delete inventory");
+}
+
+
+function inventoryCreate() {
+
+}
+
+
+
+
+
+
+/* Possible candidates for generic - START */
+function injectInventoryData(rowSchema, objData, dataTransformer, editMethod, deleteMethod) {
+    let parentElm = rowSchema.parentNode;
+
+    for (let data of objData) {
+        let clonedRow = rowSchema.cloneNode(true);
+        let tdElements = clonedRow.getElementsByTagName("td");
+
+        let column = 0;
+        for (let param in data) {
+            let tdChildElm = dataTransformer(param, data);
+            if (tdChildElm == null) continue;
+            tdElements[column++].appendChild(tdChildElm);
+        }
+
+        if (column < tdElements.length && editMethod !== undefined) {
+            let editElm = getColumnEventElm(editMethod, data, false);
+            tdElements[column++].appendChild(editElm);
+        }
+
+        if (column < tdElements.length && deleteMethod !== undefined) {
+            let editElm = getColumnEventElm(deleteMethod, data, true);
+            tdElements[column++].appendChild(editElm);
+        }
+
+        removeClass(clonedRow, "hideElm");
+        parentElm.appendChild(clonedRow);
+    }
+}
+
+function getColumnEventElm(method, dataObj, isDelete) {
+    let elmHref = document.createElement("a");
+    elmHref.setAttribute("href", "#");
+    elmHref.addEventListener("click", function () { method(event, dataObj) });
+
+    let imgType = (isDelete ? "Delete" : "Edit");
+    let imgSrc = ("/Media/" + imgType + "Icon.png");
+    let imgClass = ("tableImg" + imgType);
+
+    let elmImage = document.createElement("img");
+    elmImage.setAttribute("src", imgSrc);
+    addClass(elmImage, imgClass);
+
+    elmHref.appendChild(elmImage);
+    return elmHref;
+}
+
+
+/* Possible candidates for generic - END */
+
+
+
+
+
+
+/* Temp exposes to global after refactor to module usage begin
+ * ... these must be set using add eventlisteners onload instead ... */
+window.login = login;
+window.showEditAccount = showEditAccount;
+window.showAddAccount = showAddAccount;
+window.changeAccount = changeAccount;
+window.showAddFinance = showAddFinance;
+window.getRepFinance = getRepFinance;
+window.addAccount = addAccount;
+window.hideModal = hideModal;
+window.changeAccountName = changeAccountName;
+window.createRepFinance = createRepFinance;
+window.addFinance = addFinance;
+window.logOut = logOut;
+window.inventoryCreate = inventoryCreate;
+window.memberCreate = memberCreate;
+window.userCreate = userCreate;

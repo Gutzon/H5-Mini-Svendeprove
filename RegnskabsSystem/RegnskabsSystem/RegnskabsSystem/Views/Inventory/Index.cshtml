@@ -3,22 +3,26 @@
 }
 
 
-<br>
-<br>
-<br>
-Overblik over inventar
-<br>
-
-Stk antal - VareNavn - Pris
-<br>
-<br>
-<br>
-<br>
-        public int ID { get; set; }
-<br>
-        public int CorporationID { get; set; }
-<br>
-        public string itemName { get; set; }
-<br>
-        public int value { get; set; }
-<br>
+<div class="gridContainer">
+    <table id="inventoryTable" class="mainTable" CELLSPACING="0">
+        <thead>
+            <tr>
+                <th class="tableHeaders">Id</th>
+                <th class="tableHeaders">Beskrivelse</th>
+                <th class="tableHeaders">Værdi</th>
+                <th class="tableHeaders">Ret</th>
+                <th class="tableHeaders">Slet</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr id="inventorySchema" class="hideElm">
+                <td class="tableData"></td>
+                <td class="tableData"></td>
+                <td class="tableData"></td>
+                <td class="tableData tdImg"></td>
+                <td class="tableData tdImg tableDataEnd"></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="text-center view-h2"><input type="button" class="FormSubmit submit-smaller" id="addUserButton" onclick="inventoryCreate(event)" value="Tilføj nyt inventar"></div>
+</div>
