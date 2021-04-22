@@ -187,7 +187,7 @@ select {
     flex-direction: row;
 }
 
-#headerArea navbar a, #headerArea navbar div {
+#headerArea navbar a, #headerArea navbar div, #headerArea navbar span {
     text-align: center;
     float: left;
     order: 1;
@@ -201,6 +201,10 @@ select {
     color: white;
     font-size: 4vh;
     padding: 1vh;
+}
+
+#headerArea navbar span {
+    background: #aaa;
 }
 
 #headerArea navbar div select {

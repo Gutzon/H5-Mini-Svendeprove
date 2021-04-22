@@ -13,11 +13,13 @@
             <div>
                 <navbar class="hideElm">
                     <div id="corporationInjection"></div>
-                    <a  id="accountMenuButton" href="/account">Konti</a>
-                    <span id="accountMenuDisabledButton hideElm">Inventar</span>
-                    <a href="/inventory">Inventar</a>
+                    <a id="accountMenuButton" href="/account">Konti</a>
+                    <span id="accountMenuDisabledButton" class="hideElm">Konti</span>
+                    <a id="inventoryMenuButton" href="/inventory">Inventar</a>
+                    <span id="inventoryMenuDisabledButton" class="hideElm">Inventar</span>
                     <a href="/user">Brugere</a>
-                    <a href="/member">Medlemmer</a>
+                    <a id="memberMenuButton" href="/member">Medlemmer</a>
+                    <span id="memberMenuDisabledButton" class="hideElm">Medlemmer</span>
                     <a href="/logout" onclick="logOut(event)">Log ud</a>
                 </navbar>
             </div>

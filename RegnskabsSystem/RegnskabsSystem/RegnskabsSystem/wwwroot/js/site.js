@@ -22,12 +22,30 @@ function startFunctions() {
         inventory.show();
         user.show();
 
-        let accountPermissions = helper.hasPermission(["AddFinance", "viewFinance"]);
+        let accountPermissions = helper.hasPermission(["addFinance", "viewFinance"]);
         let accountMenuButton = document.getElementById("accountMenuButton");
         let accountMenuDisabledButton = document.getElementById("accountMenuDisabledButton");
         if (!accountPermissions) {
             helper.addClass(accountMenuButton, "hideElm");
             helper.removeClass(accountMenuDisabledButton, "hideElm");
+        }
+
+
+        let inventoryPermissions = helper.hasPermission(["addInventory", "editInventory", "deleteInventory"]);
+        let inventoryMenuButton = document.getElementById("inventoryMenuButton");
+        let inventoryMenuDisabledButton = document.getElementById("inventoryMenuDisabledButton");
+        if (!inventoryPermissions) {
+            helper.addClass(inventoryMenuButton, "hideElm");
+            helper.removeClass(inventoryMenuDisabledButton, "hideElm");
+        }
+
+
+        let memberPermissions = helper.hasPermission(["addMember", "editMember", "deleteMember"]);
+        let memberMenuButton = document.getElementById("memberMenuButton");
+        let memberMenuDisabledButton = document.getElementById("memberMenuDisabledButton");
+        if (!memberPermissions) {
+            helper.addClass(memberMenuButton, "hideElm");
+            helper.removeClass(memberMenuDisabledButton, "hideElm");
         }
     }
 }
