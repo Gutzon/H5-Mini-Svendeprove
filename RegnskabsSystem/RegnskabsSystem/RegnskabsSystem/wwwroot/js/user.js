@@ -69,9 +69,34 @@ function performCreate(e) {
 
     helper.fetchDataTxt("POST", "/user", JSON.stringify(formData))
         .then((objData) => {
-            if (objData == "OK") alert("Det nye medlem er blevet tilføjet");
-            modal.hide(null, "userCreateModal");
-            show();
+            let jsonObject = JSON.parse(objData);
+
+            if (jsonObject.userCreated) {
+                alert("Brugeren blev oprettet");
+                modal.hide(null, "userCreateModal");
+                console.log("Midlertidig levering af kodeord, da vi ikke har webhotel på app'en:");
+                console.log(jsonObject.userPassword);
+                modal.hide(null, "userCreateSchema");
+                show();
+            }
+            else if (jsonObject.error !== "") {
+                switch (jsonObject.error) {
+                    case "FailSession":
+                        alert("Dit login er udløbet, du logges ud. Log venligst på igen.");
+                        helper.logOut();
+                        break;
+                    case "FailPermission":
+                        alert("Du kan ikke tildele de valgte rettigheder.");
+                        break;
+                    case "FailUserAddRights":
+                        alert("Din konto har ikke tilladelse til at tilføje brugere.");
+                        break;
+                    case "FailUserExists":
+                        alert("Brugernavnet er allerede reserveret til en bruger");
+                        break;
+                    default:
+                }
+            }
         })
         .catch((error) => {
             if ("Name empty") alert("Navn skal angives ved tilføjelse af medlem");
