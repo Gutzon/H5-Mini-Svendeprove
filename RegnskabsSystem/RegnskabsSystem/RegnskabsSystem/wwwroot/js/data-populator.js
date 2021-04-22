@@ -118,7 +118,7 @@ function injectData(rowSchemaId, objData, dataTransformer, editInitMethod, perfo
                 let editElm = dataPopulator.getImgTriggerElm(editInitMethod, objData[data], false);
                 tdElements[column++].appendChild(editElm);
             }
-            else tdElements.parentNode.removeChild(tdElements[column]);
+            else tdElements[0].parentNode.removeChild(tdElements[column]);
         }
 
         // Append delete button if allowed
