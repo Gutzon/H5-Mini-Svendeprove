@@ -111,7 +111,7 @@ function injectData(rowSchemaId, objData, dataTransformer, editInitMethod, perfo
 
         // Append edit button if allowed
         if (column < tdElements.length && editInitMethod !== undefined) {
-            if (hasEditPermission || ownDataObj["username"] == objData[data]["username"]) {
+            if (hasEditPermission || (ownDataObj["username"] == objData[data]["username"] && document.location.pathname == "/user")) {
                 let editElm = dataPopulator.getImgTriggerElm(editInitMethod, objData[data], false);
                 tdElements[column++].appendChild(editElm);
             }
@@ -120,11 +120,12 @@ function injectData(rowSchemaId, objData, dataTransformer, editInitMethod, perfo
 
         // Append delete button if allowed
         if (column < tdElements.length && performDeleteMethod !== undefined) {
-            if (hasDeletePermission && ownDataObj["username"] != objData[data]["username"]) {
+            if (hasDeletePermission && document.location.pathname != "/user" ||
+                hasDeletePermission && document.location.pathname == "/user" && (ownDataObj["username"] != objData[data]["username"])) {
                 let deleteElm = dataPopulator.getImgTriggerElm(performDeleteMethod, objData[data], true);
                 tdElements[column].appendChild(deleteElm);
             }
-            else if (!hasDeletePermission) {
+            else if (!hasDeletePermission && document.location.pathname != "/user") {
                 let deleteElm = dataPopulator.getImgTriggerElm(performDeleteMethod, objData[data], true);
                 tdElements[column].parentNode.removeChild(tdElements[column]);
             }
