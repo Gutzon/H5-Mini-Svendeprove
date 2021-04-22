@@ -13,8 +13,9 @@
 
 /* Imports help split script by functionality */
 import { helper } from './helper.js';
-import { dataPopulator } from './data-populator.js';
 import { modal } from './modal.js';
+import { inventory } from './inventory.js';
+import { dataPopulator } from './data-populator.js';
 
 
 
@@ -30,9 +31,39 @@ function startFunctions() {
         populateCorporationSelector();
         showFinances();
 
-        showInventory();
+        attachElmEvents();
+
+        /* Refactored */
+        inventory.show();
     }
 }
+
+function attachElmEvents() {
+
+    /* use add event listener for some these - move others to methods
+     * window.login = login;
+window.showEditAccount = showEditAccount;
+window.showAddAccount = showAddAccount;
+window.changeAccount = changeAccount;
+window.showAddFinance = showAddFinance;
+window.getRepFinance = getRepFinance;
+window.addAccount = addAccount;
+window.hide = modal.hide;
+window.changeAccountName = changeAccountName;
+window.createRepFinance = createRepFinance;
+window.addFinance = addFinance;
+window.helper.logOut = helper.logOut;
+window.memberCreate = memberCreate;
+window.userCreate = userCreate;*/
+
+    /*
+    let elm = document.getElementById("inventoryCreateInitButton");
+    if (elm != null) {
+        elm.addEventListener("click", function (e) { inventory.create(e) });
+    }*/
+}
+
+
 
 
 // Navigation
@@ -41,41 +72,10 @@ function highlightMenu() {
     for (var navChild of menu.childNodes) {
         if (navChild.localName != "a") continue;
         let linkPath = new URL(navChild.href).pathname;
-        if (document.location.pathname == linkPath) addClass(navChild, "activeNav");
+        if (document.location.pathname == linkPath) helper.addClass(navChild, "activeNav");
     }
 }
 
-// General functionality
-function getFormJsonData(formId) {
-    var formDataObject = {};
-    let form = document.forms[formId];
-    if (form == null) return formDataObject;
-    for (let elm of document.forms[formId]) {
-        placeElmValueInObject(formDataObject, elm);
-    }
-    return formDataObject
-}
-
-function placeElmValueInObject(formDataObject, elm) {
-    let elmType = elm.getAttribute("type");
-    if (elmType === "button" || elmType == null) return;
-    let disabled = elm.getAttribute("disabled");
-    if (disabled != null) return;
-
-    let elmName = elm.getAttribute("name");
-    if (elmName === undefined) return;
-
-    let subObjectPosition = getJsonObjectForValue(elm);
-    if (subObjectPosition.length > 0) {
-        for (let pos of subObjectPosition) {
-            if (formDataObject[pos] == undefined) formDataObject[pos] = {};
-            formDataObject[pos][elmName] = (elmType === "checkbox") ? elm.checked : elm.value;
-        }
-    }
-    else {
-        formDataObject[elmName] = (elmType === "checkbox") ? elm.checked : elm.value;
-    }
-}
 
 
 
@@ -110,7 +110,7 @@ function validateToken() {
             }
             else if (this.readyState === XMLHttpRequest.DONE && this.status === 400) {
                 alert("Dit login er udløbet, log venligst på igen.");
-                logOut();
+                helper.logOut();
             }
         }
 
@@ -119,48 +119,6 @@ function validateToken() {
     return isLoggedIn;
 }
 
-
-
-// Class functionality
-function addClass(elm, className) {
-    let currentClass = elm.getAttribute("class");
-    if (currentClass === null) currentClass = "";
-    let classParts = currentClass.split(" ");
-    for (let i = 0; i < classParts.length; i++) {
-        if (classParts[i] === className) {
-            return;
-        }
-    }
-    elm.setAttribute("class", currentClass + (currentClass.length > 0 ? " " : "") + className);
-}
-
-function removeClass(elm, className) {
-    let newClass = "";
-    let currentClass = elm.getAttribute("class");
-    if (currentClass === null) currentClass = "";
-    let classParts = currentClass.split(" ");
-    for (let i = 0; i < classParts.length; i++) {
-        if (classParts[i] === className) {
-            continue;
-        }
-        newClass += (newClass.length > 0 ? " " : "") + classParts[i]
-    }
-    elm.setAttribute("class", newClass);
-}
-
-function getJsonObjectForValue(elm) {
-    let jsonObjectToPlace = [];
-    let currentClass = elm.getAttribute("class");
-    if (currentClass === null) currentClass = "";
-    let classParts = currentClass.split(" ");
-    for (let i = 0; i < classParts.length; i++) {
-        if (classParts[i].indexOf("ToJsonObject") != 0) {
-            continue;
-        }
-        jsonObjectToPlace.push(classParts[i].substring("ToJsonObject".length));
-    }
-    return jsonObjectToPlace;
-}
 
 
 
@@ -191,7 +149,7 @@ function removeCookieParam(param) {
 }
 
 function login(e) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     let loginForm = document.forms["loginForm"];
     if (loginForm == undefined) return;
 
@@ -206,11 +164,11 @@ function login(e) {
         else if (this.readyState === XMLHttpRequest.DONE && this.status === 400) {
             if (xhr.responseText === "AccessDenied") alert("Brugernavn/kodeord matchede ikke.");
             else if (xhr.responseText === "AccountFail") alert("Der er fejl på brugerkonti, kontakt administrator.");
-            logOut();
+            helper.logOut();
         }
     }
 
-    let formData = getFormJsonData("loginForm");
+    let formData = helper.getFormJsonData("loginForm");
     xhr.send(JSON.stringify(formData));
 }
 
@@ -228,30 +186,6 @@ function handleLogin(responseText) {
     catch {
         alert("En fejl skete under login, kontakt venligst en administrator.");
     }
-}
-
-function logOut(e, confirmLogout) {
-    if (e != null) e.preventDefault();
-    let tokenSet = getCookieParam("accessToken");
-    if (tokenSet !== "") {
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", '/user/logout', true);
-        xhr.setRequestHeader("Content-Type", "application/json");
-
-        xhr.onreadystatechange = function () {
-            if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-                removeCookieParam("corporations");
-                removeCookieParam("selectedCorp");
-                removeCookieParam("accessToken");
-                removeCookieParam("userName");
-                removeCookieParam("user");
-                if (confirmLogout) alert("Du er blevet logget ud.")
-                document.location.href = "/";
-            }
-        }
-        xhr.send();
-    }
-    showNavbar(false);
 }
 
 
@@ -303,6 +237,7 @@ function changeCorporation() {
 
                 removeCookieParam("selectedAcc");
                 showFinances();
+                inventory.show();
             }
         }
     }
@@ -374,7 +309,7 @@ function getEditUserElm(user) {
 
     let elmImage = document.createElement("img");
     elmImage.setAttribute("src", "/Media/EditIcon.png");
-    addClass(elmImage, "tableImgEdit");
+    helper.addClass(elmImage, "tableImgEdit");
 
     elmHref.appendChild(elmImage);
     return elmHref;
@@ -386,7 +321,7 @@ function getDeleteUserElm(user) {
     elmHref.addEventListener("click", function () { deleteUser(event, user) });
     let elmImage = document.createElement("img");
     elmImage.setAttribute("src", "/Media/DeleteIcon.png");
-    addClass(elmImage, "tableImgDelete");
+    helper.addClass(elmImage, "tableImgDelete");
 
     elmHref.appendChild(elmImage);
     return elmHref;
@@ -399,21 +334,21 @@ function addUsersToOverview(userTableList, userList) {
     while (trUsers.length > 2) trUsers[2].parentNode.removeChild(trUsers[2]);
 
     let ownData = getCookieParam("user");
-    if (ownData == "") logOut(null, true);
+    if (ownData == "") helper.logOut(null, true);
     let ownDataObj = JSON.parse(ownData);
     let ownPermissions = ownDataObj.permissions;
     let hasDeleteRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.deleteUser);
 
     let userCloneRow = userTableList.getElementsByTagName("tr")[1].cloneNode(true);
     cleanUserOverviewElements(userCloneRow, hasDeleteRightsGeneral);
-    removeClass(userCloneRow, "hideElm");
+    helper.removeClass(userCloneRow, "hideElm");
 
     let hasAddRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.addUser);
     let addUserButton = document.getElementById("addUserButton");
     if (hasAddRightsGeneral) {
-        removeClass(addUserButton, "hideElm");
+        helper.removeClass(addUserButton, "hideElm");
     }
-    else addClass(addUserButton, "hideElm");
+    else helper.addClass(addUserButton, "hideElm");
 
     for (var user of userList) {
         // Rights evaluation on user protection to avoid showing edit/delete where not applicable
@@ -456,7 +391,7 @@ function cleanUserOverviewElements(userCloneRow, hasDeleteRightsGeneral) {
 
 
 function performUserCreate(e) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     let userCreateForm = document.forms["userCreateForm"];
     if (userCreateForm == undefined) return;
 
@@ -480,7 +415,7 @@ function performUserCreate(e) {
                     switch (jsonObject.error) {
                         case "FailSession":
                             alert("Dit login er udløbet, du logges ud. Log venligst på igen.");
-                            logOut();
+                            helper.logOut();
                             break;
                         case "FailPermission":
                             alert("Du kan ikke tildele de valgte rettigheder.");
@@ -501,7 +436,7 @@ function performUserCreate(e) {
         }
     }
 
-    let formData = getFormJsonData("userCreateForm");
+    let formData = helper.getFormJsonData("userCreateForm");
     xhr.send(JSON.stringify(formData));
 }
 
@@ -510,12 +445,12 @@ function performUserCreate(e) {
 
 
 function userEdit(e, user) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
 
     let editForm = document.getElementById("userEditForm");
 
     let ownData = getCookieParam("user");
-    if (ownData == "") logOut(null, true);
+    if (ownData == "") helper.logOut(null, true);
     let ownDataObj = JSON.parse(ownData);
     let ownPermissions = ownDataObj.permissions;
     let hasPasswordEditPermission = (ownPermissions.addCorporation || ownPermissions.admin ||
@@ -523,8 +458,8 @@ function userEdit(e, user) {
     );
 
     let passwordEditBox = document.getElementById("editUserPassword");
-    if (hasPasswordEditPermission) removeClass(passwordEditBox, "hideElm");
-    else addClass(passwordEditBox, "hideElm");
+    if (hasPasswordEditPermission) helper.removeClass(passwordEditBox, "hideElm");
+    else helper.addClass(passwordEditBox, "hideElm");
 
     for (let userParam in user) {
 
@@ -565,13 +500,13 @@ function showUserEditPermissions(username, userPermissions) {
     while (permissionRows.length > 1) permissionRows[1].parentNode.removeChild(permissionRows[1]);
 
     let ownData = getCookieParam("user");
-    if (ownData == "") logOut(null, true);
+    if (ownData == "") helper.logOut(null, true);
     let ownDataObj = JSON.parse(ownData);
     let ownPermissions = ownDataObj.permissions;
 
     for (let permission in userPermissions) {
         let permissionRow = permissionTBody.getElementsByTagName("tr")[0].cloneNode(true);
-        removeClass(permissionRow, "hideElm");
+        helper.removeClass(permissionRow, "hideElm");
 
         let hasRightToEditPermission = (ownPermissions.addCorporation
             || ownPermissions.admin && permission != "addCorporation"
@@ -588,7 +523,7 @@ function showUserEditPermissions(username, userPermissions) {
 }
 
 function performUserEdit(e, oldUser) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     let xhr = new XMLHttpRequest();
     xhr.open("POST", '/user/edit', true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -597,14 +532,14 @@ function performUserEdit(e, oldUser) {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
 
             let ownData = getCookieParam("user");
-            if (ownData == "") logOut(null, true);
+            if (ownData == "") helper.logOut(null, true);
             let ownDataObj = JSON.parse(ownData);
             let editedSelf = oldUser["username"] == ownDataObj["username"];
 
             if (xhr.responseText == "true") {
                 if (editedSelf) {
                     alert("Din egen bruger blev redigeret, du logges nu af - log venligst på igen");
-                    logOut(null, false);
+                    helper.logOut(null, false);
                 }
                 alert("Bruger blev redigeret");
                 modal.hide(null, "userEditSchema");
@@ -617,7 +552,7 @@ function performUserEdit(e, oldUser) {
         }
     }
 
-    let formData = getFormJsonData("userEditForm");
+    let formData = helper.getFormJsonData("userEditForm");
     let userEditObject = { oldUser: oldUser, newUser: formData }
     xhr.send(JSON.stringify(userEditObject));
 }
@@ -626,7 +561,7 @@ function performUserEdit(e, oldUser) {
 
 
 function userCreate(e) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     showUserCreatePermissions();
 
     // Assign perform create function
@@ -647,12 +582,12 @@ function showUserCreatePermissions() {
     while (permissionRows.length > 1) permissionRows[1].parentNode.removeChild(permissionRows[1]);
 
     let ownData = getCookieParam("user");
-    if (ownData == "") logOut(null, true);
+    if (ownData == "") helper.logOut(null, true);
     let ownPermissions = JSON.parse(getCookieParam("user")).permissions;
 
     for (let permission in ownPermissions) {
         let permissionRow = permissionTBody.getElementsByTagName("tr")[0].cloneNode(true);
-        removeClass(permissionRow, "hideElm");
+        helper.removeClass(permissionRow, "hideElm");
 
         let permissionColumns = permissionRow.getElementsByTagName("td");
         permissionColumns[0].appendChild(document.createTextNode(permission)); // Oversæt evt. senere
@@ -675,7 +610,7 @@ function newPermissionCheckBox(elmName, checked, disabled, toPermissionObj, hide
     checkbox.setAttribute("name", elmName);
     if (checked) checkbox.setAttribute("checked", "checked");
     if (disabled) checkbox.setAttribute("disabled", "disabled");
-    if (toPermissionObj) addClass(checkbox, "ToJsonObjectPermissions");
+    if (toPermissionObj) helper.addClass(checkbox, "ToJsonObjectPermissions");
     return checkbox;
 }
 
@@ -732,7 +667,7 @@ function getEditMemberElm(member) {
 
     let elmImage = document.createElement("img");
     elmImage.setAttribute("src", "/Media/EditIcon.png");
-    addClass(elmImage, "tableImgEdit");
+    helper.addClass(elmImage, "tableImgEdit");
 
     elmHref.appendChild(elmImage);
     return elmHref;
@@ -746,7 +681,7 @@ function getDeleteMemberElm(member) {
 
     let elmImage = document.createElement("img");
     elmImage.setAttribute("src", "/Media/DeleteIcon.png");
-    addClass(elmImage, "tableImgDelete");
+    helper.addClass(elmImage, "tableImgDelete");
 
     elmHref.appendChild(elmImage);
     return elmHref;
@@ -759,7 +694,7 @@ function addMembersToOverview(memberTableList, memberList) {
     while (trMembers.length > 2) trMembers[2].parentNode.removeChild(trMembers[2]);
 
     let ownData = getCookieParam("user");
-    if (ownData == "") logOut(null, true);
+    if (ownData == "") helper.logOut(null, true);
     let ownDataObj = JSON.parse(ownData);
     let ownPermissions = ownDataObj.permissions;
     let hasDeleteRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.deleteMember);
@@ -768,13 +703,13 @@ function addMembersToOverview(memberTableList, memberList) {
     let hasAddRightsGeneral = (ownPermissions.addCorporation || ownPermissions.admin || ownPermissions.addMember);
     let addMemberButton = document.getElementById("addMemberButton");
     if (hasAddRightsGeneral) {
-        removeClass(addMemberButton, "hideElm");
+        helper.removeClass(addMemberButton, "hideElm");
     }
-    else addClass(addMemberButton, "hideElm");
+    else helper.addClass(addMemberButton, "hideElm");
 
     let memberCloneRow = memberTableList.getElementsByTagName("tr")[1].cloneNode(true);
     cleanMemberOverviewElements(memberCloneRow, hasEditRightsGeneral, hasDeleteRightsGeneral);
-    removeClass(memberCloneRow, "hideElm");
+    helper.removeClass(memberCloneRow, "hideElm");
 
 
     for (var member of memberList) {
@@ -820,7 +755,7 @@ function cleanMemberOverviewElements(userCloneRow, hasEditRightsGeneral, hasDele
 
 
 function memberCreate(e) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
 
     // Assign perform create function
     let createButton = document.getElementById("performCreateButton");
@@ -836,7 +771,7 @@ function memberCreate(e) {
 
 
 function performMemberCreate(e) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     let userCreateForm = document.forms["memberCreateForm"];
     if (userCreateForm == undefined) return;
 
@@ -863,7 +798,7 @@ function performMemberCreate(e) {
                         break;
                     case "No session":
                         alert("Du er blevet logget ud, log venligst på igen");
-                        logOut(null, false);
+                        helper.logOut(null, false);
                         break;
                     default:
                 }
@@ -874,7 +809,7 @@ function performMemberCreate(e) {
         }
     }
 
-    let formData = getFormJsonData("memberCreateForm");
+    let formData = helper.getFormJsonData("memberCreateForm");
     xhr.send(JSON.stringify(formData));
 }
 
@@ -882,7 +817,7 @@ function performMemberCreate(e) {
 
 
 function memberEdit(e, member) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
 
     let editForm = document.getElementById("memberEditForm");
     for (let memberParam in member) {
@@ -913,7 +848,7 @@ function memberEdit(e, member) {
 
 
 function performMemberEdit(e, member) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     let xhr = new XMLHttpRequest();
     xhr.open("POST", '/member/edit', true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -934,7 +869,7 @@ function performMemberEdit(e, member) {
                     break;
                 case "No session":
                     alert("Dit login er udløbet, du logges af - log venligst på igen");
-                    logOut(null, false);
+                    helper.logOut(null, false);
                     break;
                 default:
             }
@@ -944,14 +879,14 @@ function performMemberEdit(e, member) {
         }
     }
 
-    let formData = getFormJsonData("memberEditForm");
+    let formData = helper.getFormJsonData("memberEditForm");
     let memberEditObject = { oldMember: member, newMember: formData }
     xhr.send(JSON.stringify(memberEditObject));
 }
 
 
 function performMemberDelete(e, member) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     let xhr = new XMLHttpRequest();
     xhr.open("POST", '/member/delete', true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -972,7 +907,7 @@ function performMemberDelete(e, member) {
                     break;
                 case "No session":
                     alert("Dit login er udløbet, du logges af - log venligst på igen");
-                    logOut(null, false);
+                    helper.logOut(null, false);
                     break;
                 default:
             }
@@ -995,8 +930,8 @@ function performMemberDelete(e, member) {
 function showNavbar(show) {
     let navbar = document.getElementById("headerArea").getElementsByTagName("navbar")[0];
     if (navbar == null) return;
-    if (show) removeClass(navbar, "hideElm");
-    else addClass(navbar, "hideElm");
+    if (show) helper.removeClass(navbar, "hideElm");
+    else helper.addClass(navbar, "hideElm");
 }
 
 
@@ -1028,7 +963,7 @@ function changeAccount() {
 
 
 function addAccount(e) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     let addAccountForm = document.forms["addAccountForm"];
     if (addAccountForm == undefined) return;
 
@@ -1053,7 +988,7 @@ function addAccount(e) {
                         break;
                     case "No session":
                         alert("Din session er udløbet, du logges af - log på igen");
-                        logOut(null, false);
+                        helper.logOut(null, false);
                         break;
                     default:
                 }
@@ -1065,7 +1000,7 @@ function addAccount(e) {
         }
     }
 
-    let formData = getFormJsonData("addAccountForm");
+    let formData = helper.getFormJsonData("addAccountForm");
     xhr.send(JSON.stringify(formData));
 
 }
@@ -1112,13 +1047,13 @@ function insertAccounts(accounts, accountSelect) {
 
 
 function showAddAccount(e) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     modal.show(null, "createAccountSchema");
 }
 
 
 function showEditAccount(e) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     let editForm = document.getElementById("accountEditForm");
     let accountChosen = getCookieParam("selectedAcc");
     editForm.elements["AccountName"].value = accountChosen;
@@ -1127,7 +1062,7 @@ function showEditAccount(e) {
 }
 
 function changeAccountName(e) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     let xhr = new XMLHttpRequest();
     xhr.open("POST", '/account/change', true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -1135,7 +1070,7 @@ function changeAccountName(e) {
     xhr.onreadystatechange = function () {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             alert("Konti navnet blev rettet");
-            setCookieParam("selectedAcc", getFormJsonData("accountEditForm").NewAccountName);
+            setCookieParam("selectedAcc", helper.getFormJsonData("accountEditForm").NewAccountName);
             modal.hide(null, "editAccountSchema");
             showFinances();
         }
@@ -1152,14 +1087,14 @@ function changeAccountName(e) {
                     break;
                 case "Name session":
                     alert("Dit login er udløbet, log venligst på igen");
-                    logOut(null, false);
+                    helper.logOut(null, false);
                     break;
                 default:
             }
         }
     }
 
-    let formData = getFormJsonData("accountEditForm");
+    let formData = helper.getFormJsonData("accountEditForm");
     xhr.send(JSON.stringify(formData));
 }
 
@@ -1211,7 +1146,7 @@ function showPostings(postings) {
     if (showSelectedAccount && accountColumn == null) {
         let insertAccountBefore = document.getElementById("dateColumn");
         let accountElm = document.createElement("td");
-        addClass(accountElm, "tableHeaders");
+        helper.addClass(accountElm, "tableHeaders");
         accountElm.setAttribute("id", "accountColumn");
         accountElm.appendChild(document.createTextNode("Konti"));
         trPostings[0].insertBefore(accountElm, insertAccountBefore);
@@ -1224,7 +1159,7 @@ function showPostings(postings) {
     for (let i = 0; i < postings.length; i++) {
 
         let financeClone = financeSchema.cloneNode(true);
-        removeClass(financeClone, "hideElm");
+        helper.removeClass(financeClone, "hideElm");
 
         let financeColumns = financeClone.getElementsByTagName("td");
         let column = 0;
@@ -1284,13 +1219,13 @@ function toFinanceNumber(value) {
 
 
 function showAddFinance(e) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     modal.show(null, "createFinanceSchema");
 }
 
 
 function addFinance(e) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     let addFinanceForm = document.forms["addFinanceForm"];
     if (addFinanceForm == undefined) return;
 
@@ -1309,14 +1244,14 @@ function addFinance(e) {
                 else switch (successMsg) {
                     case "Wrong Konti name":
                         alert("Der skete en teknisk fejl i forhold til at oprette postering under kontien.");
-                        logOut();
+                        helper.logOut();
                         break;
                     case "not permitted":
                         alert("Du kan ikke tilføje en postering.");
                         break;
                     case "no session":
                         alert("Dit login er udløbet, du logges ud. Log venligst på igen.");
-                        logOut();
+                        helper.logOut();
                         break;
                     default:
                 }
@@ -1327,7 +1262,7 @@ function addFinance(e) {
         }
     }
 
-    let formData = getFormJsonData("addFinanceForm");
+    let formData = helper.getFormJsonData("addFinanceForm");
     formData.value = formData.value.replace(",", ".");
     formData.konti = document.getElementById("accountInjection").value;
     xhr.send(JSON.stringify(formData));
@@ -1335,7 +1270,7 @@ function addFinance(e) {
 
 
 function deleteUser(e, user) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     let xhr = new XMLHttpRequest();
     xhr.open("POST", '/user/delete', true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -1366,7 +1301,7 @@ window.onresize += modal.resize();
 
 /* Repeating finance entries */
 function getRepFinance(e) {
-    if (e != null) e.preventDefault();
+    if (e != undefined) e.preventDefault();
 
     let xhr = new XMLHttpRequest();
     xhr.open("GET", '/account/finance/repeated', true);
@@ -1399,7 +1334,7 @@ function populateRepFinances(repFinances) {
 
     for (let repFinance of repFinances) {
         let clonedRepFinanceRow = repFinanceEntries[0].cloneNode(true);
-        removeClass(clonedRepFinanceRow, "hideElm");
+        helper.removeClass(clonedRepFinanceRow, "hideElm");
         let clonedTds = clonedRepFinanceRow.getElementsByTagName("td");
 
         for (let i = 0; i < clonedTds.length; i++) {
@@ -1454,7 +1389,7 @@ function getDeleteRepFinanceElm(repFinance) {
     elmHref.addEventListener("click", function () { deleteRepFinance(event, repFinance) });
     let elmImage = document.createElement("img");
     elmImage.setAttribute("src", "/Media/DeleteIcon.png");
-    addClass(elmImage, "tableImgDelete");
+    helper.addClass(elmImage, "tableImgDelete");
 
     elmHref.appendChild(elmImage);
     return elmHref;
@@ -1464,7 +1399,7 @@ function getDeleteRepFinanceElm(repFinance) {
 
 
 function deleteRepFinance(e, repFinance) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
     let xhr = new XMLHttpRequest();
     xhr.open("POST", '/account/finance/repeated/delete', true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -1494,7 +1429,7 @@ function deleteRepFinance(e, repFinance) {
 
 
 function createRepFinance(e) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
 
     // Assign perform create function
     let editButton = document.getElementById("performCreateRepFinanceButton");
@@ -1508,7 +1443,7 @@ function createRepFinance(e) {
 }
 
 function performCreateRepFinance(e) {
-    e.preventDefault();
+    if (e != undefined) e.preventDefault();
 
     let createRepFinanceForm = document.forms["createRepFinanceForm"];
     if (createRepFinanceForm == undefined) return;
@@ -1538,7 +1473,7 @@ function performCreateRepFinance(e) {
         }
     }
 
-    let formData = getFormJsonData("createRepFinanceForm");
+    let formData = helper.getFormJsonData("createRepFinanceForm");
     xhr.send(JSON.stringify(formData));
 }
 
@@ -1548,95 +1483,6 @@ function performCreateRepFinance(e) {
 
 
 
-
-
-
-/* Inventory */
-function showInventory() {
-    let inventoryRowSchema = document.getElementById("inventorySchema");
-    if (inventoryRowSchema == null) return;
-
-    helper.fetchData("GET", "/inventory/overview", "a")
-        .then((objData) => {
-            injectInventoryData(inventoryRowSchema, objData, tranformInventoryData, editInventory, deleteInventory);
-        })
-        .catch((error) => {
-            helper.errorNotify("hentning af inventar.", error);
-        });
-}
-
-function tranformInventoryData(param, data) {
-    if (param.toUpperCase() == "CORPORATIONID") return null;
-    else return document.createTextNode(data[param]);
-}
-
-function editInventory(data) {
-    dataPopulator.populateModal("inventoryEdit", objData, performEditInventory);
-
-    /*
-    helper.fetchData("GET", "/inventory/overview", "a")
-        .then((objData) => {
-            
-        })
-        .catch((error) => {
-            helper.errorNotify("redigering af inventar.", error);
-        });*/
-}
-
-function performEditInventory() {
-    modal.hide(null, "inventoryEditModal");
-}
-
-
-
-
-function deleteInventory() {
-    alert("Delete inventory");
-}
-
-
-function inventoryCreate() {
-
-}
-
-
-
-
-
-
-/* Possible candidates for generic - START */
-function injectInventoryData(rowSchema, objData, dataTransformer, editMethod, deleteMethod) {
-    let parentElm = rowSchema.parentNode;
-
-    for (let data of objData) {
-        let clonedRow = rowSchema.cloneNode(true);
-        let tdElements = clonedRow.getElementsByTagName("td");
-
-        let column = 0;
-        for (let param in data) {
-            let tdChildElm = dataTransformer(param, data);
-            if (tdChildElm == null) continue;
-            tdElements[column++].appendChild(tdChildElm);
-        }
-
-        if (column < tdElements.length && editMethod !== undefined) {
-            let editElm = dataPopulator.getImgTriggerElm(editMethod, data, false);
-            tdElements[column++].appendChild(editElm);
-        }
-
-        if (column < tdElements.length && deleteMethod !== undefined) {
-            let editElm = dataPopulator.getImgTriggerElm(deleteMethod, data, true);
-            tdElements[column++].appendChild(editElm);
-        }
-
-        removeClass(clonedRow, "hideElm");
-        parentElm.appendChild(clonedRow);
-    }
-}
-
-
-
-/* Possible candidates for generic - END */
 
 
 
@@ -1656,7 +1502,6 @@ window.hide = modal.hide;
 window.changeAccountName = changeAccountName;
 window.createRepFinance = createRepFinance;
 window.addFinance = addFinance;
-window.logOut = logOut;
-window.inventoryCreate = inventoryCreate;
+window.logOut = helper.logOut;
 window.memberCreate = memberCreate;
 window.userCreate = userCreate;

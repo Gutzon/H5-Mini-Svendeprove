@@ -1,38 +1,14 @@
 ﻿import { modal } from './modal.js';
-
-/**
- * Return an edit/delte img with onclick event
- * @param {any} method The method to run onclick
- * @param {any} dataObj Data for the method
- * @param {any} isDelete Return a delete/edit img
- */
-function getImgTriggerElm(method, dataObj, isDelete) {
-    let elmHref = document.createElement("a");
-    elmHref.setAttribute("href", "#");
-    elmHref.addEventListener("click", function () { method(event, dataObj) });
-
-    let imgType = (isDelete ? "Delete" : "Edit");
-    let imgSrc = ("/Media/" + imgType + "Icon.png");
-    let imgClass = ("tableImg" + imgType);
-
-    let elmImage = document.createElement("img");
-    elmImage.setAttribute("src", imgSrc);
-    addClass(elmImage, imgClass);
-
-    elmHref.appendChild(elmImage);
-    return elmHref;
-}
-
+import { helper } from './helper.js';
 
 /**
  * Inserts data into modals
  * @param {any} modalId The id for modal/form
  * @param {any} objData Data to be parsed in
- * @param {any} method Method to run on confirm
+ * @param {any} dataTransformer Opt. method defining how to handle data
  */
-function populateModal(modalId, objData, method, dataTransformer) {
-    let modalMain = document.getElementById(modalId + "Modal");
-    let modalHead = document.getElementById(modalId + "ModalHead");
+function populateEditModal(modalId, objData, dataTransformer) {
+    // TODO: Use dataTransformer when refactoring to use this genericly
     let modalForm = document.getElementById(modalId + "Form");
     insertCloseModalElm(modalHead);
 
@@ -49,22 +25,37 @@ function populateModal(modalId, objData, method, dataTransformer) {
         }
         oldParamElm.appendChild(document.createTextNode(objData[param]));
     }
+
+    modal.show(null, modalId + "Modal");
 }
 
-function insertCloseModalElm(modalHead) {
-    let modalAElms = modalHead.getElementsByTagName("a");
-    if (modalAElms.length == 0) {
-        let modalClose = document.createElement("a");
-        modalClose.addEventListener("click", modal.hide(event, modalId + "Modal"));
-        modalClose.setAttribute("href", "/closeModal");
-        let modalCloseImg = document.createElement("img");
-        modalCloseImg.setAttribute("src", "/Media/DeleteIcon.png");
-    }
+
+/**
+ * Return an edit/delte img with onclick event
+ * @param {any} method The method to run onclick
+ * @param {any} dataObj Data for the method
+ * @param {any} isDelete Return a delete/edit img
+ */
+function getImgTriggerElm(method, dataObj, isDelete) {
+    let elmHref = document.createElement("a");
+    elmHref.setAttribute("href", "#");
+    elmHref.addEventListener("click", function (e) { method(e, dataObj) });
+
+    let imgType = (isDelete ? "Delete" : "Edit");
+    let imgSrc = ("/Media/" + imgType + "Icon.png");
+    let imgClass = ("tableImg" + imgType);
+
+    let elmImage = document.createElement("img");
+    elmImage.setAttribute("src", imgSrc);
+    helper.addClass(elmImage, imgClass);
+
+    elmHref.appendChild(elmImage);
+    return elmHref;
 }
 
 
 
 export let dataPopulator = {
-    getImgTriggerElm: getImgTriggerElm,
-    populateModal: populateModal
+    populateEditModal: populateEditModal,   
+    getImgTriggerElm: getImgTriggerElm
 };

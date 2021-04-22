@@ -35,51 +35,8 @@ namespace RegnskabsSystem.Controllers
         [HttpGet("overview")]
         public ActionResult<IEnumerable<Inventory>> Overview()
         {
-            /* Temp return data - deactivate when ready */
-            /*
-            var tempReturn = new List<Inventory>()
-            {
-                new Inventory()
-                {
-                    ID = 1,
-                    itemName = "Låne håndklæde",
-                    value = 20
-                },
-
-                new Inventory()
-                {
-                    ID = 2,
-                    itemName = "Pølsebrød",
-                    value = 20
-                },
-
-                new Inventory()
-                {
-                    ID = 3,
-                    itemName = "Computer",
-                    value = 1000
-                },
-
-                new Inventory()
-                {
-                    ID = 4,
-                    itemName = "Træningsvest",
-                    value = 30
-                },
-
-                new Inventory()
-                {
-                    ID = 5,
-                    itemName = "Plæneklipper",
-                    value = 750
-                }
-            };
-
-            return Ok(tempReturn);*/
-
             var inventoryList = serverSideData.GetInven(Credentials);
             return Ok(inventoryList);
-
         }
 
         [HttpPost()]

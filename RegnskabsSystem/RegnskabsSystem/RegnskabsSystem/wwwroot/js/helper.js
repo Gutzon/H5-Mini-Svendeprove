@@ -4,7 +4,7 @@
  * @param {any} path - Define path for the request
  * @param {any} bodyData - Define body if applicable
  */
-function fetchData(method, path, bodyData) {
+function fetch(method, path, bodyData) {
     return new Promise((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.open(method, path, true);
@@ -13,8 +13,7 @@ function fetchData(method, path, bodyData) {
         xhr.onreadystatechange = function () {
             if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
                 try {
-                    let objData = JSON.parse(xhr.responseText);
-                    resolve(objData);
+                    resolve(xhr.responseText);
                 }
                 catch {
                     reject("InterpretationError");
@@ -23,9 +22,35 @@ function fetchData(method, path, bodyData) {
             else if (this.readyState === XMLHttpRequest.DONE && this.status !== 200) reject(xhr.responseText);
         }
 
-        if (bodyData === undefined) xhr.send();
+        if (bodyData === undefined || bodyData == null) xhr.send();
         else xhr.send(bodyData);
     });
+}
+
+/**
+ * Fetches data using ajax - as an object
+ * @param {any} method - Define POST/GET
+ * @param {any} path - Define path for the request
+ * @param {any} bodyData - Define body if applicable
+ */
+function fetchData(method, path, bodyData) {
+    return fetch(method, path, bodyData)
+        .then((objData) => {
+            return JSON.parse(objData);
+        })
+        .catch((error) => {
+            helper.errorNotify("hentning af data.", error);
+        });
+}
+
+/**
+ * Fetches data using ajax - returns txt
+ * @param {any} method - Define POST/GET
+ * @param {any} path - Define path for the request
+ * @param {any} bodyData - Define body if applicable
+ */
+function fetchDataTxt(method, path, bodyData) {
+    return fetch(method, path, bodyData);
 }
 
 
@@ -39,7 +64,147 @@ function errorNotify(activity, error) {
     console.log(error);
 }
 
+
+/**
+ * Adds a class to the class attribute
+ * @param {any} elm Element
+ * @param {any} className Class to add
+ */
+function addClass(elm, className) {
+    let currentClass = elm.getAttribute("class");
+    if (currentClass === null) currentClass = "";
+    let classParts = currentClass.split(" ");
+    for (let i = 0; i < classParts.length; i++) {
+        if (classParts[i] === className) {
+            return;
+        }
+    }
+    elm.setAttribute("class", currentClass + (currentClass.length > 0 ? " " : "") + className);
+}
+
+/**
+ * Removes a class to the class attribute
+ * @param {any} elm Element
+ * @param {any} className Class to remove
+ */
+function removeClass(elm, className) {
+    let newClass = "";
+    let currentClass = elm.getAttribute("class");
+    if (currentClass === null) currentClass = "";
+    let classParts = currentClass.split(" ");
+    for (let i = 0; i < classParts.length; i++) {
+        if (classParts[i] === className) {
+            continue;
+        }
+        newClass += (newClass.length > 0 ? " " : "") + classParts[i]
+    }
+    elm.setAttribute("class", newClass);
+}
+
+
+/**
+ * Adds a method for a button (one method only)
+ * @param {any} buttonId ButtonId name, InitButton appended
+ * @param {any} method Method to run
+ */
+function addInitButtonEvent(buttonId, method) {
+    let elm = document.getElementById(buttonId + "InitButton");
+    if (elm == null) return;
+
+    /* Ensure only attaching method once */
+    if (elm.getAttribute("class").indexOf("eventAdded") == -1) {
+        elm.addEventListener("click", function (e) { method(e) });
+        helper.addClass(elm, "eventAdded");
+    }
+}
+
+
+
+/**
+ * Get data in form as an object
+ * @param {any} formId The form id
+ */
+function getFormJsonData(formId) {
+    var formDataObject = {};
+    let form = document.forms[formId];
+    if (form == null) return formDataObject;
+    for (let elm of document.forms[formId]) {
+        placeElmValueInObject(formDataObject, elm);
+    }
+    return formDataObject
+}
+
+function placeElmValueInObject(formDataObject, elm) {
+    let elmType = elm.getAttribute("type");
+    if (elmType === "button" || elmType == null) return;
+    let disabled = elm.getAttribute("disabled");
+    if (disabled != null) return;
+
+    let elmName = elm.getAttribute("name");
+    if (elmName === undefined) return;
+
+    let subObjectPosition = getJsonObjectForValue(elm);
+    if (subObjectPosition.length > 0) {
+        for (let pos of subObjectPosition) {
+            if (formDataObject[pos] == undefined) formDataObject[pos] = {};
+            formDataObject[pos][elmName] = (elmType === "checkbox") ? elm.checked : elm.value;
+        }
+    }
+    else {
+        formDataObject[elmName] = (elmType === "checkbox") ? elm.checked : elm.value;
+    }
+}
+
+function getJsonObjectForValue(elm) {
+    let jsonObjectToPlace = [];
+    let currentClass = elm.getAttribute("class");
+    if (currentClass === null) currentClass = "";
+    let classParts = currentClass.split(" ");
+    for (let i = 0; i < classParts.length; i++) {
+        if (classParts[i].indexOf("ToJsonObject") != 0) {
+            continue;
+        }
+        jsonObjectToPlace.push(classParts[i].substring("ToJsonObject".length));
+    }
+    return jsonObjectToPlace;
+}
+
+
+/**
+ * Logs out a user in case a session expired
+ * @param {any} e Event
+ * @param {any} confirmLogout Whether to alert user of logout
+ */
+function logOut(e, confirmLogout) {
+    if (e != undefined || e != null) e.preventDefault();
+    let tokenSet = getCookieParam("accessToken");
+    if (tokenSet !== "") {
+        helper.fetchDataTxt("POST", "/user/logout")
+            .then((objData) => {
+                removeCookieParam("corporations");
+                removeCookieParam("selectedCorp");
+                removeCookieParam("accessToken");
+                removeCookieParam("userName");
+                removeCookieParam("user");
+                if (confirmLogout) alert("Du er blevet logget ud.")
+                document.location.href = "/";
+            })
+            .catch((error) => {
+                // A logout is always either successful or error occured due to session was removed already
+            });
+    }
+    showNavbar(false);
+}
+
+
+
 export let helper = {
     errorNotify: errorNotify,
-    fetchData: fetchData
+    fetchData: fetchData,
+    fetchDataTxt: fetchDataTxt,
+    addClass: addClass,
+    removeClass: removeClass,
+    addInitButtonEvent: addInitButtonEvent,
+    getFormJsonData: getFormJsonData,
+    logOut: logOut
 };

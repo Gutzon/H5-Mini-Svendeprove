@@ -24,10 +24,36 @@
             </tr>
         </tbody>
     </table>
-    <div class="text-center view-h2"><input type="button" class="FormSubmit submit-smaller" id="addUserButton" onclick="inventoryCreate(event)" value="Tilføj nyt inventar"></div>
+    <div class="text-center view-h2"><input type="button" class="FormSubmit submit-smaller" id="inventoryCreateInitButton" value="Tilføj nyt inventar"></div>
 </div>
 
 
+
+
+<div id="inventoryCreateModal" class="modal-main hideElm">
+    <div class="modal-content">
+        <div class="modal-head" id="inventoryCreateModalHead">
+            <div>Tilføj inventar</div>
+        </div>
+        <form id="inventoryCreateForm">
+            <table class="mainTable">
+                <thead>
+                    <tr>
+                        <td class="tableHeaders">Beskrivelse</td>
+                        <td class="tableHeaders">Værdi</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tableData"><input type="text" name="itemName"></td>
+                        <td class="tableData"><input type="number" name="value"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="text-center"><input type="button" class="FormSubmit submit-smaller" id="inventoryCreateButton" value="Tilføj inventar"></div>
+        </form>
+    </div>
+</div>
 
 
 
