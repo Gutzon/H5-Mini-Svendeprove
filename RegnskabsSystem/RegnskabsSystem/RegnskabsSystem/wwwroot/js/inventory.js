@@ -11,13 +11,11 @@ function show() {
     helper.addInitButtonEvent("inventoryCreate", createInit);
     helper.showButton("inventoryCreateInitButton", ["addInventory"]);
 
-    helper.showButton("inventorySchemaEdit", ["editInventory"]);
-    helper.showButton("inventorySchemaDelete", ["deleteInventory"]);
-
 
     helper.fetchData("GET", "/inventory/overview")
         .then((objData) => {
             dataPopulator.injectData("inventorySchema", objData, tranformInventoryData, editInit, performDelete, ["editInventory"], ["deleteInventory"]);
+            helper.showButton("inventorySchemaDelete", ["deleteInventory"]);
         })
         .catch((error) => {
             helper.errorNotify("hentning af inventar.", error);

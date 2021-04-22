@@ -14,6 +14,7 @@ function show() {
     helper.fetchData("GET", "/member/overview")
         .then((objData) => {
             dataPopulator.injectData("memberSchema", objData, tranformMemberData, editInit, performDelete, ["editMember"], ["deleteMember"]);
+            helper.showButton("memberSchemaDelete", ["deleteMember"]);
         })
         .catch((error) => {
             helper.errorNotify("hentning af medlem.", error);

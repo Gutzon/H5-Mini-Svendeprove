@@ -1,4 +1,4 @@
-﻿import { modal } from './modal.js';
+import { modal } from './modal.js';
 import { helper } from './helper.js';
 import { cookie } from './cookie.js';
 
@@ -91,7 +91,7 @@ function injectData(rowSchemaId, objData, dataTransformer, editInitMethod, perfo
     helper.removeClass(thElements[lastThElm - 1], "tableDataEnd");
     helper.removeClass(thElements[lastThElm - 2], "tableDataEnd");
 
-    if (!hasDeletePermission) helper.addClass(deleteTh, "hideElm");
+    if (!hasDeletePermission && document.location.pathname != "/user") helper.addClass(deleteTh, "hideElm");
     else {
         helper.removeClass(deleteTh, "hideElm");
         lastThElm--;
