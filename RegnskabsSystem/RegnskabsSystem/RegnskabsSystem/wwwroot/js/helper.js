@@ -138,7 +138,7 @@ function getFormJsonData(formId) {
 
 function placeElmValueInObject(formDataObject, elm) {
     let elmType = elm.getAttribute("type");
-    if (elmType === "button" || elmType == null) return;
+    if (elm.tagName != "SELECT" && (elmType === "button" || elmType == null)) return;
     let disabled = elm.getAttribute("disabled");
     if (disabled != null) return;
 
