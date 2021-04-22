@@ -74,11 +74,9 @@ function validateCreate(formData) {
     if (formData.firstname == "") errors.push("Fornavn skal angives.");
     if (formData.lastname == "") errors.push("Efternavn skal angives.");
 
-    let mailRegExpCheck = /\S+@\S+\.\S+/;
     if (formData.mail == "") errors.push("E-mail skal angives.");
-    else if (!re.test(mailRegExpCheck)) errors.push("E-mail er ikke gyldig.");
-
     if (formData.phoneNumber == "") errors.push("Telefon nr. skal angives.");
+
     return errors;
 }
 
