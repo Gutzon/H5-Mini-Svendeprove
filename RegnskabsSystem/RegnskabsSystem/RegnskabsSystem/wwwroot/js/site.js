@@ -11,8 +11,12 @@
 
 // Run start functions
 
-
+/* Imports help split script by functionality */
 import { helper } from './helper.js';
+import { dataPopulator } from './data-populator.js';
+import { modal } from './modal.js';
+
+
 
 
 document.documentElement.addEventListener("load", startFunctions());
@@ -469,7 +473,7 @@ function performUserCreate(e) {
                     alert("Brugeren blev oprettet");
                     console.log("Midlertidig levering af kodeord, da vi ikke har webhotel på app'en:");
                     console.log(jsonObject.userPassword);
-                    hideModal(null, "userCreateSchema");
+                    modal.hide(null, "userCreateSchema");
                     populateUsers();
                 }
                 else if (jsonObject.error !== "") {
@@ -551,7 +555,7 @@ function userEdit(e, user) {
     editButtonParent.removeChild(editButton);
     editButtonParent.appendChild(clonedButton);
 
-    showModal(event, 'userEditSchema');
+    modal.show(event, 'userEditSchema');
 }
 
 
@@ -603,7 +607,7 @@ function performUserEdit(e, oldUser) {
                     logOut(null, false);
                 }
                 alert("Bruger blev redigeret");
-                hideModal(null, "userEditSchema");
+                modal.hide(null, "userEditSchema");
                 populateUsers();
             }
             else alert("Bruger blev ikke redigeret");
@@ -633,7 +637,7 @@ function userCreate(e) {
     createButtonParent.removeChild(createButton);
     createButtonParent.appendChild(clonedButton);
 
-    showModal(event, 'userCreateSchema');
+    modal.show(event, 'userCreateSchema');
 }
 
 
@@ -826,7 +830,7 @@ function memberCreate(e) {
     createButtonParent.removeChild(createButton);
     createButtonParent.appendChild(clonedButton);
 
-    showModal(event, 'memberCreateSchema');
+    modal.show(event, 'memberCreateSchema');
 }
 
 
@@ -847,7 +851,7 @@ function performMemberCreate(e) {
 
                 if (memberCreatedSuccess == "OK") {
                     alert("Medlemmet blev oprettet");
-                    hideModal(null, "memberCreateSchema");
+                    modal.hide(null, "memberCreateSchema");
                     populateMembers();
                 }
                 else switch (jsonObject.error) {
@@ -903,7 +907,7 @@ function memberEdit(e, member) {
     editButtonParent.removeChild(editButton);
     editButtonParent.appendChild(clonedButton);
 
-    showModal(event, 'memberEditSchema');
+    modal.show(event, 'memberEditSchema');
 }
 
 
@@ -918,7 +922,7 @@ function performMemberEdit(e, member) {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             if (xhr.responseText == "OK") {
                 alert("Medlemmet blev redigeret");
-                hideModal(null, "memberEditSchema");
+                modal.hide(null, "memberEditSchema");
                 populateMembers();
             }
             else switch (xhr.responseText) {
@@ -956,7 +960,7 @@ function performMemberDelete(e, member) {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             if (xhr.responseText == "OK") {
                 alert("Medlemmet blev slettet");
-                hideModal(null, "memberEditSchema");
+                modal.hide(null, "memberEditSchema");
                 populateMembers();
             }
             else switch (xhr.responseText) {
@@ -1038,7 +1042,7 @@ function addAccount(e) {
                 var successMsg = xhr.responseText;
                 if (successMsg == "OK") {
                     alert("Den nye konti er nu oprettet");
-                    hideModal(null, "createAccountSchema");
+                    modal.hide(null, "createAccountSchema");
                 }
                 switch (successMsg) {
                     case "Alredy exist":
@@ -1109,7 +1113,7 @@ function insertAccounts(accounts, accountSelect) {
 
 function showAddAccount(e) {
     e.preventDefault();
-    showModal(null, "createAccountSchema");
+    modal.show(null, "createAccountSchema");
 }
 
 
@@ -1119,7 +1123,7 @@ function showEditAccount(e) {
     let accountChosen = getCookieParam("selectedAcc");
     editForm.elements["AccountName"].value = accountChosen;
     editForm.elements["NewAccountName"].value = accountChosen;
-    showModal(null, "editAccountSchema");
+    modal.show(null, "editAccountSchema");
 }
 
 function changeAccountName(e) {
@@ -1132,7 +1136,7 @@ function changeAccountName(e) {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             alert("Konti navnet blev rettet");
             setCookieParam("selectedAcc", getFormJsonData("accountEditForm").NewAccountName);
-            hideModal(null, "editAccountSchema");
+            modal.hide(null, "editAccountSchema");
             showFinances();
         }
         else if (this.readyState === XMLHttpRequest.DONE && this.status === 400) {
@@ -1248,7 +1252,7 @@ function getFinanceChild(posting, columnId) {
     if (columnId == "payDate") {
         let parsedDate = (new Date());
         parsedDate.setTime(Date.parse(posting[columnId]));
-        let month = to2digit(parsedDate.getMonth() + 1) + (parsedDate.getMonth() + 1);
+        let month = to2digit(parsedDate.getMonth() + 1);
         columnData = parsedDate.getDate() + "/" + month + "-" + parsedDate.getFullYear()
             + " " + to2digit(parsedDate.getHours()) + ":" + to2digit(parsedDate.getMinutes());
     }
@@ -1281,7 +1285,7 @@ function toFinanceNumber(value) {
 
 function showAddFinance(e) {
     e.preventDefault();
-    showModal(null, "createFinanceSchema");
+    modal.show(null, "createFinanceSchema");
 }
 
 
@@ -1299,7 +1303,7 @@ function addFinance(e) {
             try {
                 var successMsg = xhr.responseText;
                 if (successMsg == "ok") {
-                    hideModal(null, "createFinanceSchema");
+                    modal.hide(null, "createFinanceSchema");
                     getPostings();
                 }
                 else switch (successMsg) {
@@ -1357,61 +1361,8 @@ function deleteUser(e, user) {
     xhr.send(JSON.stringify(user));
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 /* Modals */
-let activeModal = null;
-
-window.onresize += resizeModal();
-
-function resizeModal(e) {
-    if (activeModal == null) return;
-    showModal(null, elmId)
-}
-
-function showModal(e, elmId) {
-    if (e != null) {
-        e.preventDefault();
-        activeModal = elmId;
-    }
-    let modal = document.getElementById(elmId);
-    let modalSizeEvaluation = document.getElementById("sizeEvaluation");
-    modalSizeEvaluation.appendChild(modal);
-    removeClass(modal, "hideElm");
-
-    let modalContent = modal.getElementsByTagName("div")[0];
-
-    let modalMarginH = ((100 - Math.round((modalContent.offsetHeight / window.innerHeight) * 100)) / 2);
-    if (modalMarginH < 2) modalMarginH = 2;
-    modalContent.style.margin = modalMarginH + "vh auto";
-
-    document.body.appendChild(modal);
-}
-
-
-function hideModal(e, elmId) {
-    if (e != null) {
-        e.preventDefault();
-    }
-    let modal = document.getElementById(elmId);
-    let forms = modal.getElementsByTagName("form");
-    for (var form of forms) form.reset();
-    addClass(modal, "hideElm");
-}
-
-
-
-
+window.onresize += modal.resize();
 
 /* Repeating finance entries */
 function getRepFinance(e) {
@@ -1460,7 +1411,7 @@ function populateRepFinances(repFinances) {
         repFinanceTBody.appendChild(clonedRepFinanceRow);
     }
 
-    showModal(null, "repFinanceSchema");
+    modal.show(null, "repFinanceSchema");
 }
 
 function getRepFinanceColText(repFinance, column) {
@@ -1553,7 +1504,7 @@ function createRepFinance(e) {
     editButtonParent.removeChild(editButton);
     editButtonParent.appendChild(clonedButton);
 
-    showModal(event, 'createRepFinanceSchema');
+    modal.show(event, 'createRepFinanceSchema');
 }
 
 function performCreateRepFinance(e) {
@@ -1573,7 +1524,7 @@ function performCreateRepFinance(e) {
 
                 if (repPaymentCreatedSuccess == "OK") {
                     alert("Gentagende betaling blev oprettet");
-                    hideModal(null, "createRepFinanceSchema");
+                    modal.hide(null, "createRepFinanceSchema");
                     getRepFinance(event);
                 }
                 else switch (repPaymentCreatedSuccess) {
@@ -1619,9 +1570,25 @@ function tranformInventoryData(param, data) {
     else return document.createTextNode(data[param]);
 }
 
-function editInventory() {
-    alert("Edit inventory");
+function editInventory(data) {
+    dataPopulator.populateModal("inventoryEdit", objData, performEditInventory);
+
+    /*
+    helper.fetchData("GET", "/inventory/overview", "a")
+        .then((objData) => {
+            
+        })
+        .catch((error) => {
+            helper.errorNotify("redigering af inventar.", error);
+        });*/
 }
+
+function performEditInventory() {
+    modal.hide(null, "inventoryEditModal");
+}
+
+
+
 
 function deleteInventory() {
     alert("Delete inventory");
@@ -1653,12 +1620,12 @@ function injectInventoryData(rowSchema, objData, dataTransformer, editMethod, de
         }
 
         if (column < tdElements.length && editMethod !== undefined) {
-            let editElm = getColumnEventElm(editMethod, data, false);
+            let editElm = dataPopulator.getImgTriggerElm(editMethod, data, false);
             tdElements[column++].appendChild(editElm);
         }
 
         if (column < tdElements.length && deleteMethod !== undefined) {
-            let editElm = getColumnEventElm(deleteMethod, data, true);
+            let editElm = dataPopulator.getImgTriggerElm(deleteMethod, data, true);
             tdElements[column++].appendChild(editElm);
         }
 
@@ -1667,22 +1634,6 @@ function injectInventoryData(rowSchema, objData, dataTransformer, editMethod, de
     }
 }
 
-function getColumnEventElm(method, dataObj, isDelete) {
-    let elmHref = document.createElement("a");
-    elmHref.setAttribute("href", "#");
-    elmHref.addEventListener("click", function () { method(event, dataObj) });
-
-    let imgType = (isDelete ? "Delete" : "Edit");
-    let imgSrc = ("/Media/" + imgType + "Icon.png");
-    let imgClass = ("tableImg" + imgType);
-
-    let elmImage = document.createElement("img");
-    elmImage.setAttribute("src", imgSrc);
-    addClass(elmImage, imgClass);
-
-    elmHref.appendChild(elmImage);
-    return elmHref;
-}
 
 
 /* Possible candidates for generic - END */
@@ -1701,7 +1652,7 @@ window.changeAccount = changeAccount;
 window.showAddFinance = showAddFinance;
 window.getRepFinance = getRepFinance;
 window.addAccount = addAccount;
-window.hideModal = hideModal;
+window.hide = modal.hide;
 window.changeAccountName = changeAccountName;
 window.createRepFinance = createRepFinance;
 window.addFinance = addFinance;

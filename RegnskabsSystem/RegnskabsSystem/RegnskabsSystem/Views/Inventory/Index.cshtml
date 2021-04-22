@@ -26,3 +26,49 @@
     </table>
     <div class="text-center view-h2"><input type="button" class="FormSubmit submit-smaller" id="addUserButton" onclick="inventoryCreate(event)" value="Tilføj nyt inventar"></div>
 </div>
+
+
+
+
+
+<div id="inventoryEditModal" class="modal-main hideElm">
+    <div class="modal-content">
+        <div class="modal-head" id="inventoryEditModalHead">
+            <div>Ret inventar</div>
+        </div>
+        <form id="inventoryEditForm">
+            <table class="mainTable">
+                <thead>
+                    <tr>
+                        <td class="tableHeaders">Info</td>
+                        <td class="tableHeaders">Nuværende</td>
+                        <td class="tableHeaders">Fremtidig</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th class="tableHeaders">Id</th>
+                        <th class="tableHeaders">Beskrivelse</th>
+                        <th class="tableHeaders">Værdi</th>
+
+                        <td class="tableData">Id</td>
+                        <td class="tableData"><input type="text" name="id" value="" readonly class="un-editable"></td>
+                        <td class="tableData tableDataEnd">(Kan ikke rettes)</td>
+                    </tr>
+                    <tr>
+                        <td class="tableData">Beskrivelse</td>
+                        <td class="tableData"><span id="inventoryEdit_firstname"></span></td>
+                        <td class="tableData tableDataEnd"><input type="text" name="itemName" value=""></td>
+                    </tr>
+                    <tr>
+                        <td class="tableData">Værdi</td>
+                        <td class="tableData"><span id="inventoryEdit_value"></span></td>
+                        <td class="tableData tableDataEnd"><input type="text" name="value" value=""></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="text-center"><input type="button" class="FormSubmit submit-smaller" id="inventoryEditButton" value="Ret inventar"></div>
+        </form>
+    </div>
+</div>
+

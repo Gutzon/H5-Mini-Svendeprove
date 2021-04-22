@@ -36,6 +36,7 @@ namespace RegnskabsSystem.Controllers
         public ActionResult<IEnumerable<Inventory>> Overview()
         {
             /* Temp return data - deactivate when ready */
+            /*
             var tempReturn = new List<Inventory>()
             {
                 new Inventory()
@@ -74,7 +75,7 @@ namespace RegnskabsSystem.Controllers
                 }
             };
 
-            return Ok(tempReturn);
+            return Ok(tempReturn);*/
 
             var inventoryList = serverSideData.GetInven(Credentials);
             return Ok(inventoryList);
@@ -88,14 +89,14 @@ namespace RegnskabsSystem.Controllers
             return Ok(inventoryAddSuccess);
         }
 
-        [HttpPost()]
+        [HttpPost("delete")]
         public ActionResult<string> DeleteInventory([FromBody] Inventory inventory)
         {
             var inventoryAddSuccess = serverSideData.DeleteInven(Credentials, inventory);
             return Ok(inventoryAddSuccess);
         }
 
-        [HttpPost()]
+        [HttpPost("edit")]
         public ActionResult<string> EditInventory([FromBody] EditInventoryModel inventory)
         {
             var inventoryAddSuccess = serverSideData.EditInven(Credentials, inventory.oldInventory, inventory.newInventory);
