@@ -128,7 +128,7 @@ function injectData(rowSchemaId, objData, dataTransformer, editInitMethod, perfo
                 tdElements[column].appendChild(deleteElm);
             }
             else {
-                tdElements.parentNode.removeChild(tdElements[column]);
+                tdElements[0].parentNode.removeChild(tdElements[column]);
                 helper.addClass(tdElements[tdElements.length - 1], "tableDataEnd");
             }
         }
