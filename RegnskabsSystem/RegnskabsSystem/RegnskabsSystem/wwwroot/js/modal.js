@@ -78,8 +78,12 @@ function insertCloseModalElm(modalId) {
         let modalClose = document.createElement("a");
         modalClose.addEventListener("click", function (e) { hide(e, modalId + "Modal") });
         modalClose.setAttribute("href", "/closeModal");
+
         let modalCloseImg = document.createElement("img");
         modalCloseImg.setAttribute("src", "/Media/DeleteIcon.png");
+        modalClose.appendChild(modalCloseImg);
+
+        modalHead.appendChild(modalClose);
     }
 }
 
@@ -88,5 +92,6 @@ export let modal = {
     hide: hide,
     show: show,
     resize: resize,
-    showCreateModal: showCreateModal
+    showCreateModal: showCreateModal,
+    insertCloseModalElm: insertCloseModalElm
 };

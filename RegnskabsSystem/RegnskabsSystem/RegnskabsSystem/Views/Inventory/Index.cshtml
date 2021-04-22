@@ -3,6 +3,7 @@
 }
 
 
+
 <div class="gridContainer">
     <table id="inventoryTable" class="mainTable" CELLSPACING="0">
         <thead>
@@ -29,7 +30,6 @@
 
 
 
-
 <div id="inventoryCreateModal" class="modal-main hideElm">
     <div class="modal-content">
         <div class="modal-head" id="inventoryCreateModalHead">
@@ -46,7 +46,7 @@
                 <tbody>
                     <tr>
                         <td class="tableData"><input type="text" name="itemName"></td>
-                        <td class="tableData"><input type="number" name="value"></td>
+                        <td class="tableData"><input type="number" step="0.1" name="value"></td>
                     </tr>
                 </tbody>
             </table>
@@ -73,23 +73,19 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <th class="tableHeaders">Id</th>
-                        <th class="tableHeaders">Beskrivelse</th>
-                        <th class="tableHeaders">Værdi</th>
-
                         <td class="tableData">Id</td>
                         <td class="tableData"><input type="text" name="id" value="" readonly class="un-editable"></td>
                         <td class="tableData tableDataEnd">(Kan ikke rettes)</td>
                     </tr>
                     <tr>
                         <td class="tableData">Beskrivelse</td>
-                        <td class="tableData"><span id="inventoryEdit_firstname"></span></td>
+                        <td class="tableData"><span id="inventoryEdit_itemName"></span></td>
                         <td class="tableData tableDataEnd"><input type="text" name="itemName" value=""></td>
                     </tr>
                     <tr>
                         <td class="tableData">Værdi</td>
                         <td class="tableData"><span id="inventoryEdit_value"></span></td>
-                        <td class="tableData tableDataEnd"><input type="text" name="value" value=""></td>
+                        <td class="tableData tableDataEnd"><input type="number" step="0.1" name="value" value=""></td>
                     </tr>
                 </tbody>
             </table>

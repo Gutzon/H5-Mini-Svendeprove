@@ -10,7 +10,7 @@ import { helper } from './helper.js';
 function populateEditModal(modalId, objData, dataTransformer) {
     // TODO: Use dataTransformer when refactoring to use this genericly
     let modalForm = document.getElementById(modalId + "Form");
-    insertCloseModalElm(modalHead);
+    modal.insertCloseModalElm(modalId);
 
     for (let param in objData) {
         let newParamFormElm = modalForm.elements[param];

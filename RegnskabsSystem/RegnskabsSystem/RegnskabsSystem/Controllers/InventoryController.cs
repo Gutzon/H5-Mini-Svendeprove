@@ -56,6 +56,7 @@ namespace RegnskabsSystem.Controllers
         [HttpPost("edit")]
         public ActionResult<string> EditInventory([FromBody] EditInventoryModel inventory)
         {
+            inventory.newInventory.CorporationID = inventory.oldInventory.CorporationID;
             var inventoryAddSuccess = serverSideData.EditInven(Credentials, inventory.oldInventory, inventory.newInventory);
             return Ok(inventoryAddSuccess);
         }
