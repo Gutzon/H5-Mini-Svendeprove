@@ -159,6 +159,16 @@ function performEdit(e, data) {
     helper.fetchDataTxt("POST", "/user/edit", JSON.stringify(transferObject))
         .then((objData) => {
             if (objData == "true") {
+
+                let ownData = cookie.get("user");
+                if (ownData == "") helper.logOut(null, true);
+                let ownDataObj = JSON.parse(ownData);
+
+                if (ownDataObj["username"] == formData["username"]) {
+                    alert("Da du rettede din egen bruger er du logget af, log venligst på igen.");
+                    helper.logOut(null, false);
+                }
+
                 alert("Brugeren er rettet");
                 modal.hide(null, "userEditModal");
                 show();
