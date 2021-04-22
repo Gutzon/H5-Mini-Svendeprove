@@ -124,6 +124,10 @@ function injectData(rowSchemaId, objData, dataTransformer, editInitMethod, perfo
                 let deleteElm = dataPopulator.getImgTriggerElm(performDeleteMethod, objData[data], true);
                 tdElements[column].appendChild(deleteElm);
             }
+            else if (!hasDeletePermission) {
+                let deleteElm = dataPopulator.getImgTriggerElm(performDeleteMethod, objData[data], true);
+                tdElements[column].parentNode.removeChild(tdElements[column]);
+            }
             else {
                 column++;
             }
