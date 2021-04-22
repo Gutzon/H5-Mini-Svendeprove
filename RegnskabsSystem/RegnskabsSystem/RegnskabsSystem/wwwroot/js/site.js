@@ -744,6 +744,6 @@ window.getRepFinance = getRepFinance;
 window.changeAccountName = changeAccountName;
 window.createRepFinance = createRepFinance;
 window.addFinance = addFinance;
-
-window.hide = modal.hide;
 window.logOut = helper.logOut;
+
+window.modal = modal;
